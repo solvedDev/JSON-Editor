@@ -1,6 +1,10 @@
 var editor = document.getElementById("editor");
+var display_currentContext = document.getElementById("show-context");
 var currentSelected;
 var edit_all = false;
+var auto_completions = true;
+var currentContext = "No context";
+var parentCurrentContext = "No context";
 
 //Setting up KeyInput
 var key_input = new KeyInput();
@@ -10,8 +14,11 @@ window.addEventListener("keyup", key_input.removeEvent);
 //Main loop
 function mainLoop() {
 	key_input.processKeys();
-	//generateOptions(component_names, child_input.value);
-	
+
+	if(auto_completions) generateOptions(child_input.value);
+	if(!auto_completions) data_list.innerHTML = "";
+	display_currentContext.innerHTML = "Co: " + currentContext + " | paCo: " + parentCurrentContext;
+
 	window.requestAnimationFrame(mainLoop);
 }
 

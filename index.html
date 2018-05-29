@@ -17,7 +17,8 @@
 			<i class="fa fa-code"></i> Open<input type="file" hidden id="import-json">
 		</label>
 		<button class="btn btn-outline-success inline-element" id="download-json"><i class="fa fa-cloud-download"></i> Download</button>
-		<div type="checkbox" name="allow-edit" id="allow-edit" title="Toggle whether elements are automatically editable" class="input-toggle"><i class="fa fa-pencil"></i> Edit all</div>
+		<div type="checkbox" name="auto-completions-toggle" id="auto-completions-toggle" title="Toggle auto-completions" class="input-toggle toggled"><i class="fa fa-th-list"></i></div>
+		<div type="checkbox" name="allow-edit" id="allow-edit" title="Toggle whether elements are automatically editable" class="input-toggle"><i class="fa fa-pencil"></i> Edit all: OFF</div>
 
 		<button class="btn btn-outline-success inline-element" onclick="expandAll()" title="Expand all"><i class="fa fa-expand"></i></button>
 		<button class="btn btn-outline-success inline-element" onclick="collapseAll()" title="Collapse all"><i class="fa fa-compress"></i></button>
@@ -35,6 +36,9 @@
 	<div id="infobar">
 		<div style="display: none;" class="section inline-element div-fit-size" id="show-filename">
 			Open: Nothing
+		</div>
+		<div class="section inline-element div-fit-size" id="show-context">
+			Context: Nothing
 		</div>
 	</div>
 	
@@ -63,12 +67,17 @@
 		</div>
 	</div>
 
+	<!--   DATA   -->
+	<script src="scripts/data.js"></script>
+	<script src="scripts/configs.js"></script>
+
 	<!--   SCRIPTS   -->
 	<script src="scripts/minify.json.js"></script>
 	<script src="scripts/utilities.js"></script>
 	<script src="scripts/keyInput.js"></script>
 	<script src="scripts/reader.js"></script>
 	<script src="scripts/autoCompletions.js"></script>
+	<script src="scripts/highlighter.js"></script>
 	<script src="scripts/main.js"></script>
 	<script>
 		var fileName;
@@ -88,7 +97,13 @@
 		document.getElementById("allow-edit").onclick = function() {
 			toggleEdits();
 		}
-		
+		document.getElementById("auto-completions-toggle").onclick = function() {
+			auto_completions = !auto_completions;
+
+			if(auto_completions) document.getElementById("auto-completions-toggle").classList.add("toggled");
+			if(!auto_completions) document.getElementById("auto-completions-toggle").classList.remove("toggled");
+		}
+
 		mainLoop();
 	</script>
 </body>

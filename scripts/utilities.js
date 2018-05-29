@@ -66,8 +66,14 @@ function toggleEdits() {
 	let edits = document.querySelectorAll(".highlight-array, .highlight-object, .highlight-string, .highlight-boolean, .highlight-number, span.value");
 
 	edit_all = !edit_all;
-	if(edit_all) document.getElementById("allow-edit").classList.add("toggled");
-	if(!edit_all) document.getElementById("allow-edit").classList.remove("toggled");
+	let display = document.getElementById("allow-edit");
+	if(edit_all) {
+		display.classList.add("toggled");
+		display.innerText = "Edit all: ON"
+	} else {
+		display.classList.remove("toggled");
+		display.innerText = "Edit all: OFF"
+	}
 
 	for(var i = 0; i < edits.length; i++) {
 		edits[i].setAttribute("contenteditable", edit_all);
@@ -76,11 +82,12 @@ function toggleEdits() {
 
 //EXPECTS SUMMARY
 function getParent(pE) {
-	return pE.parentElement.parentElement.parentElement.childNodes[0];
+	let candidate = pE.parentElement.parentElement.parentElement.childNodes[0];
+	if(candidate.tagName == "SUMMARY") return candidate;
 }
 
 //EXPECTS SUMMARY
-function selectElement(pE, open=false) {
+function selectElement(pE, pOpen=false) {
 	console.log(pE.tagName);
 
 	if(pE.tagName == "SUMMARY") {
@@ -90,8 +97,15 @@ function selectElement(pE, open=false) {
 			currentSelected.classList.remove("selected");
 			currentSelected = pE;
 			pE.classList.add("selected");
+			//Update context
+			currentContext = currentSelected.innerText;
+			if(getParent(currentSelected)) {
+				parentCurrentContext = getParent(currentSelected).innerText;
+			} else {
+				parentCurrentContext = "No context"
+			}
 
-			if(open) currentSelected.parentElement.setAttribute("open", true);
+			if(pOpen) currentSelected.parentElement.setAttribute("open", true);
 		}
 	}
 }
