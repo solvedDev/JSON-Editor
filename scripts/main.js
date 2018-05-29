@@ -10,7 +10,8 @@ window.addEventListener("keyup", key_input.removeEvent);
 //Main loop
 function mainLoop() {
 	key_input.processKeys();
-
+	//generateOptions(component_names, child_input.value);
+	
 	window.requestAnimationFrame(mainLoop);
 }
 

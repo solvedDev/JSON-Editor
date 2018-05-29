@@ -26,15 +26,9 @@
 		<div class="section inline-element div-fit-size">
 			CTRL & Click an element to edit it
 		</div>
-		<!--
-		<datalist id="auto-suggestions">
-		  <option value="minecraft:addrider">
-		  <option value="minecraft:health">
-		  <option value="minecraft:attack">
-		  <option value="minecraft:behavior.breed">
-		  <option value="minecraft:navigation.walk">
+
+		<datalist id="auto-completions">
 		</datalist>
-		-->
 	</div>
 
 	<!--   INFOBAR   -->
@@ -54,18 +48,18 @@
 		<div class="section input-button inline-element">
 			<label for="add-child">Add child</label>
 			<button class="btn btn-outline-success" id="add-child" title="Add child"><i class="fa fa-terminal"></i></button>
-			<input id="child-input" list="auto-suggestions" name="value-field" class="section auto-suggestions">
+			<input onClick="this.setSelectionRange(0, this.value.length)" id="child-input" list="auto-suggestions" name="value-field" class="section auto-suggestions">
 		</div>
 		<div class="section input-button inline-element">
 			<label for="add-value">Add value</label>
 			<button class="btn btn-outline-success" id="add-value" title="Add value"><i class="fa fa-terminal"></i></button>
-			<input id="value-input" list="auto-suggestions" name="value-field" class="section auto-suggestions">
+			<input onClick="this.setSelectionRange(0, this.value.length)" id="value-input" list="auto-suggestions" name="value-field" class="section auto-suggestions">
 		</div>
 	</div>
 	<div class="edit-bar" id="array">
 		<div class="section input-button inline-element">
 			<button class="btn btn-outline-success" id="add-child" title="Add child"><i class="fa fa-plus"></i></button>
-			<input id="array-input" name="value-field" class="section auto-suggestions">
+			<input onClick="this.setSelectionRange(0, this.value.length)" id="array-input" name="value-field" class="section auto-suggestions">
 		</div>
 	</div>
 
@@ -74,6 +68,7 @@
 	<script src="scripts/utilities.js"></script>
 	<script src="scripts/keyInput.js"></script>
 	<script src="scripts/reader.js"></script>
+	<script src="scripts/autoCompletions.js"></script>
 	<script src="scripts/main.js"></script>
 	<script>
 		var fileName;
@@ -93,6 +88,8 @@
 		document.getElementById("allow-edit").onclick = function() {
 			toggleEdits();
 		}
+		
+		mainLoop();
 	</script>
 </body>
 
