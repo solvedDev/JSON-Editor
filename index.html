@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+	<title>JSON EDITOR</title>
+	<link rel="shortcut icon" type="image/x-icon" href="icon.png">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+	<link rel="stylesheet" href="styles/main.css">
+</head>
+
+<body>
+	<!--   TOOLBAR   -->
+	<div id="toolbar">
+		<label class="btn btn-outline-success inline-element">
+			<i class="fa fa-code"></i> Open<input type="file" hidden id="import-json">
+		</label>
+		<button class="btn btn-outline-success inline-element" id="download-json"><i class="fa fa-cloud-download"></i> Download</button>
+		<div type="checkbox" name="allow-edit" id="allow-edit" title="Toggle whether elements are automatically editable" class="input-toggle"><i class="fa fa-pencil"></i> Edit all</div>
+
+		<button class="btn btn-outline-success inline-element" onclick="expandAll()" title="Expand all"><i class="fa fa-expand"></i></button>
+		<button class="btn btn-outline-success inline-element" onclick="collapseAll()" title="Collapse all"><i class="fa fa-compress"></i></button>
+		<button class="btn btn-outline-success inline-element" onclick="refresh()" title="Refresh"><i class="fa fa-refresh"></i></button>
+		
+		<div class="section inline-element div-fit-size">
+			CTRL & Click an element to edit it
+		</div>
+
+		<datalist id="auto-suggestions">
+		  <option value="minecraft:addrider">
+		  <option value="minecraft:health">
+		  <option value="minecraft:attack">
+		  <option value="minecraft:behavior.breed">
+		  <option value="minecraft:navigation.walk">
+		</datalist>
+	</div>
+
+	<!--   INFOBAR   -->
+	<div id="infobar">
+		<div style="display: none;" class="section inline-element div-fit-size" id="show-filename">
+			Open: Nothing
+		</div>
+	</div>
+	
+	<!--   EDITOR   -->
+	<div id="editor" class="section">
+		
+	</div>
+
+	<!--   EDITBAR   -->
+	<div class="edit-bar" id="object">
+		<div class="section input-button inline-element">
+			<label for="add-child">Add child</label>
+			<button class="btn btn-outline-success" id="add-child" title="Add child"><i class="fa fa-terminal"></i></button>
+			<input id="child-input" list="auto-suggestions" name="value-field" class="section auto-suggestions">
+		</div>
+		<div class="section input-button inline-element">
+			<label for="add-value">Add value</label>
+			<button class="btn btn-outline-success" id="add-value" title="Add value"><i class="fa fa-terminal"></i></button>
+			<input id="value-input" list="auto-suggestions" name="value-field" class="section auto-suggestions">
+		</div>
+	</div>
+	<div class="edit-bar" id="array">
+		<div class="section input-button inline-element">
+			<button class="btn btn-outline-success" id="add-child" title="Add child"><i class="fa fa-plus"></i></button>
+			<input id="array-input" name="value-field" class="section auto-suggestions">
+		</div>
+	</div>
+
+	<!--   SCRIPTS   -->
+	<script src="scripts/minify.json.js"></script>
+	<script src="scripts/utilities.js"></script>
+	<script src="scripts/keyInput.js"></script>
+	<script src="scripts/reader.js"></script>
+	<script src="scripts/main.js"></script>
+	<script>
+		var fileName;
+		document.getElementById("import-json").onchange = function() {
+			fileName = this.files[0].name;
+			loadFile(this.files[0]);
+		}
+		document.getElementById("download-json").onclick = function() {
+			if(fileName) download(fileName, JSON.stringify(getObj(editor), null, "\t"));
+		}
+		document.getElementById("add-child").onclick = function() {
+			addChild(document.getElementById("child-input").value);
+		}
+		document.getElementById("add-value").onclick = function() {
+			addValue(document.getElementById("value-input").value);
+		}
+		document.getElementById("allow-edit").onclick = function() {
+			toggleEdits();
+		}
+	</script>
+</body>
+
+</html>
