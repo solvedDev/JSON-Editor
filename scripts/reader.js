@@ -17,7 +17,7 @@ function parseObj(pObj) {
 				html += "<details><summary contenteditable='" + edit_all + "' class='highlight-object'>" + key + button + "</summary>" + parseObj(pObj[key]) + "</details>";
 			}
 			
-		} else {
+		} else if(typeof pObj[key] != "function") {
 			html += "<details><summary contenteditable='" + edit_all + "' class='highlight-" + typeof pObj[key]  + "'>" + key + button + "</summary><div class='tab highlight-" + typeof pObj[key]  + "'><span class='value' contenteditable='" + edit_all + "'>" + pObj[key] + button + "</span></div></details>";
 		}
 	}

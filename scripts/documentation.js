@@ -69,7 +69,7 @@ function convertType(pType) {
 		return pType.toLowerCase();
 	} else if(pType.toLowerCase() == "json object" || pType.toLowerCase() == "minecraft filter") {
 		return "object";
-	} else if(pType.toLowerCase() == "list" || pType.toLowerCase() == "range [a, b]") {
+	} else if(pType.toLowerCase() == "list" || pType.toLowerCase() == "range [a, b]" || pType.toLowerCase() == "vector [a, b, c]") {
 		return "array";
 	} else if(pType.toLowerCase() == "decimal" || pType.toLowerCase() == "integer") {
 		return "number";
