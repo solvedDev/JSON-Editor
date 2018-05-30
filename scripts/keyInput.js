@@ -1,3 +1,10 @@
+/**
+ * SCRIPTS FOR REGISTERING KEYINPUT
+ * 
+ * Creator: @solvedDev
+ * Project: JSON Editor
+ */
+
 var keys_down;
 
 class KeyInput {

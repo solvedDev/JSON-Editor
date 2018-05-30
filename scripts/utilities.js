@@ -1,3 +1,10 @@
+/**
+ * COLLECTION OF UTILITIES
+ * 
+ * Creator: @solvedDev
+ * Project: JSON Editor
+ */
+
 String.prototype.insert = function (pString, pIndex) {
 	if (pIndex > 0)
 	  return this.substring(0, pIndex) + pString + this.substring(pIndex, this.length);
@@ -9,9 +16,30 @@ String.prototype.removeCharAtIndex = function (pIndex) {
 	return this.substring(0, pIndex - 1) + this.substring(pIndex, this.length);
 };
 
+Array.prototype.contains = function(pValue) {
+	return this.indexOf(pValue) > -1;
+}
+
+Array.prototype.removeStrings = function(pStrings) {
+	if(Array.isArray(pStrings)) {
+		for(let i = 0; i < pStrings.length; i++) {
+			let index = this.indexOf(pStrings[i]);
+			if (index !== -1) {
+				this.splice(index, 1);
+			}
+		}
+		return pStrings;
+	} else {
+		let index = this.indexOf(pStrings);
+		if (index !== -1) {
+			return this.splice(index, 1);
+		}
+	}
+}
+
 if( typeof Array.isArray !== 'function' ) {
 	Array.isArray = function( arr ) {
-			return Object.prototype.toString.call( arr ) === '[object Array]';
+		return Object.prototype.toString.call( arr ) === '[object Array]';
 	};
 }
 

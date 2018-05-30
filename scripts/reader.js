@@ -1,3 +1,10 @@
+/**
+ * CONVERTS JSON INTO HTML AND HTML BACK INTO JSON
+ * 
+ * Creator: @solvedDev
+ * Project: JSON Editor
+ */
+
 var button = "<button class='btn btn-outline-danger btn-xs in-tree destroy-e'><i class='fa fa-remove'></i></button>"
 
 function parseObj(pObj) {

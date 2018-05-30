@@ -1,3 +1,10 @@
+/**
+ * SCRIPTS FOR CORE FUNCTIONALITY
+ * 
+ * Creator: @solvedDev
+ * Project: JSON Editor
+ */
+
 var editor = document.getElementById("editor");
 var display_currentContext = document.getElementById("show-context");
 var currentSelected;
@@ -17,6 +24,9 @@ function mainLoop() {
 
 	if(auto_completions) generateOptions(child_input.value);
 	if(!auto_completions) data_list.innerHTML = "";
+
+	updateSearchBar(search_bar.value);
+
 	display_currentContext.innerHTML = "Co: " + currentContext + " | paCo: " + parentCurrentContext;
 
 	window.requestAnimationFrame(mainLoop);
@@ -101,6 +111,8 @@ function loadFile(file) {
 				e.preventDefault();
 				key_input.addEdit(e.target);
 			} else {
+				if(!e.target.isSameNode(currentSelected) && e.target.parentElement.open && e.target.parentElement.childNodes[1].childNodes[0].tagName != "SPAN") e.preventDefault();
+				console.log(e.target.parentElement.childNodes)
 				selectElement(e.target);
 			}
 		};

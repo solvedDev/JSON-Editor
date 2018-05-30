@@ -1,3 +1,11 @@
+/**
+ * SCRIPTS FOR HIGHLIGHTING FUNCTIONALITY
+ * [!!!] NOT IN USE
+ * 
+ * Creator: @solvedDev
+ * Project: JSON Editor
+ */
+
 class Highlighter {
 	constructor(pConfig) {
 		this.config = pConfig;

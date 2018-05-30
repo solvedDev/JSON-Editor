@@ -11,34 +11,55 @@
 </head>
 
 <body>
+	<!--   DOCUMENTATION   -->
+	<div class="blend-full-screen" style="display: none;" id="documentation-window">
+		<button class="btn btn-outline-success inline-element" id="close-doc-window"><i class="fa fa-remove"></i></button>
+		<div class="section documentation-inner-frame"></div>
+	</div>
+
 	<!--   TOOLBAR   -->
 	<div id="toolbar">
+		<!--OPEN-->
 		<label class="btn btn-outline-success inline-element">
 			<i class="fa fa-code"></i> Open<input type="file" hidden id="import-json">
 		</label>
+		<!--DOWNLOAD-->
 		<button class="btn btn-outline-success inline-element" id="download-json"><i class="fa fa-cloud-download"></i> Download</button>
+		<!--TOGGLE: AUTO COMPLETIONS-->
 		<div type="checkbox" name="auto-completions-toggle" id="auto-completions-toggle" title="Toggle auto-completions" class="input-toggle toggled"><i class="fa fa-th-list"></i></div>
+		<!--TOGGLE: EDIT ALL-->
 		<div type="checkbox" name="allow-edit" id="allow-edit" title="Toggle whether elements are automatically editable" class="input-toggle"><i class="fa fa-pencil"></i> Edit all: OFF</div>
-
+		<!--EXPAND ALL-->
 		<button class="btn btn-outline-success inline-element" onclick="expandAll()" title="Expand all"><i class="fa fa-expand"></i></button>
+		<!--COLLAPSE ALL-->
 		<button class="btn btn-outline-success inline-element" onclick="collapseAll()" title="Collapse all"><i class="fa fa-compress"></i></button>
+		<!--REFRESH ALL-->
 		<button class="btn btn-outline-success inline-element" onclick="refresh()" title="Refresh"><i class="fa fa-refresh"></i></button>
-		
-		<div class="section inline-element div-fit-size">
-			CTRL & Click an element to edit it
-		</div>
+		<span class="padding-normal inline-element"></span>
+		<!--SEARCH BAR: COMPONENTS-->
+		<button class="btn btn-outline-success" id="search-component" title="Search!"><i class="	fa fa-search"></i></button>
+		<input onClick="this.setSelectionRange(0, this.value.length)" id="search-input-bar" name="search-input" class="section">
 
+		<!--DATALIST-->
 		<datalist id="auto-completions">
+		</datalist>
+		<datalist id="search-auto-components">
 		</datalist>
 	</div>
 
 	<!--   INFOBAR   -->
 	<div id="infobar">
+		<!--FILE INFORMATION-->
 		<div style="display: none;" class="section inline-element div-fit-size" id="show-filename">
 			Open: Nothing
 		</div>
-		<div class="section inline-element div-fit-size" id="show-context">
+		<!--DEBUG ONLY-->
+		<div style="display: none;" class="section inline-element div-fit-size" id="show-context">
 			Context: Nothing
+		</div>
+		<!--HINT-->
+		<div class="section inline-element div-fit-size">
+			CTRL & Click an element to edit it
 		</div>
 	</div>
 	
@@ -67,6 +88,7 @@
 		</div>
 	</div>
 
+
 	<!--   DATA   -->
 	<script src="scripts/data.js"></script>
 	<script src="scripts/configs.js"></script>
@@ -77,6 +99,7 @@
 	<script src="scripts/keyInput.js"></script>
 	<script src="scripts/reader.js"></script>
 	<script src="scripts/autoCompletions.js"></script>
+	<script src="scripts/documentation.js"></script>
 	<script src="scripts/highlighter.js"></script>
 	<script src="scripts/main.js"></script>
 	<script>
@@ -90,12 +113,25 @@
 		}
 		document.getElementById("add-child").onclick = function() {
 			addChild(document.getElementById("child-input").value);
+
+			if(auto_completions) {
+				generateOptions("");
+				if(data_list.options.length > 0) child_input.value = data_list.options[0].value;
+			}
 		}
 		document.getElementById("add-value").onclick = function() {
 			addValue(document.getElementById("value-input").value);
+
+			if(auto_completions) {
+				generateOptions("");
+				if(data_list.options.length > 0) child_input.value = data_list.options[0].value;
+			}
 		}
 		document.getElementById("allow-edit").onclick = function() {
 			toggleEdits();
+		}
+		document.getElementById("search-component").onclick = function() {
+			openDocumentation();
 		}
 		document.getElementById("auto-completions-toggle").onclick = function() {
 			auto_completions = !auto_completions;

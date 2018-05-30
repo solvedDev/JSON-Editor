@@ -1,3 +1,10 @@
+/**
+ * DATA FOR AUTO COMPLETIONS
+ * 
+ * Creator: @solvedDev
+ * Project: JSON Editor
+ */
+
 var autoData = {
 	"components": {
 		"minecraft:addrider": {
@@ -5,7 +12,8 @@ var autoData = {
 				"type": "String",
 				"default_value": "",
 				"description": "The entity type that will be riding this entity\n"
-			}
+			},
+			"__des__": "Adds a rider to the entity. Requires minecraft:rideable."
 		},
 		"minecraft:ageable": {
 			"duration": {
@@ -22,7 +30,8 @@ var autoData = {
 				"type": "String",
 				"default_value": "",
 				"description": "Event to run when this entity grows up\n"
-			}
+			},
+			"__des__": "Adds a timer for the entity to grow up. It can be accelerated by giving the entity the items it likes as defined by feedItems."
 		},
 		"minecraft:ambient_sound_interval": {
 			"range": {
@@ -34,7 +43,8 @@ var autoData = {
 				"type": "Decimal",
 				"default_value": "8.0",
 				"description": "Minimum time in seconds before the entity plays its ambient sound again\n"
-			}
+			},
+			"__des__": "Sets the entity's delay between playing its ambient sound."
 		},
 		"minecraft:angry": {
 			"broadcastAnger": {
@@ -61,7 +71,8 @@ var autoData = {
 				"type": "Integer",
 				"default_value": "0",
 				"description": "Variance in seconds added to the duration [-delta, delta]\n"
-			}
+			},
+			"__des__": "Defines the entity's 'angry' state using a timer."
 		},
 		"minecraft:attack": {
 			"damage": {
@@ -78,7 +89,8 @@ var autoData = {
 				"type": "String",
 				"default_value": "",
 				"description": "Name of the status ailment to apply to an entity attacked by this entity's melee attack\n"
-			}
+			},
+			"__des__": "Defines an entity's melee attack and any additional effects on it."
 		},
 		"minecraft:behavior.avoid_mob_type": {
 			"entity_types": {
@@ -110,7 +122,8 @@ var autoData = {
 				"type": "Decimal",
 				"default_value": "1.0",
 				"description": "Multiplier for walking speed. 1.0 means keep the regular speed, while higher numbers make the walking speed faster\n"
-			}
+			},
+			"__des__": "Allows this entity to avoid certain mob types."
 		},
 		"minecraft:behavior.beg": {
 			"items": {
@@ -127,43 +140,75 @@ var autoData = {
 				"type": "Range [a, b]",
 				"default_value": "[2, 4]",
 				"description": "The range of time in seconds this mob will stare at the player holding a food they like, begging for it\n"
-			}
+			},
+			"__des__": "Allows this mob to look at and follow the player that holds food they like."
 		},
-		"minecraft:behavior.break_door": {},
+		"minecraft:behavior.break_door": {
+			"__des__": "Allows this mob to break doors."
+		},
 		"minecraft:behavior.breed": {
 			"speed_multiplier": {
 				"type": "Decimal",
 				"default_value": "1.0",
 				"description": "Movement speed multiplier of the mob when using this AI Goal\n"
-			}
+			},
+			"__des__": "Allows this mob to breed with other mobs."
 		},
-		"minecraft:behavior.charge_attack": {},
-		"minecraft:behavior.controlled_by_player": {},
+		"minecraft:behavior.charge_attack": {
+			"__des__": "Allows the mob to attack its target by running at it."
+		},
+		"minecraft:behavior.controlled_by_player": {
+			"__des__": "Allows the mob to be controlled by the player."
+		},
 		"minecraft:behavior.defend_village_target": {
 			"entity_types": {
 				"type": "JSON Object",
 				"default_value": "",
 				"description": "List of entity types this mob considers a threat to the village\n<table border=\"1\">\n<tbody><tr> <th>Name</th> <th>Type</th> <th>Default Value</th> <th>Description</th> </tr>\n<tr>\n<td>filters</td>\n<td>Minecraft Filter</td>\n<td></td>\n<td>Conditions that make this entry in the list valid\n</td>\n</tr>\n<tr>\n<td>max_dist</td>\n<td>Decimal</td>\n<td>16</td>\n<td>Maximum distance this mob can be away to be a valid choice\n</td>\n</tr>\n<tr>\n<td>must_see</td>\n<td>Boolean</td>\n<td>false</td>\n<td>If true, the mob has to be visible to be a valid choice\n</td>\n</tr>\n<tr>\n<td>sprint_speed_multiplier</td>\n<td>Decimal</td>\n<td>1.0</td>\n<td>Multiplier for the running speed. A value of 1.0 means the speed is unchanged\n</td>\n</tr>\n<tr>\n<td>walk_speed_multiplier</td>\n<td>Decimal</td>\n<td>1.0</td>\n<td>Multiplier for the walking speed. A value of 1.0 means the speed is unchanged\n</td>\n</tr>\n</tbody></table>\n"
-			}
+			},
+			"__des__": "Allows the mob to stay in the village and fight mobs hostile to the villagers."
 		},
-		"minecraft:behavior.door_interact": {},
-		"minecraft:behavior.dragonchargeplayer": {},
-		"minecraft:behavior.dragondeath": {},
-		"minecraft:behavior.dragonflaming": {},
-		"minecraft:behavior.dragonholdingpattern": {},
-		"minecraft:behavior.dragonlanding": {},
-		"minecraft:behavior.dragonscanning": {},
-		"minecraft:behavior.dragonstrafeplayer": {},
-		"minecraft:behavior.dragontakeoff": {},
+		"minecraft:behavior.door_interact": {
+			"__des__": "Allows the mob to open and close doors."
+		},
+		"minecraft:behavior.dragonchargeplayer": {
+			"__des__": "Allows the dragon to attack a player by flying fast at them. The player is chosen by the dragonscanning goal. Can only be used by the Ender Dragon."
+		},
+		"minecraft:behavior.dragondeath": {
+			"__des__": "Allows the dragon to go out with glory. This controls the Ender Dragon's death animation and can't be used by other mobs."
+		},
+		"minecraft:behavior.dragonflaming": {
+			"__des__": "Allows the dragon to use its flame breath attack. Can only be used by the Ender Dragon."
+		},
+		"minecraft:behavior.dragonholdingpattern": {
+			"__des__": "Allows the Dragon to fly around in a circle around the center podium. Can only be used by the Ender Dragon."
+		},
+		"minecraft:behavior.dragonlanding": {
+			"__des__": "Allows the Dragon to stop flying and transition into perching mode. Can only be used by the Ender Dragon."
+		},
+		"minecraft:behavior.dragonscanning": {
+			"__des__": "Allows the dragon to look around for a player to attack while in perch mode. Can only be used by the Ender Dragon."
+		},
+		"minecraft:behavior.dragonstrafeplayer": {
+			"__des__": "Allows the dragon to fly around looking for a player and shoot fireballs at them. Can only be used by the Ender Dragon."
+		},
+		"minecraft:behavior.dragontakeoff": {
+			"__des__": "Allows the dragon to leave perch mode and go back to flying around. Can only be used by the Ender Dragon."
+		},
 		"minecraft:behavior.eat_block": {
 			"on_eat": {
 				"type": "Trigger",
 				"default_value": "",
 				"description": "Trigger to fire when the mob eats a block of grass\n"
-			}
+			},
+			"__des__": "Allows the mob to eat a block (for example, sheep eating grass)."
 		},
-		"minecraft:behavior.enderman_leave_block": {},
-		"minecraft:behavior.enderman_take_block": {},
+		"minecraft:behavior.enderman_leave_block": {
+			"__des__": "Allows the enderman to drop a block they are carrying. Can only be used by Endermen."
+		},
+		"minecraft:behavior.enderman_take_block": {
+			"__des__": "Allows the enderman to take a block and carry it around. Can only be used by Endermen."
+		},
 		"minecraft:behavior.find_mount": {
 			"avoid_water": {
 				"type": "Boolean",
@@ -189,16 +234,20 @@ var autoData = {
 				"type": "Decimal",
 				"default_value": "0.0",
 				"description": "Distance in blocks within which the mob will look for a mount\n"
-			}
+			},
+			"__des__": "Allows the mob to look around for another mob to ride atop it."
 		},
 		"minecraft:behavior.flee_sun": {
 			"speed_multiplier": {
 				"type": "Decimal",
 				"default_value": "1.0",
 				"description": "Movement speed multiplier of the mob when using this AI Goal\n"
-			}
+			},
+			"__des__": "Allows the mob to run away from direct sunlight and seek shade."
 		},
-		"minecraft:behavior.float": {},
+		"minecraft:behavior.float": {
+			"__des__": "Allows the mob to stay afloat while swimming."
+		},
 		"minecraft:behavior.float_wander": {
 			"float_duration": {
 				"type": "Range [a, b]",
@@ -229,7 +278,8 @@ var autoData = {
 				"type": "Decimal",
 				"default_value": "0.0",
 				"description": "Height in blocks to add to the selected target position\n"
-			}
+			},
+			"__des__": "Allows the mob to float around like the Ghast."
 		},
 		"minecraft:behavior.follow_caravan": {
 			"entity_count": {
@@ -246,7 +296,8 @@ var autoData = {
 				"type": "Decimal",
 				"default_value": "1.0",
 				"description": "Movement speed multiplier of the mob when using this AI Goal\n"
-			}
+			},
+			"__des__": "Allows the mob to follow mobs that are in a caravan."
 		},
 		"minecraft:behavior.follow_mob": {
 			"search_range": {
@@ -263,7 +314,8 @@ var autoData = {
 				"type": "Decimal",
 				"default_value": "2.0",
 				"description": "The distance in blocks this mob stops from the mob it is following\n"
-			}
+			},
+			"__des__": "Allows the mob to follow other mobs."
 		},
 		"minecraft:behavior.follow_owner": {
 			"speed_multiplier": {
@@ -280,22 +332,27 @@ var autoData = {
 				"type": "Decimal",
 				"default_value": "2.0",
 				"description": "The distance in blocks this mob will stop from its owner while following it\n"
-			}
+			},
+			"__des__": "Allows the mob to follow the player that owns them."
 		},
 		"minecraft:behavior.follow_parent": {
 			"speed_multiplier": {
 				"type": "Decimal",
 				"default_value": "1.0",
 				"description": "Movement speed multiplier of the mob when using this AI Goal\n"
-			}
+			},
+			"__des__": "Allows the mob to follow their parent around."
 		},
-		"minecraft:behavior.guardian_attack": {},
+		"minecraft:behavior.guardian_attack": {
+			"__des__": "Allows the guardian to use its laser beam attack. Can only be used by Guardians and Elder Guardians."
+		},
 		"minecraft:behavior.harvest_farm_block": {
 			"speed_multiplier": {
 				"type": "Decimal",
 				"default_value": "1.0",
 				"description": "Movement speed multiplier of the mob when using this AI Goal\n"
-			}
+			},
+			"__des__": "Allows the villager to harvest nearby farms. Can only be used by Villagers."
 		},
 		"minecraft:behavior.hurt_by_target": {
 			"alert_same_type": {
@@ -312,7 +369,8 @@ var autoData = {
 				"type": "Boolean",
 				"default_value": "false",
 				"description": "If true, the mob will hurt its owner and other mobs with the same owner as itself\n"
-			}
+			},
+			"__des__": "Allows the mob to target another mob that hurts them."
 		},
 		"minecraft:behavior.leap_at_target": {
 			"must_be_on_ground": {
@@ -324,7 +382,8 @@ var autoData = {
 				"type": "Decimal",
 				"default_value": "0.0",
 				"description": "The height in blocks the mob jumps when leaping at its target\n"
-			}
+			},
+			"__des__": "Allows monsters to jump at and attack their target. Can only be used by hostile mobs."
 		},
 		"minecraft:behavior.look_at_entity": {
 			"angle_of_view_horizontal": {
@@ -356,7 +415,8 @@ var autoData = {
 				"type": "Decimal",
 				"default_value": "0.02",
 				"description": "The probability of looking at the target. A value of 1.00 is 100%\n"
-			}
+			},
+			"__des__": "Allows the mob to look at nearby entities."
 		},
 		"minecraft:behavior.look_at_player": {
 			"angle_of_view_horizontal": {
@@ -383,7 +443,8 @@ var autoData = {
 				"type": "Decimal",
 				"default_value": "0.02",
 				"description": "The probability of looking at the target. A value of 1.00 is 100%\n"
-			}
+			},
+			"__des__": "Allows the mob to look at the player when the player is nearby."
 		},
 		"minecraft:behavior.look_at_target": {
 			"angle_of_view_horizontal": {
@@ -410,7 +471,8 @@ var autoData = {
 				"type": "Decimal",
 				"default_value": "0.02",
 				"description": "The probability of looking at the target. A value of 1.00 is 100%\n"
-			}
+			},
+			"__des__": "Allows the mob to look at the entity they are targetting."
 		},
 		"minecraft:behavior.look_at_trading_player": {
 			"angle_of_view_horizontal": {
@@ -437,9 +499,12 @@ var autoData = {
 				"type": "Decimal",
 				"default_value": "0.02",
 				"description": "The probability of looking at the target. A value of 1.00 is 100%\n"
-			}
+			},
+			"__des__": "Allows the mob to look at the player they are trading with."
 		},
-		"minecraft:behavior.make_love": {},
+		"minecraft:behavior.make_love": {
+			"__des__": "Allows the villager to look for a mate to spawn other villagers with. Can only be used by Villagers."
+		},
 		"minecraft:behavior.melee_attack": {
 			"attack_types": {
 				"type": "String",
@@ -465,7 +530,8 @@ var autoData = {
 				"type": "Boolean",
 				"default_value": "false",
 				"description": "If true, this mob will chase after the target as long as it's a valid target\n"
-			}
+			},
+			"__des__": "Allows the mob to use close combat melee attacks."
 		},
 		"minecraft:behavior.mount_pathing": {
 			"speed_multiplier": {
@@ -482,14 +548,16 @@ var autoData = {
 				"type": "Boolean",
 				"default_value": "false",
 				"description": "If true, this mob will chase after the target as long as it's a valid target\n"
-			}
+			},
+			"__des__": "Allows the mob to move around on its own while mounted seeking a target to attack."
 		},
 		"minecraft:behavior.move_indoors": {
 			"speed_multiplier": {
 				"type": "Decimal",
 				"default_value": "1.0",
 				"description": "Movement speed multiplier of the mob when using this AI Goal\n"
-			}
+			},
+			"__des__": "Can only be used by Villagers. Allows them to seek shelter indoors."
 		},
 		"minecraft:behavior.move_through_village": {
 			"only_at_night": {
@@ -501,7 +569,8 @@ var autoData = {
 				"type": "Decimal",
 				"default_value": "1.0",
 				"description": "Movement speed multiplier of the mob when using this AI Goal\n"
-			}
+			},
+			"__des__": "Can only be used by Villagers. Allows the villagers to create paths around the village."
 		},
 		"minecraft:behavior.move_to_water": {
 			"goal_radius": {
@@ -523,21 +592,24 @@ var autoData = {
 				"type": "Decimal",
 				"default_value": "1.0",
 				"description": "Movement speed multiplier of the mob when using this AI Goal\n"
-			}
+			},
+			"__des__": "Allows the mob to move back into water when on land."
 		},
 		"minecraft:behavior.move_towards_restriction": {
 			"speed_multiplier": {
 				"type": "Decimal",
 				"default_value": "1.0",
 				"description": "Movement speed multiplier of the mob when using this AI Goal\n"
-			}
+			},
+			"__des__": "Allows Guardians, Iron Golems and Villagers to move within their pre-defined area that the mob should be restricted to. Other mobs don't have a restriction defined."
 		},
 		"minecraft:behavior.move_towards_target": {
 			"within_radius": {
 				"type": "Decimal",
 				"default_value": "0.0",
 				"description": "Defines the radius in blocks that the mob tries to be from the target. A value of 0 means it tries to occupy the same block as the target\n"
-			}
+			},
+			"__des__": "Allows mob to move towards its current target."
 		},
 		"minecraft:behavior.nearest_attackable_target": {
 			"attack_interval": {
@@ -574,14 +646,16 @@ var autoData = {
 				"type": "Decimal",
 				"default_value": "0.0",
 				"description": "Distance in blocks that the target can be within to launch an attack\n"
-			}
+			},
+			"__des__": "Allows the mob to check for and pursue the nearest valid target."
 		},
 		"minecraft:behavior.ocelot_sit_on_block": {
 			"speed_multiplier": {
 				"type": "Decimal",
 				"default_value": "1.0",
 				"description": "Movement speed multiplier of the mob when using this AI Goal\n"
-			}
+			},
+			"__des__": "Allows to mob to be able to sit in place like the ocelot."
 		},
 		"minecraft:behavior.ocelotattack": {
 			"sneak_speed_multiplier": {
@@ -598,29 +672,35 @@ var autoData = {
 				"type": "Decimal",
 				"default_value": "1.0",
 				"description": "Multiplier for the walking speed while using this attack\n"
-			}
+			},
+			"__des__": "Can only be used by the Ocelot. Allows it to perform the sneak and pounce attack."
 		},
-		"minecraft:behavior.offer_flower": {},
+		"minecraft:behavior.offer_flower": {
+			"__des__": "Allows the mob to offer the player a flower like the Iron Golem does."
+		},
 		"minecraft:behavior.open_door": {
 			"close_door_after": {
 				"type": "Boolean",
 				"default_value": "true",
 				"description": "If true, the mob will close the door after opening it and going through it\n"
-			}
+			},
+			"__des__": "Allows the mob to open doors. Requires the mob to be able to path through doors, otherwise the mob won't even want to try opening them."
 		},
 		"minecraft:behavior.owner_hurt_by_target": {
 			"entity_types": {
 				"type": "JSON Object",
 				"default_value": "",
 				"description": "List of entity types that this mob can target if they hurt their owner\n<table border=\"1\">\n<tbody><tr> <th>Name</th> <th>Type</th> <th>Default Value</th> <th>Description</th> </tr>\n<tr>\n<td>filters</td>\n<td>Minecraft Filter</td>\n<td></td>\n<td>Conditions that make this entry in the list valid\n</td>\n</tr>\n<tr>\n<td>max_dist</td>\n<td>Decimal</td>\n<td>16</td>\n<td>Maximum distance this mob can be away to be a valid choice\n</td>\n</tr>\n<tr>\n<td>must_see</td>\n<td>Boolean</td>\n<td>false</td>\n<td>If true, the mob has to be visible to be a valid choice\n</td>\n</tr>\n<tr>\n<td>sprint_speed_multiplier</td>\n<td>Decimal</td>\n<td>1.0</td>\n<td>Multiplier for the running speed. A value of 1.0 means the speed is unchanged\n</td>\n</tr>\n<tr>\n<td>walk_speed_multiplier</td>\n<td>Decimal</td>\n<td>1.0</td>\n<td>Multiplier for the walking speed. A value of 1.0 means the speed is unchanged\n</td>\n</tr>\n</tbody></table>\n"
-			}
+			},
+			"__des__": "Allows the mob to target another mob that hurts their owner."
 		},
 		"minecraft:behavior.owner_hurt_target": {
 			"entity_types": {
 				"type": "JSON Object",
 				"default_value": "",
 				"description": "List of entity types that this entity can target if the potential target is hurt by this mob's owner\n<table border=\"1\">\n<tbody><tr> <th>Name</th> <th>Type</th> <th>Default Value</th> <th>Description</th> </tr>\n<tr>\n<td>filters</td>\n<td>Minecraft Filter</td>\n<td></td>\n<td>Conditions that make this entry in the list valid\n</td>\n</tr>\n<tr>\n<td>max_dist</td>\n<td>Decimal</td>\n<td>16</td>\n<td>Maximum distance this mob can be away to be a valid choice\n</td>\n</tr>\n<tr>\n<td>must_see</td>\n<td>Boolean</td>\n<td>false</td>\n<td>If true, the mob has to be visible to be a valid choice\n</td>\n</tr>\n<tr>\n<td>sprint_speed_multiplier</td>\n<td>Decimal</td>\n<td>1.0</td>\n<td>Multiplier for the running speed. A value of 1.0 means the speed is unchanged\n</td>\n</tr>\n<tr>\n<td>walk_speed_multiplier</td>\n<td>Decimal</td>\n<td>1.0</td>\n<td>Multiplier for the walking speed. A value of 1.0 means the speed is unchanged\n</td>\n</tr>\n</tbody></table>\n"
-			}
+			},
+			"__des__": "Allows the mob to target a mob that is hurt by their owner."
 		},
 		"minecraft:behavior.panic": {
 			"force": {
@@ -632,9 +712,12 @@ var autoData = {
 				"type": "Decimal",
 				"default_value": "1.0",
 				"description": "Movement speed multiplier of the mob when using this AI Goal\n"
-			}
+			},
+			"__des__": "Allows the mob to enter the panic state, which makes it run around and away from the damage source that made it enter this state."
 		},
-		"minecraft:behavior.peek": {},
+		"minecraft:behavior.peek": {
+			"__des__": "Allows the mob to peek out. This is what the shulker uses to look out of its shell."
+		},
 		"minecraft:behavior.pickup_items": {
 			"goal_radius": {
 				"type": "Decimal",
@@ -655,16 +738,20 @@ var autoData = {
 				"type": "Boolean",
 				"default_value": "false",
 				"description": "If true, this mob will chase after the target as long as it's a valid target\n"
-			}
+			},
+			"__des__": "Allows the mob to pick up items on the ground."
 		},
 		"minecraft:behavior.play": {
 			"speed_multiplier": {
 				"type": "Decimal",
 				"default_value": "1.0",
 				"description": "Movement speed multiplier of the mob when using this AI Goal\n"
-			}
+			},
+			"__des__": "Allows the mob to play with other baby villagers. This can only be used by Villagers."
 		},
-		"minecraft:behavior.player_ride_tamed": {},
+		"minecraft:behavior.player_ride_tamed": {
+			"__des__": "Allows the mob to be ridden by the player after being tamed."
+		},
 		"minecraft:behavior.raid_garden": {
 			"blocks": {
 				"type": "List",
@@ -700,7 +787,8 @@ var autoData = {
 				"type": "Decimal",
 				"default_value": "1.0",
 				"description": "Movement speed multiplier of the mob when using this AI Goal\n"
-			}
+			},
+			"__des__": "Allows the mob to eat crops out of farms until they are full."
 		},
 		"minecraft:behavior.random_breach": {
 			"cooldown_time": {
@@ -727,7 +815,8 @@ var autoData = {
 				"type": "Integer",
 				"default_value": "7",
 				"description": "Distance in blocks that the mob will look up or down for a new spot to move to. Must be at least 1\n"
-			}
+			},
+			"__des__": "Allows the mob to randomly break surface of the water."
 		},
 		"minecraft:behavior.random_fly": {
 			"can_land_on_trees": {
@@ -744,14 +833,16 @@ var autoData = {
 				"type": "Integer",
 				"default_value": "7",
 				"description": "Distance in blocks that the mob will look up or down for a new spot to move to. Must be at least 1\n"
-			}
+			},
+			"__des__": "Allows a mob to randomly fly around."
 		},
 		"minecraft:behavior.random_look_around": {
 			"look_time": {
 				"type": "Range [a, b]",
 				"default_value": "[2, 4]",
 				"description": "The range of time in seconds the mob will stay looking in a random direction before looking elsewhere\n"
-			}
+			},
+			"__des__": "Allows the mob to randomly look around."
 		},
 		"minecraft:behavior.random_stroll": {
 			"interval": {
@@ -773,7 +864,8 @@ var autoData = {
 				"type": "Integer",
 				"default_value": "7",
 				"description": "Distance in blocks that the mob will look up or down for a new spot to move to. Must be at least 1\n"
-			}
+			},
+			"__des__": "Allows a mob to randomly stroll around."
 		},
 		"minecraft:behavior.random_swim": {
 			"interval": {
@@ -795,7 +887,8 @@ var autoData = {
 				"type": "Integer",
 				"default_value": "7",
 				"description": "Distance in blocks that the mob will look up or down for a new spot to move to. Must be at least 1\n"
-			}
+			},
+			"__des__": "Allows an entity to randomly move through water"
 		},
 		"minecraft:behavior.ranged_attack": {
 			"attack_interval_max": {
@@ -837,17 +930,25 @@ var autoData = {
 				"type": "Decimal",
 				"default_value": "1.0",
 				"description": "Movement speed multiplier of the mob when using this AI Goal\n"
-			}
+			},
+			"__des__": "Allows the mob to use ranged attacks like shooting arrows."
 		},
-		"minecraft:behavior.receive_love": {},
-		"minecraft:behavior.restrict_open_door": {},
-		"minecraft:behavior.restrict_sun": {},
+		"minecraft:behavior.receive_love": {
+			"__des__": "Allows the villager to stop so another villager can breed with it. Can only be used by a Villager."
+		},
+		"minecraft:behavior.restrict_open_door": {
+			"__des__": "Allows the mob to stay indoors during night time."
+		},
+		"minecraft:behavior.restrict_sun": {
+			"__des__": "Allows the mob to automatically start avoiding the sun when its a clear day out."
+		},
 		"minecraft:behavior.run_around_like_crazy": {
 			"speed_multiplier": {
 				"type": "Decimal",
 				"default_value": "1.0",
 				"description": "Movement speed multiplier of the mob when using this AI Goal\n"
-			}
+			},
+			"__des__": "Allows the mob to run around aimlessly."
 		},
 		"minecraft:behavior.send_event": {
 			"cast_duration": {
@@ -859,7 +960,8 @@ var autoData = {
 				"type": "List",
 				"default_value": "",
 				"description": "List of events to send\n<table border=\"1\">\n<tbody><tr> <th>Name</th> <th>Type</th> <th>Default Value</th> <th>Description</th> </tr>\n<tr>\n<td>base_delay</td>\n<td>Decimal</td>\n<td>0.0</td>\n<td>Amount of time in seconds before starting this step\n</td>\n</tr>\n<tr>\n<td>event</td>\n<td>String</td>\n<td></td>\n<td>The event to send to the entity\n</td>\n</tr>\n<tr>\n<td>sound_event</td>\n<td>String</td>\n<td></td>\n<td>The sound event to play when this step happens\n</td>\n</tr>\n</tbody></table>\n"
-			}
+			},
+			"__des__": "Allows the mob to send an event to another mob."
 		},
 		"minecraft:behavior.share_items": {
 			"entity_types": {
@@ -881,10 +983,15 @@ var autoData = {
 				"type": "Decimal",
 				"default_value": "1.0",
 				"description": "Movement speed multiplier of the mob when using this AI Goal\n"
-			}
+			},
+			"__des__": "Allows the mob to give items it has to others."
 		},
-		"minecraft:behavior.silverfish_merge_with_stone": {},
-		"minecraft:behavior.silverfish_wake_up_friends": {},
+		"minecraft:behavior.silverfish_merge_with_stone": {
+			"__des__": "Allows the mob to go into stone blocks like Silverfish do. Currently it can only be used by Silverfish."
+		},
+		"minecraft:behavior.silverfish_wake_up_friends": {
+			"__des__": "Allows the mob to alert mobs in nearby blocks to come out. Currently it can only be used by Silverfish."
+		},
 		"minecraft:behavior.skeleton_horse_trap": {
 			"duration": {
 				"type": "Decimal",
@@ -895,18 +1002,39 @@ var autoData = {
 				"type": "Decimal",
 				"default_value": "0.0",
 				"description": "Distance in blocks that the player has to be within to trigger the horse trap\n"
-			}
+			},
+			"__des__": "Allows Equine mobs to be Horse Traps and be triggered like them, spawning a lightning bolt and a bunch of horses when a player is nearby. Can only be used by Horses, Mules, Donkeys and Skeleton Horses."
 		},
-		"minecraft:behavior.slime_attack": {},
-		"minecraft:behavior.slime_float": {},
-		"minecraft:behavior.slime_keep_on_jumping": {},
-		"minecraft:behavior.slime_random_direction": {},
-		"minecraft:behavior.squid_dive": {},
-		"minecraft:behavior.squid_flee": {},
-		"minecraft:behavior.squid_idle": {},
-		"minecraft:behavior.squid_move_away_from_ground": {},
-		"minecraft:behavior.squid_out_of_water": {},
-		"minecraft:behavior.stay_while_sitting": {},
+		"minecraft:behavior.slime_attack": {
+			"__des__": "Can only be used by Slimes and Magma Cubes. Allows the mob to use a melee attack like the slime's."
+		},
+		"minecraft:behavior.slime_float": {
+			"__des__": "Can only be used by Slimes and Magma Cubes. Controls their ability to float in water / lava."
+		},
+		"minecraft:behavior.slime_keep_on_jumping": {
+			"__des__": "Can only be used by Slimes and Magma Cubes. Allows the mob to continuously jump around like a slime."
+		},
+		"minecraft:behavior.slime_random_direction": {
+			"__des__": "Can only be used by Slimes and Magma Cubes. Allows the mob to move in random directions like a slime."
+		},
+		"minecraft:behavior.squid_dive": {
+			"__des__": "Allows the squid to dive down in water. Can only be used by the Squid."
+		},
+		"minecraft:behavior.squid_flee": {
+			"__des__": "Allows the squid to swim away. Can only be used by the Squid."
+		},
+		"minecraft:behavior.squid_idle": {
+			"__des__": "Allows the squid to swim in place idly. Can only be used by the Squid."
+		},
+		"minecraft:behavior.squid_move_away_from_ground": {
+			"__des__": "Allows the squid to move away from ground blocks and back to water. Can only be used by the Squid."
+		},
+		"minecraft:behavior.squid_out_of_water": {
+			"__des__": "Allows the squid to stick to the ground when outside water. Can only be used by the Squid."
+		},
+		"minecraft:behavior.stay_while_sitting": {
+			"__des__": "Allows the mob to stay put while it is in a sitting state instead of doing something else."
+		},
 		"minecraft:behavior.stomp_attack": {
 			"attack_types": {
 				"type": "String",
@@ -932,14 +1060,16 @@ var autoData = {
 				"type": "Boolean",
 				"default_value": "false",
 				"description": "If true, this mob will chase after the target as long as it's a valid target\n"
-			}
+			},
+			"__des__": "Allows the mob to use the polar bear's melee attack."
 		},
 		"minecraft:behavior.summon_entity": {
 			"summon_choices": {
 				"type": "List",
 				"default_value": "",
 				"description": "List of spells for the mob to use to summon entities. Each spell has the following parameters:\n<table border=\"1\">\n<tbody><tr> <th>Name</th> <th>Type</th> <th>Default Value</th> <th>Description</th> </tr>\n<tr>\n<td>cast_duration</td>\n<td>Decimal</td>\n<td>Total delay of the steps</td>\n<td>Time in seconds the spell casting will take\n</td>\n</tr>\n<tr>\n<td>cooldown_time</td>\n<td>Decimal</td>\n<td>0.0</td>\n<td>Time in seconds the mob has to wait before using the spell again\n</td>\n</tr>\n<tr>\n<td>do_casting</td>\n<td>Boolean</td>\n<td>true</td>\n<td>If true, the mob will do the casting animations and render spell particles\n</td>\n</tr>\n<tr>\n<td>filters</td>\n<td>Minecraft Filter</td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td>max_activation_range</td>\n<td>Decimal</td>\n<td>-1.0</td>\n<td>Upper bound of the activation distance in blocks for this spell\n</td>\n</tr>\n<tr>\n<td>min_activation_range</td>\n<td>Decimal</td>\n<td>1.0</td>\n<td>Lower bound of the activation distance in blocks for this spell\n</td>\n</tr>\n<tr>\n<td>particle_color</td>\n<td>Integer</td>\n<td>0</td>\n<td>The color of the particles for this spell\n</td>\n</tr>\n<tr>\n<td>sequence</td>\n<td>List</td>\n<td></td>\n<td>List of steps for the spell. Each step has the following parameters:\n<table border=\"1\">\n<tbody><tr> <th>Name</th> <th>Type</th> <th>Default Value</th> <th>Description</th> </tr>\n<tr>\n<td>base_delay</td>\n<td>Decimal</td>\n<td>0.0</td>\n<td>Amount of time in seconds to wait before this step starts\n</td>\n</tr>\n<tr>\n<td>delay_per_summon</td>\n<td>Decimal</td>\n<td>0.0</td>\n<td>Amount of time in seconds before each entity is summoned in this step\n</td>\n</tr>\n<tr>\n<td>entity_lifespan</td>\n<td>Decimal</td>\n<td>-1.0</td>\n<td>Amount of time in seconds that the spawned entity will be alive for. A value of -1.0 means it will remain alive for as long as it can\n</td>\n</tr>\n<tr>\n<td>entity_type</td>\n<td>String</td>\n<td></td>\n<td>The entity type of the entities we will spawn in this step\n</td>\n</tr>\n<tr>\n<td>num_entities_spawned</td>\n<td>Integer</td>\n<td>1</td>\n<td>Number of entities that will be spawned in this step\n</td>\n</tr>\n<tr>\n<td>shape</td>\n<td>String</td>\n<td>line</td>\n<td>The base shape of this step. Valid values are circle and line\n</td>\n</tr>\n<tr>\n<td>size</td>\n<td>Decimal</td>\n<td>1.0</td>\n<td>The base size of the entity\n</td>\n</tr>\n<tr>\n<td>sound_event</td>\n<td>String</td>\n<td></td>\n<td>The sound event to play for this step\n</td>\n</tr>\n<tr>\n<td>summon_cap</td>\n<td>Integer</td>\n<td>0</td>\n<td>Maximum number of summoned entities at any given time\n</td>\n</tr>\n<tr>\n<td>summon_cap_radius</td>\n<td>Decimal</td>\n<td>0.0</td>\n<td></td>\n</tr>\n<tr>\n<td>target</td>\n<td>String</td>\n<td>self</td>\n<td>The target of the spell. This is where the spell will start (line will start here, circle will be centered here)\n</td>\n</tr>\n</tbody></table>\n</td>\n</tr>\n<tr>\n<td>start_sound_event</td>\n<td>String</td>\n<td></td>\n<td>The sound event to play when using this spell\n</td>\n</tr>\n<tr>\n<td>weight</td>\n<td>Decimal</td>\n<td>0.0</td>\n<td>The weight of this spell. Controls how likely the mob is to choose this spell when casting one\n</td>\n</tr>\n</tbody></table>\n"
-			}
+			},
+			"__des__": "Allows the mob to attack the player by summoning other entities."
 		},
 		"minecraft:behavior.swell": {
 			"start_distance": {
@@ -951,16 +1081,20 @@ var autoData = {
 				"type": "Decimal",
 				"default_value": "2.0",
 				"description": "This mob stops swelling when a target has moved away at least this many blocks\n"
-			}
+			},
+			"__des__": "Allows the creeper to swell up when a player is nearby. It can only be used by Creepers."
 		},
 		"minecraft:behavior.swim_wander": {
 			"speed_multiplier": {
 				"type": "Decimal",
 				"default_value": "10",
 				"description": "speed of the entity\n"
-			}
+			},
+			"__des__": "Has the fish swim around when they can't pathfind"
 		},
-		"minecraft:behavior.take_flower": {},
+		"minecraft:behavior.take_flower": {
+			"__des__": "Can only be used by Villagers. Allows the mob to accept flowers from Iron Golems."
+		},
 		"minecraft:behavior.tempt": {
 			"can_get_scared": {
 				"type": "Boolean",
@@ -981,24 +1115,33 @@ var autoData = {
 				"type": "Decimal",
 				"default_value": "0.0",
 				"description": "Distance in blocks this mob can get tempted by a player holding an item they like\n"
-			}
+			},
+			"__des__": "Allows the mob to be tempted by food they like."
 		},
-		"minecraft:behavior.trade_with_player": {},
+		"minecraft:behavior.trade_with_player": {
+			"__des__": "Allows the player to trade with this mob."
+		},
 		"minecraft:behavior.vex_copy_owner_target": {
 			"entity_types": {
 				"type": "JSON Object",
 				"default_value": "",
 				"description": "List of entities this mob can copy the owner from\n<table border=\"1\">\n<tbody><tr> <th>Name</th> <th>Type</th> <th>Default Value</th> <th>Description</th> </tr>\n<tr>\n<td>filters</td>\n<td>Minecraft Filter</td>\n<td></td>\n<td>Conditions that make this entry in the list valid\n</td>\n</tr>\n<tr>\n<td>max_dist</td>\n<td>Decimal</td>\n<td>16</td>\n<td>Maximum distance this mob can be away to be a valid choice\n</td>\n</tr>\n<tr>\n<td>must_see</td>\n<td>Boolean</td>\n<td>false</td>\n<td>If true, the mob has to be visible to be a valid choice\n</td>\n</tr>\n<tr>\n<td>sprint_speed_multiplier</td>\n<td>Decimal</td>\n<td>1.0</td>\n<td>Multiplier for the running speed. A value of 1.0 means the speed is unchanged\n</td>\n</tr>\n<tr>\n<td>walk_speed_multiplier</td>\n<td>Decimal</td>\n<td>1.0</td>\n<td>Multiplier for the walking speed. A value of 1.0 means the speed is unchanged\n</td>\n</tr>\n</tbody></table>\n"
-			}
+			},
+			"__des__": "Allows the mob to target the same entity its owner is targeting."
 		},
-		"minecraft:behavior.vex_random_move": {},
-		"minecraft:behavior.wither_random_attack_pos_goal": {},
+		"minecraft:behavior.vex_random_move": {
+			"__des__": "Allows the mob to move around randomly like the Vex."
+		},
+		"minecraft:behavior.wither_random_attack_pos_goal": {
+			"__des__": "Allows the wither to launch random attacks. Can only be used by the Wither Boss."
+		},
 		"minecraft:behavior.wither_target_highest_damage": {
 			"entity_types": {
 				"type": "JSON Object",
 				"default_value": "",
 				"description": "List of entity types the wither takes into account to find who dealt the most damage to it\n<table border=\"1\">\n<tbody><tr> <th>Name</th> <th>Type</th> <th>Default Value</th> <th>Description</th> </tr>\n<tr>\n<td>filters</td>\n<td>Minecraft Filter</td>\n<td></td>\n<td>Conditions that make this entry in the list valid\n</td>\n</tr>\n<tr>\n<td>max_dist</td>\n<td>Decimal</td>\n<td>16</td>\n<td>Maximum distance this mob can be away to be a valid choice\n</td>\n</tr>\n<tr>\n<td>must_see</td>\n<td>Boolean</td>\n<td>false</td>\n<td>If true, the mob has to be visible to be a valid choice\n</td>\n</tr>\n<tr>\n<td>sprint_speed_multiplier</td>\n<td>Decimal</td>\n<td>1.0</td>\n<td>Multiplier for the running speed. A value of 1.0 means the speed is unchanged\n</td>\n</tr>\n<tr>\n<td>walk_speed_multiplier</td>\n<td>Decimal</td>\n<td>1.0</td>\n<td>Multiplier for the walking speed. A value of 1.0 means the speed is unchanged\n</td>\n</tr>\n</tbody></table>\n"
-			}
+			},
+			"__des__": "Allows the wither to focus its attacks on whichever mob has dealt the most damage to it."
 		},
 		"minecraft:boostable": {
 			"boost_items": {
@@ -1015,7 +1158,8 @@ var autoData = {
 				"type": "Decimal",
 				"default_value": "1.0",
 				"description": "Factor by which the entity's normal speed increases. E.g. 2.0 means go twice as fast\n"
-			}
+			},
+			"__des__": "Defines the conditions and behavior of a rideable entity's boost"
 		},
 		"minecraft:breathable": {
 			"breatheBlocks": {
@@ -1067,7 +1211,8 @@ var autoData = {
 				"type": "Integer",
 				"default_value": "15",
 				"description": "Time in seconds the entity can hold its breath\n"
-			}
+			},
+			"__des__": "Defines what blocks this entity can breathe in and gives them the ability to suffocate"
 		},
 		"minecraft:breedable": {
 			"allowSitting": {
@@ -1109,12 +1254,21 @@ var autoData = {
 				"type": "Boolean",
 				"default_value": "true",
 				"description": "If true, the entities need to be tamed first before they can breed.\n"
-			}
+			},
+			"__des__": "Defines the way an entity can get into the 'love' state."
 		},
-		"minecraft:burns_in_daylight": {},
-		"minecraft:can_climb": {},
-		"minecraft:can_fly": {},
-		"minecraft:can_power_jump": {},
+		"minecraft:burns_in_daylight": {
+			"__des__": "Sets that this entity burns if exposed to daylight."
+		},
+		"minecraft:can_climb": {
+			"__des__": "Allows this entity to climb up ladders."
+		},
+		"minecraft:can_fly": {
+			"__des__": "Marks the entity as being able to fly, the pathfinder won't be restricted to paths where a solid block is required underneath it."
+		},
+		"minecraft:can_power_jump": {
+			"__des__": "Allows the entity to power jump like the horse does in vanilla."
+		},
 		"minecraft:collision_box": {
 			"height": {
 				"type": "Decimal",
@@ -1125,21 +1279,24 @@ var autoData = {
 				"type": "Decimal",
 				"default_value": "1.0",
 				"description": "Width and Depth of the Collision Box in Blocks\n"
-			}
+			},
+			"__des__": "Sets the width and height of the Entity's collision box."
 		},
 		"minecraft:color": {
 			"value": {
 				"type": "Integer",
 				"default_value": "0",
 				"description": "The Palette Color value of the entity\n"
-			}
+			},
+			"__des__": "Defines the entity's color. Only works on vanilla entities that have predefined color values (sheep, llama, shulker)."
 		},
 		"minecraft:color2": {
 			"value": {
 				"type": "Integer",
 				"default_value": "0",
 				"description": "The second Palette Color value of the entity\n"
-			}
+			},
+			"__des__": "Defines the entity's second texture color. Only works on vanilla entities that have a second predefined color values (tropical fish)."
 		},
 		"minecraft:damage_over_time": {
 			"damagePerHurt": {
@@ -1151,7 +1308,8 @@ var autoData = {
 				"type": "Integer",
 				"default_value": "0",
 				"description": "Time in seconds between damage\n"
-			}
+			},
+			"__des__": "Applies defined amount of damage to the entity at specified intervals"
 		},
 		"minecraft:damage_sensor": {
 			"cause": {
@@ -1168,35 +1326,40 @@ var autoData = {
 				"type": "List",
 				"default_value": "",
 				"description": "List of triggers with the events to call when taking this specific kind of damage. Allows specifying filters for entity definitions and events\n"
-			}
+			},
+			"__des__": "Defines what events to call when this entity is damaged by specific entities or items. Can be either an array or a single instance."
 		},
 		"minecraft:default_look_angle": {
 			"value": {
 				"type": "Decimal",
 				"default_value": "0.0f",
 				"description": "Angle in degrees\n"
-			}
+			},
+			"__des__": "Sets this entity's default head rotation angle."
 		},
 		"minecraft:environment_sensor": {
 			"on_environment": {
 				"type": "List",
 				"default_value": "",
 				"description": "The list of triggers that fire when the environment conditions match the given filter criteria.\n"
-			}
+			},
+			"__des__": "Creates a trigger based on environment conditions."
 		},
 		"minecraft:equipment": {
 			"table": {
 				"type": "String",
 				"default_value": "",
 				"description": "The path to the equipment table, relative to the Behavior Pack's root\n"
-			}
+			},
+			"__des__": "Sets the Equipment table to use for this Entity."
 		},
 		"minecraft:equippable": {
 			"slots": {
 				"type": "List",
 				"default_value": "",
 				"description": "List of slots and the item that can be equipped\n<table border=\"1\">\n<tbody><tr> <th>Name</th> <th>Type</th> <th>Default Value</th> <th>Description</th> </tr>\n<tr>\n<td>accepted_items</td>\n<td>List</td>\n<td></td>\n<td>The list of items that can go in this slot\n</td>\n</tr>\n<tr>\n<td>interact_text</td>\n<td>String</td>\n<td></td>\n<td>Text to be displayed when the entity can be equipped with this item when playing with Touch-screen controls\n</td>\n</tr>\n<tr>\n<td>item</td>\n<td>String</td>\n<td></td>\n<td>Name of the item that can be equipped for this slot\n</td>\n</tr>\n<tr>\n<td>on_equip</td>\n<td>String</td>\n<td></td>\n<td>Event to trigger when this entity is equipped with this item\n</td>\n</tr>\n<tr>\n<td>on_unequip</td>\n<td>String</td>\n<td></td>\n<td>Event to trigger when this item is removed from this entity\n</td>\n</tr>\n<tr>\n<td>slot</td>\n<td>Integer</td>\n<td>0</td>\n<td>The slot number of this slot\n</td>\n</tr>\n</tbody></table>\n"
-			}
+			},
+			"__des__": "Defines an entity's behavior for having items equipped to it"
 		},
 		"minecraft:explode": {
 			"breaks_blocks": {
@@ -1238,47 +1401,61 @@ var autoData = {
 				"type": "Decimal",
 				"default_value": "3.0",
 				"description": "The radius of the explosion in blocks and the amount of damage the explosion deals\n"
-			}
+			},
+			"__des__": "Defines how the entity explodes."
 		},
-		"minecraft:fire_immune": {},
-		"minecraft:floats_in_liquid": {},
+		"minecraft:fire_immune": {
+			"__des__": "Sets that this entity doesn't take damage from fire."
+		},
+		"minecraft:floats_in_liquid": {
+			"__des__": "Sets that this entity can float in liquid blocks."
+		},
 		"minecraft:flying_speed": {
 			"value": {
 				"type": "Decimal",
 				"default_value": "0.02",
 				"description": "Flying speed in blocks per tick\n"
-			}
+			},
+			"__des__": "Speed in Blocks that this entity flies at."
 		},
 		"minecraft:foot_size": {
 			"value": {
 				"type": "Decimal",
 				"default_value": "0.5",
 				"description": "The value of the size of the entity's step\n"
-			}
+			},
+			"__des__": "Sets the number of blocks the entity can step without jumping."
 		},
 		"minecraft:friction_modifier": {
 			"value": {
 				"type": "Decimal",
 				"default_value": "1.0",
 				"description": "The higher the number, the more the friction affects this entity. A value of 1.0 means regular friction, while 2.0 means twice as much\n"
-			}
+			},
+			"__des__": "Defines how much does friction affect this entity."
 		},
 		"minecraft:ground_offset": {
 			"value": {
 				"type": "Decimal",
 				"default_value": "0.0",
 				"description": "The value of the entity's offset from the terrain, in blocks\n"
-			}
+			},
+			"__des__": "Sets the offset from the ground that the entity is actually at."
 		},
 		"minecraft:healable": {
 			"items": {
 				"type": "List",
 				"default_value": "",
 				"description": "The list of items that can be used to heal this entity\n<table border=\"1\">\n<tbody><tr> <th>Name</th> <th>Type</th> <th>Default Value</th> <th>Description</th> </tr>\n<tr>\n<td>filters</td>\n<td>Minecraft Filter</td>\n<td></td>\n<td>The list of conditions for this trigger\n</td>\n</tr>\n<tr>\n<td>force_use</td>\n<td>Boolean</td>\n<td>false</td>\n<td>Determines if item can be used regardless of entity being full health\n</td>\n</tr>\n<tr>\n<td>heal_amount</td>\n<td>Decimal</td>\n<td>1.0</td>\n<td>The amount of health this entity gains when fed this item\n</td>\n</tr>\n<tr>\n<td>item</td>\n<td>String</td>\n<td></td>\n<td>Name of the item this entity likes and can be used to heal this entity\n</td>\n</tr>\n</tbody></table>\n"
-			}
+			},
+			"__des__": "Defines the interactions with this entity for healing it."
 		},
-		"minecraft:hurt_when_wet": {},
-		"minecraft:input_ground_controlled": {},
+		"minecraft:hurt_when_wet": {
+			"__des__": "Sets that this entity will take damage when it is wet."
+		},
+		"minecraft:input_ground_controlled": {
+			"__des__": "When configured as a rideable entity, the entity will be controlled using WASD controls."
+		},
 		"minecraft:interact": {
 			"add_items": {
 				"type": "JSON Object",
@@ -1308,7 +1485,7 @@ var autoData = {
 			"particle_on_start": {
 				"type": "JSON Object",
 				"default_value": "",
-				"description": "Particle effect that will be triggered at the start of the interaction\n<h3><p id=\"particle_offset_towards_interactor\">particle_offset_towards_interactor</p></h3>\n\n<h4>Description</h4>\n\nWhether or not the particle will appear closer to who performed the interaction\n<a href=\"#Index\">Back to top</a>\n\n\n\n<h3><p id=\"particle_type\">particle_type</p></h3>\n\n<h4>Description</h4>\n\nThe type of particle that will be spawned\n<a href=\"#Index\">Back to top</a>\n\n\n\n<h3><p id=\"particle_y_offset\">particle_y_offset</p></h3>\n\n<h4>Description</h4>\n\nWill offset the particle this amount in the y direction\n<a href=\"#Index\">Back to top</a>\n\n\n\n"
+				"description": "Particle effect that will be triggered at the start of the interaction\n<table border=\"1\">\n<tbody><tr> <th>Name</th> <th>Type</th> <th>Default Value</th> <th>Description</th> </tr>\n<tr>\n<td>particle_offset_towards_interactor</td>\n<td>Boolean</td>\n<td></td>\n<td>Whether or not the particle will appear closer to who performed the interaction</td>\n</tr><tr>\n<td>particle_type</td>\n<td>String</td>\n<td></td>\n<td>The type of particle that will be spawned</td>\n</tr><tr>\n<td>particle_y_offset</td>\n<td>Decimal</td>\n<td></td>\n<td>Will offset the particle this amount in the y direction</td>\n</tr>\n</tbody></table>"
 			},
 			"play_sounds": {
 				"type": "String",
@@ -1339,7 +1516,8 @@ var autoData = {
 				"type": "Boolean",
 				"default_value": "false",
 				"description": "If true, the interaction will use an item\n"
-			}
+			},
+			"__des__": "Defines interactions with this entity."
 		},
 		"minecraft:inventory": {
 			"additional_slots_per_strength": {
@@ -1376,39 +1554,65 @@ var autoData = {
 				"type": "Boolean",
 				"default_value": "false",
 				"description": "If true, the entity's inventory can only be accessed by its owner or itself\n"
-			}
+			},
+			"__des__": "Defines this entity's inventory properties."
 		},
-		"minecraft:is_baby": {},
-		"minecraft:is_charged": {},
-		"minecraft:is_chested": {},
+		"minecraft:is_baby": {
+			"__des__": "Sets that this entity is a baby."
+		},
+		"minecraft:is_charged": {
+			"__des__": "Sets that this entity is charged."
+		},
+		"minecraft:is_chested": {
+			"__des__": "Sets that this entity is currently carrying a chest."
+		},
 		"minecraft:is_dyeable": {
 			"interact_text": {
 				"type": "String",
 				"default_value": "",
 				"description": "The text that will display when interacting with this entity with a dye when playing with Touch-screen controls\n"
-			}
+			},
+			"__des__": "Allows dyes to be used on this entity to change its color."
 		},
-		"minecraft:is_ignited": {},
-		"minecraft:is_saddled": {},
-		"minecraft:is_shaking": {},
-		"minecraft:is_sheared": {},
-		"minecraft:is_stackable": {},
-		"minecraft:is_tamed": {},
+		"minecraft:is_ignited": {
+			"__des__": "Sets that this entity is currently on fire."
+		},
+		"minecraft:is_saddled": {
+			"__des__": "Sets that this entity is currently saddled."
+		},
+		"minecraft:is_shaking": {
+			"__des__": "Sets that this entity is currently shaking."
+		},
+		"minecraft:is_sheared": {
+			"__des__": "Sets that this entity is currently sheared."
+		},
+		"minecraft:is_stackable": {
+			"__des__": "Sets that this entity can be stacked."
+		},
+		"minecraft:is_tamed": {
+			"__des__": "Sets that this entity is currently tamed."
+		},
 		"minecraft:item_controllable": {
 			"control_items": {
 				"type": "List",
 				"default_value": "",
 				"description": "List of items that can be used to control this entity\n"
-			}
+			},
+			"__des__": "Defines what items can be used to control this entity while ridden"
 		},
-		"minecraft:item_hopper": {},
-		"minecraft:jump.dynamic": {},
+		"minecraft:item_hopper": {
+			"__des__": "Determines that this entity is an item hopper"
+		},
+		"minecraft:jump.dynamic": {
+			"__des__": "Defines a dynamic type jump control that will change jump properties based on the speed modifier of the mob."
+		},
 		"minecraft:jump.static": {
 			"jump_power": {
 				"type": "Decimal",
 				"default_value": "0.42",
 				"description": "The initial vertical velocity for the jump\n"
-			}
+			},
+			"__des__": "Gives the entity the ability to jump."
 		},
 		"minecraft:leashable": {
 			"hard_distance": {
@@ -1435,7 +1639,8 @@ var autoData = {
 				"type": "Decimal",
 				"default_value": "4.0",
 				"description": "Distance in blocks at which the 'spring' effect starts acting to keep this entity close to the entity that leashed it\n"
-			}
+			},
+			"__des__": "Allows this entity to be leashed and Defines the conditions and events for this entity when is leashed."
 		},
 		"minecraft:lookat": {
 			"filters": {
@@ -1467,42 +1672,48 @@ var autoData = {
 				"type": "Boolean",
 				"default_value": "true",
 				"description": "If true, this entity will set the attack target as the entity that looked at it\n"
-			}
+			},
+			"__des__": "Defines the behavior when another entity looks at this entity."
 		},
 		"minecraft:loot": {
 			"table": {
 				"type": "String",
 				"default_value": "",
 				"description": "The path to the loot table, relative to the Behavior Pack's root\n"
-			}
+			},
+			"__des__": "Sets the loot table for what items this entity drops upon death."
 		},
 		"minecraft:mark_variant": {
 			"value": {
 				"type": "Integer",
 				"default_value": "0",
 				"description": "The ID of the variant. By convention, 0 is the ID of the base entity\n"
-			}
+			},
+			"__des__": "Additional variant value. Can be used to further differentiate variants."
 		},
 		"minecraft:movement.basic": {
 			"max_turn": {
 				"type": "Decimal",
 				"default_value": "30.0",
 				"description": "The maximum number in degrees the mob can turn per tick.\n"
-			}
+			},
+			"__des__": "This component accents the movement of an entity."
 		},
 		"minecraft:movement.fly": {
 			"max_turn": {
 				"type": "Decimal",
 				"default_value": "30.0",
 				"description": "The maximum number in degrees the mob can turn per tick.\n"
-			}
+			},
+			"__des__": "This move control causes the mob to fly."
 		},
 		"minecraft:movement.generic": {
 			"max_turn": {
 				"type": "Decimal",
 				"default_value": "30.0",
 				"description": "The maximum number in degrees the mob can turn per tick.\n"
-			}
+			},
+			"__des__": "This move control allows a mob to fly, swim, climb, etc."
 		},
 		"minecraft:movement.jump": {
 			"jump_delay": {
@@ -1514,21 +1725,24 @@ var autoData = {
 				"type": "Decimal",
 				"default_value": "30.0",
 				"description": "The maximum number in degrees the mob can turn per tick.\n"
-			}
+			},
+			"__des__": "Move control that causes the mob to jump as it moves with a specified delay between jumps."
 		},
 		"minecraft:movement.skip": {
 			"max_turn": {
 				"type": "Decimal",
 				"default_value": "30.0",
 				"description": "The maximum number in degrees the mob can turn per tick.\n"
-			}
+			},
+			"__des__": "This move control causes the mob to hop as it moves."
 		},
 		"minecraft:movement.sway": {
 			"max_turn": {
 				"type": "Decimal",
 				"default_value": "30.0",
 				"description": "The maximum number in degrees the mob can turn per tick.\n"
-			}
+			},
+			"__des__": "This move control causes the mob to sway side to side giving the impression it is swimming."
 		},
 		"minecraft:nameable": {
 			"allowNameTagRenaming": {
@@ -1550,7 +1764,8 @@ var autoData = {
 				"type": "JSON Object",
 				"default_value": "",
 				"description": "Describes the special names for this entity and the events to call when the entity acquires those names\n<table border=\"1\">\n<tbody><tr> <th>Name</th> <th>Type</th> <th>Default Value</th> <th>Description</th> </tr>\n<tr>\n<td>name_filter</td>\n<td>String</td>\n<td></td>\n<td>List of special names that will cause the events defined in 'on_named' to fire\n</td>\n</tr>\n<tr>\n<td>on_named</td>\n<td>String</td>\n<td></td>\n<td>Event to be called when this entity acquires the name specified in 'name_filter'\n</td>\n</tr>\n</tbody></table>\n"
-			}
+			},
+			"__des__": "Allows this entity to be named (e.g. using a name tag)"
 		},
 		"minecraft:navigation.climb": {
 			"avoid_portals": {
@@ -1587,7 +1802,8 @@ var autoData = {
 				"type": "Boolean",
 				"default_value": "true",
 				"description": "Tells the pathfinder whether or not it will be pulled down by gravity while in water\n"
-			}
+			},
+			"__des__": "Allows this entity to generate paths that include vertical walls like the vanilla Spiders do."
 		},
 		"minecraft:navigation.float": {
 			"avoid_portals": {
@@ -1624,7 +1840,8 @@ var autoData = {
 				"type": "Boolean",
 				"default_value": "true",
 				"description": "Tells the pathfinder whether or not it will be pulled down by gravity while in water\n"
-			}
+			},
+			"__des__": "Allows this entity to generate paths by flying around the air like the regular Ghast."
 		},
 		"minecraft:navigation.fly": {
 			"avoid_portals": {
@@ -1661,7 +1878,8 @@ var autoData = {
 				"type": "Boolean",
 				"default_value": "true",
 				"description": "Tells the pathfinder whether or not it will be pulled down by gravity while in water\n"
-			}
+			},
+			"__des__": "Allows this entity to generate paths in the air like the vanilla Parrots do."
 		},
 		"minecraft:navigation.generic": {
 			"avoid_portals": {
@@ -1698,7 +1916,8 @@ var autoData = {
 				"type": "Boolean",
 				"default_value": "true",
 				"description": "Tells the pathfinder whether or not it will be pulled down by gravity while in water\n"
-			}
+			},
+			"__des__": "Allows this entity to generate paths by walking, swimming, flying and/or climbing around and jumping up and down a block."
 		},
 		"minecraft:navigation.swim": {
 			"avoid_portals": {
@@ -1735,7 +1954,8 @@ var autoData = {
 				"type": "Boolean",
 				"default_value": "true",
 				"description": "Tells the pathfinder whether or not it will be pulled down by gravity while in water\n"
-			}
+			},
+			"__des__": "Allows this entity to generate paths that include water."
 		},
 		"minecraft:navigation.walk": {
 			"avoid_portals": {
@@ -1772,7 +1992,8 @@ var autoData = {
 				"type": "Boolean",
 				"default_value": "true",
 				"description": "Tells the pathfinder whether or not it will be pulled down by gravity while in water\n"
-			}
+			},
+			"__des__": "Allows this entity to generate paths by walking around and jumping up and down a block like regular mobs."
 		},
 		"minecraft:on_death": {
 			"event": {
@@ -1789,7 +2010,8 @@ var autoData = {
 				"type": "String",
 				"default_value": "self",
 				"description": "The target of the event\n"
-			}
+			},
+			"__des__": "Only usable by the Ender Dragon. Adds a trigger to call on this entity's death."
 		},
 		"minecraft:on_friendly_anger": {
 			"event": {
@@ -1806,7 +2028,8 @@ var autoData = {
 				"type": "String",
 				"default_value": "self",
 				"description": "The target of the event\n"
-			}
+			},
+			"__des__": "Adds a trigger that will run when a nearby entity of the same type as this entity becomes Angry."
 		},
 		"minecraft:on_hurt": {
 			"event": {
@@ -1823,7 +2046,8 @@ var autoData = {
 				"type": "String",
 				"default_value": "self",
 				"description": "The target of the event\n"
-			}
+			},
+			"__des__": "Adds a trigger to call when this entity takes damage."
 		},
 		"minecraft:on_hurt_by_player": {
 			"event": {
@@ -1840,7 +2064,8 @@ var autoData = {
 				"type": "String",
 				"default_value": "self",
 				"description": "The target of the event\n"
-			}
+			},
+			"__des__": "Adds a trigger to call when this entity is attacked by the player."
 		},
 		"minecraft:on_ignite": {
 			"event": {
@@ -1857,7 +2082,8 @@ var autoData = {
 				"type": "String",
 				"default_value": "self",
 				"description": "The target of the event\n"
-			}
+			},
+			"__des__": "Adds a trigger to call when this entity is set on fire."
 		},
 		"minecraft:on_start_landing": {
 			"event": {
@@ -1874,7 +2100,8 @@ var autoData = {
 				"type": "String",
 				"default_value": "self",
 				"description": "The target of the event\n"
-			}
+			},
+			"__des__": "Only usable by the Ender Dragon. Adds a trigger to call when this entity lands."
 		},
 		"minecraft:on_start_takeoff": {
 			"event": {
@@ -1891,7 +2118,8 @@ var autoData = {
 				"type": "String",
 				"default_value": "self",
 				"description": "The target of the event\n"
-			}
+			},
+			"__des__": "Only usable by the Ender Dragon. Adds a trigger to call when this entity starts flying."
 		},
 		"minecraft:on_target_acquired": {
 			"event": {
@@ -1908,7 +2136,8 @@ var autoData = {
 				"type": "String",
 				"default_value": "self",
 				"description": "The target of the event\n"
-			}
+			},
+			"__des__": "Adds a trigger to call when this entity finds a target."
 		},
 		"minecraft:on_target_escape": {
 			"event": {
@@ -1925,7 +2154,8 @@ var autoData = {
 				"type": "String",
 				"default_value": "self",
 				"description": "The target of the event\n"
-			}
+			},
+			"__des__": "Adds a trigger to call when this entity loses the target it currently has."
 		},
 		"minecraft:peek": {
 			"on_close": {
@@ -1942,7 +2172,8 @@ var autoData = {
 				"type": "String",
 				"default_value": "",
 				"description": "Event to call when the entity's target entity starts peeking\n"
-			}
+			},
+			"__des__": "Defines the entity's 'peek' behavior, defining the events that should be called during it"
 		},
 		"minecraft:projectile": {
 			"angleoffset": {
@@ -2084,21 +2315,24 @@ var autoData = {
 				"type": "Decimal",
 				"default_value": "0.0",
 				"description": "Determines how much difficulty affects accuracy. Accuracy is determined by the formula uncertaintyBase - difficultyLevel * uncertaintyMultiplier\n"
-			}
+			},
+			"__des__": "Allows the entity to be a thrown entity."
 		},
 		"minecraft:push_through": {
 			"value": {
 				"type": "Decimal",
 				"default_value": "0.0",
 				"description": "The value of the entity's push-through, in blocks\n"
-			}
+			},
+			"__des__": "Sets the distance through which the entity can push through."
 		},
 		"minecraft:rail_movement": {
 			"max_speed": {
 				"type": "Decimal",
 				"default_value": "0.4",
 				"description": "Maximum speed that this entity will move at when on the rail\n"
-			}
+			},
+			"__des__": "Defines the entity's movement on the rails. An entity with this component is only allowed to move on the rail."
 		},
 		"minecraft:rail_sensor": {
 			"check_block_types": {
@@ -2135,7 +2369,8 @@ var autoData = {
 				"type": "Boolean",
 				"default_value": "false",
 				"description": "If false, command blocks will stop ticking when passing over a deactivated rail\n"
-			}
+			},
+			"__des__": "Defines the behavior of the entity when the rail gets activated or deactivated."
 		},
 		"minecraft:rideable": {
 			"controlling_seat": {
@@ -2172,14 +2407,16 @@ var autoData = {
 				"type": "List",
 				"default_value": "",
 				"description": "The list of positions and number of riders for each position for entities riding this entity\n<table border=\"1\">\n<tbody><tr> <th>Name</th> <th>Type</th> <th>Default Value</th> <th>Description</th> </tr>\n<tr>\n<td>lock_rider_rotation</td>\n<td>Decimal</td>\n<td>181.0</td>\n<td>Angle in degrees that a rider is allowed to rotate while riding this entity. Omit this property for no limit\n</td>\n</tr>\n<tr>\n<td>max_rider_count</td>\n<td>Integer</td>\n<td>0</td>\n<td>Defines the maximum number of riders that can be riding this entity for this seat to be valid\n</td>\n</tr>\n<tr>\n<td>min_rider_count</td>\n<td>Integer</td>\n<td>0</td>\n<td>Defines the minimum number of riders that need to be riding this entity before this seat can be used\n</td>\n</tr>\n<tr>\n<td>position</td>\n<td>Vector [a, b, c]</td>\n<td>[0.0, 0.0, 0.0]</td>\n<td>Position of this seat relative to this entity's position\n</td>\n</tr>\n<tr>\n<td>rotate_rider_by</td>\n<td>Decimal</td>\n<td>0.0</td>\n<td>Offset to rotate riders by\n</td>\n</tr>\n</tbody></table>\n"
-			}
+			},
+			"__des__": "Determines whether this entity can be ridden. Allows specifying the different seat positions and quantity."
 		},
 		"minecraft:scale": {
 			"value": {
 				"type": "Decimal",
 				"default_value": "1.0",
 				"description": "The value of the scale. 1.0 means the entity will appear at the scale they are defined in their model. Higher numbers make the entity bigger\n"
-			}
+			},
+			"__des__": "Sets the entity's visual size."
 		},
 		"minecraft:scale_by_age": {
 			"end_scale": {
@@ -2191,7 +2428,8 @@ var autoData = {
 				"type": "Decimal",
 				"default_value": "1.0",
 				"description": "Initial scale of the newborn entity\n"
-			}
+			},
+			"__des__": "Defines the entity's size interpolation based on the entity's age."
 		},
 		"minecraft:shareables": {
 			"craft_into": {
@@ -2213,7 +2451,8 @@ var autoData = {
 				"type": "Integer",
 				"default_value": "-1",
 				"description": "Number of this item this entity wants to share\n"
-			}
+			},
+			"__des__": "Defines a list of items the mob wants to share. Each item must have the following parameters:"
 		},
 		"minecraft:shooter": {
 			"auxVal": {
@@ -2225,7 +2464,8 @@ var autoData = {
 				"type": "String",
 				"default_value": "",
 				"description": "Entity definition to use as projectile for the ranged attack. The entity definition must have the projectile component to be able to be shot as a projectile\n"
-			}
+			},
+			"__des__": "Defines the entity's ranged attack behavior."
 		},
 		"minecraft:sittable": {
 			"sit_event": {
@@ -2237,14 +2477,16 @@ var autoData = {
 				"type": "String",
 				"default_value": "",
 				"description": "Event to run when the entity exits the 'sit' state\n"
-			}
+			},
+			"__des__": "Defines the entity's 'sit' state."
 		},
 		"minecraft:sound_volume": {
 			"value": {
 				"type": "Decimal",
 				"default_value": "1.0",
 				"description": "The value of the volume the entity uses for sound effects\n"
-			}
+			},
+			"__des__": "Sets the entity's base volume for sound effects."
 		},
 		"minecraft:spawn_entity": {
 			"max_wait_time": {
@@ -2281,7 +2523,8 @@ var autoData = {
 				"type": "String",
 				"default_value": "plop",
 				"description": "Name of the sound effect to play when the entity is spawned\n"
-			}
+			},
+			"__des__": "Adds a timer after which this entity will spawn another entity or item (similar to vanilla's chicken's egg-laying behavior)."
 		},
 		"minecraft:spell_effects": {
 			"add_effects": {
@@ -2293,7 +2536,8 @@ var autoData = {
 				"type": "String",
 				"default_value": "",
 				"description": "List of names of effects to be removed from this entity after adding this component\n"
-			}
+			},
+			"__des__": "Defines what mob effects to add and remove to the entity when adding this component."
 		},
 		"minecraft:strength": {
 			"max": {
@@ -2305,7 +2549,8 @@ var autoData = {
 				"type": "Integer",
 				"default_value": "1",
 				"description": "The initial value of the strength\n"
-			}
+			},
+			"__des__": "Defines the entity's strength to carry items."
 		},
 		"minecraft:tameable": {
 			"probability": {
@@ -2322,7 +2567,8 @@ var autoData = {
 				"type": "String",
 				"default_value": "",
 				"description": "Event to run when this entity becomes tamed\n"
-			}
+			},
+			"__des__": "Defines the rules for a mob to be tamed by the player."
 		},
 		"minecraft:tamemount": {
 			"attemptTemperMod": {
@@ -2364,7 +2610,8 @@ var autoData = {
 				"type": "String",
 				"default_value": "",
 				"description": "Event that triggers when the entity becomes tamed\n"
-			}
+			},
+			"__des__": "Allows the Entity to be tamed by mounting it."
 		},
 		"minecraft:target_nearby_sensor": {
 			"inside_range": {
@@ -2386,7 +2633,8 @@ var autoData = {
 				"type": "Decimal",
 				"default_value": "5.0",
 				"description": "Maximum distance in blocks that another entity will be considered in the 'outside' range\n"
-			}
+			},
+			"__des__": "Defines the entity's range within which it can see or sense other entities to target them."
 		},
 		"minecraft:teleport": {
 			"darkTeleportChance": {
@@ -2428,7 +2676,8 @@ var autoData = {
 				"type": "Decimal",
 				"default_value": "1.0",
 				"description": "The chance that the entity will teleport between 0.0 and 1.0. 1.0 means 100%\n"
-			}
+			},
+			"__des__": "Defines an entity's teleporting behavior."
 		},
 		"minecraft:tick_world": {
 			"distance_to_players": {
@@ -2445,7 +2694,8 @@ var autoData = {
 				"type": "Positive Integer",
 				"default_value": "2",
 				"description": "The area around the entity to tick. Default: 2. Allowed range: 2-6.\n"
-			}
+			},
+			"__des__": "Defines if the entity ticks the world and the radius around it to tick."
 		},
 		"minecraft:timer": {
 			"looping": {
@@ -2467,7 +2717,8 @@ var autoData = {
 				"type": "String",
 				"default_value": "",
 				"description": "Event to fire when the time on the timer runs out\n"
-			}
+			},
+			"__des__": "Adds a timer after which an event will fire."
 		},
 		"minecraft:trade_table": {
 			"display_name": {
@@ -2479,7 +2730,8 @@ var autoData = {
 				"type": "String",
 				"default_value": "",
 				"description": "File path relative to the resource pack root for this entity's trades\n"
-			}
+			},
+			"__des__": "Defines this entity's ability to trade with players."
 		},
 		"minecraft:transformation": {
 			"add": {
@@ -2511,44 +2763,51 @@ var autoData = {
 				"type": "String",
 				"default_value": "",
 				"description": "Sound to play when the entity is done transforming\n"
-			}
+			},
+			"__des__": "Defines an entity's transformation from the current definition into another"
 		},
 		"minecraft:type_family": {
 			"family": {
 				"type": "List",
 				"default_value": "",
 				"description": "List of family names\n"
-			}
+			},
+			"__des__": "Defines the families this entity belongs to."
 		},
 		"minecraft:variant": {
 			"value": {
 				"type": "Integer",
 				"default_value": "0",
 				"description": "The ID of the variant. By convention, 0 is the ID of the base entity\n"
-			}
+			},
+			"__des__": "Used to differentiate the component group of a variant of an entity from others (e.g. ocelot, villager)"
 		},
 		"minecraft:walk_animation_speed": {
 			"value": {
 				"type": "Decimal",
 				"default_value": "1.0",
 				"description": "The higher the number, the faster the animation for walking plays. A value of 1.0 means normal speed, while 2.0 means twice as fast\n"
-			}
+			},
+			"__des__": "Sets the speed multiplier for this entity's walk animation speed."
 		},
-		"minecraft:wants_jockey": {}
+		"minecraft:wants_jockey": {
+			"__des__": "Sets that this entity wants to become a jockey."
+		}
 	},
-	"events": [{
-		"name": "minecraft:entity_born",
-		"description": "Event called on an entity that is spawned through two entities breeding.\n"
-	}, {
-		"name": "minecraft:entity_spawned",
-		"description": "Event called on an entity that is placed in the level.\n"
-	}, {
-		"name": "minecraft:entity_transformed",
-		"description": "Event called on an entity that transforms into another entity.\n"
-	}, {
-		"name": "minecraft:on_prime",
-		"description": "Event called on an entity whose fuse is lit and is ready to explode.\n"
-	}],
+	"events": {
+		"minecraft:entity_born": {
+			"description": "Event called on an entity that is spawned through two entities breeding.\n"
+		},
+		"minecraft:entity_spawned": {
+			"description": "Event called on an entity that is placed in the level.\n"
+		},
+		"minecraft:entity_transformed": {
+			"description": "Event called on an entity that transforms into another entity.\n"
+		},
+		"minecraft:on_prime": {
+			"description": "Event called on an entity whose fuse is lit and is ready to explode.\n"
+		}
+	},
 	"blocks": ["210", "211", "212", "217", "230", "242", "256", "412", "413", "414", "415", "416", "417", "418", "419", "420", "421", "422", "423", "424", "425", "426", "427", "428", "429", "430", "431", "432", "433", "434", "435", "436", "437", "438", "439", "440", "441", "442", "443", "444", "445", "446", "447", "448", "449", "450", "451", "452", "453", "454", "455", "456", "457", "458", "459", "460", "461", "462", "463", "464", "465", "466", "467", "468", "469", "470", "471", "472", "473", "474", "475", "476", "477", "478", "479", "480", "481", "482", "483", "484", "485", "486", "487", "488", "489", "490", "491", "492", "493", "494", "495", "496", "497", "498", "499", "500", "501", "502", "503", "504", "505", "506", "507", "508", "509", "510", "511", "acacia_button", "acacia_door", "acacia_fence_gate", "acacia_pressure_plate", "acacia_stairs", "acacia_trapdoor", "activator_rail", "air", "anvil", "beacon", "bed", "bedrock", "beetroot", "birch_button", "birch_door", "birch_fence_gate", "birch_pressure_plate", "birch_stairs", "birch_trapdoor", "black_glazed_terracotta", "blue_glazed_terracotta", "blue_ice", "bone_block", "bookshelf", "brewing_stand", "brick_block", "brick_stairs", "brown_glazed_terracotta", "brown_mushroom", "brown_mushroom_block", "cactus", "cake", "carpet", "carrots", "carved_pumpkin", "cauldron", "chain_command_block", "chemical_heat", "chemistry_table", "chest", "chorus_flower", "chorus_plant", "clay", "coal_block", "coal_ore", "cobblestone", "cobblestone_wall", "cocoa", "colored_torch_bp", "colored_torch_rg", "command_block", "concrete", "concretePowder", "coral", "coral_block", "coral_fan", "coral_fan_dead", "coral_fan_hang", "coral_fan_hang2", "coral_fan_hang3", "crafting_table", "cyan_glazed_terracotta", "dark_oak_button", "dark_oak_door", "dark_oak_fence_gate", "dark_oak_pressure_plate", "dark_oak_stairs", "dark_oak_trapdoor", "dark_prismarine_stairs", "daylight_detector", "daylight_detector_inverted", "deadbush", "detector_rail", "diamond_block", "diamond_ore", "dirt", "dispenser", "double_plant", "double_stone_slab", "double_stone_slab2", "double_wooden_slab", "dragon_egg", "dried_kelp_block", "dropper", "element_0", "element_1", "element_10", "element_100", "element_101", "element_102", "element_103", "element_104", "element_105", "element_106", "element_107", "element_108", "element_109", "element_11", "element_110", "element_111", "element_112", "element_113", "element_114", "element_115", "element_116", "element_117", "element_118", "element_12", "element_13", "element_14", "element_15", "element_16", "element_17", "element_18", "element_19", "element_2", "element_20", "element_21", "element_22", "element_23", "element_24", "element_25", "element_26", "element_27", "element_28", "element_29", "element_3", "element_30", "element_31", "element_32", "element_33", "element_34", "element_35", "element_36", "element_37", "element_38", "element_39", "element_4", "element_40", "element_41", "element_42", "element_43", "element_44", "element_45", "element_46", "element_47", "element_48", "element_49", "element_5", "element_50", "element_51", "element_52", "element_53", "element_54", "element_55", "element_56", "element_57", "element_58", "element_59", "element_6", "element_60", "element_61", "element_62", "element_63", "element_64", "element_65", "element_66", "element_67", "element_68", "element_69", "element_7", "element_70", "element_71", "element_72", "element_73", "element_74", "element_75", "element_76", "element_77", "element_78", "element_79", "element_8", "element_80", "element_81", "element_82", "element_83", "element_84", "element_85", "element_86", "element_87", "element_88", "element_89", "element_9", "element_90", "element_91", "element_92", "element_93", "element_94", "element_95", "element_96", "element_97", "element_98", "element_99", "emerald_block", "emerald_ore", "enchanting_table", "end_bricks", "end_gateway", "end_portal", "end_portal_frame", "end_rod", "end_stone", "ender_chest", "farmland", "fence", "fence_gate", "fire", "flower_pot", "flowing_lava", "flowing_water", "frame", "frosted_ice", "furnace", "glass", "glass_pane", "glow_stick", "glowingobsidian", "glowstone", "gold_block", "gold_ore", "golden_rail", "grass", "grass_path", "gravel", "gray_glazed_terracotta", "green_glazed_terracotta", "hard_glass", "hard_glass_pane", "hard_stained_glass", "hard_stained_glass_pane", "hardened_clay", "hay_block", "heavy_weighted_pressure_plate", "hopper", "ice", "info_update", "info_update2", "invisibleBedrock", "iron_bars", "iron_block", "iron_door", "iron_ore", "iron_trapdoor", "jukebox", "jungle_button", "jungle_door", "jungle_fence_gate", "jungle_pressure_plate", "jungle_stairs", "jungle_trapdoor", "kelp", "ladder", "lapis_block", "lapis_ore", "lava", "leaves", "leaves2", "lever", "light_blue_glazed_terracotta", "light_weighted_pressure_plate", "lime_glazed_terracotta", "lit_furnace", "lit_pumpkin", "lit_redstone_lamp", "lit_redstone_ore", "log", "log2", "magenta_glazed_terracotta", "magma", "melon_block", "melon_stem", "mob_spawner", "monster_egg", "mossy_cobblestone", "movingBlock", "mycelium", "nether_brick", "nether_brick_fence", "nether_brick_stairs", "nether_wart", "nether_wart_block", "netherrack", "netherreactor", "noteblock", "oak_stairs", "observer", "obsidian", "orange_glazed_terracotta", "packed_ice", "pink_glazed_terracotta", "piston", "pistonArmCollision", "planks", "podzol", "portal", "potatoes", "powered_comparator", "powered_repeater", "prismarine", "prismarine_bricks_stairs", "prismarine_stairs", "pumpkin", "pumpkin_stem", "purple_glazed_terracotta", "purpur_block", "purpur_stairs", "quartz_block", "quartz_ore", "quartz_stairs", "rail", "red_flower", "red_glazed_terracotta", "red_mushroom", "red_mushroom_block", "red_nether_brick", "red_sandstone", "red_sandstone_stairs", "redstone_block", "redstone_lamp", "redstone_ore", "redstone_torch", "redstone_wire", "reeds", "repeating_command_block", "reserved6", "sand", "sandstone", "sandstone_stairs", "sapling", "seaLantern", "sea_pickle", "seagrass", "shulker_box", "silver_glazed_terracotta", "skull", "slime", "snow", "snow_layer", "soul_sand", "sponge", "spruce_button", "spruce_door", "spruce_fence_gate", "spruce_pressure_plate", "spruce_stairs", "spruce_trapdoor", "stained_glass", "stained_glass_pane", "stained_hardened_clay", "standing_banner", "standing_sign", "sticky_piston", "stone", "stone_brick_stairs", "stone_button", "stone_pressure_plate", "stone_slab", "stone_slab2", "stone_stairs", "stonebrick", "stonecutter", "stripped_acacia_log", "stripped_birch_log", "stripped_dark_oak_log", "stripped_jungle_log", "stripped_oak_log", "stripped_spruce_log", "structure_block", "tallgrass", "tnt", "torch", "trapdoor", "trapped_chest", "tripWire", "tripwire_hook", "underwater_torch", "undyed_shulker_box", "unlit_redstone_torch", "unpowered_comparator", "unpowered_repeater", "vine", "wall_banner", "wall_sign", "water", "waterlily", "web", "wheat", "white_glazed_terracotta", "wooden_button", "wooden_door", "wooden_pressure_plate", "wooden_slab", "wool", "yellow_flower", "yellow_glazed_terracotta"],
 	"items": ["acacia_door", "anvil", "apple", "appleEnchanted", "armor_stand", "arrow", "baked_potato", "balloon", "banner", "beacon", "bed", "beef", "beetroot", "beetroot_seeds", "beetroot_soup", "birch_door", "blaze_powder", "blaze_rod", "bleach", "boat", "bone", "book", "bow", "bowl", "bread", "brewingStandBlock", "brewing_stand", "brick", "brown_mushroom_block", "bucket", "cake", "carpet", "carrot", "carrotOnAStick", "cauldron", "chainmail_boots", "chainmail_chestplate", "chainmail_helmet", "chainmail_leggings", "chemistry_table", "chest_minecart", "chicken", "chorus_fruit", "chorus_fruit_popped", "clay_ball", "clock", "clownfish", "coal", "cobblestone_wall", "colored_torch_bp", "colored_torch_rg", "command_block_minecart", "comparator", "compass", "compound", "concrete", "concrete_powder", "cooked_beef", "cooked_chicken", "cooked_fish", "cooked_porkchop", "cooked_rabbit", "cooked_salmon", "cookie", "coral", "coral_block", "coral_fan", "coral_fan_dead", "dark_oak_door", "diamond", "diamond_axe", "diamond_boots", "diamond_chestplate", "diamond_helmet", "diamond_hoe", "diamond_leggings", "diamond_pickaxe", "diamond_shovel", "diamond_sword", "dirt", "double_plant", "double_stone_slab", "double_stone_slab2", "dragon_breath", "dried_kelp", "dye", "egg", "element_0", "element_1", "element_10", "element_100", "element_101", "element_102", "element_103", "element_104", "element_105", "element_106", "element_107", "element_108", "element_109", "element_11", "element_110", "element_111", "element_112", "element_113", "element_114", "element_115", "element_116", "element_117", "element_118", "element_12", "element_13", "element_14", "element_15", "element_16", "element_17", "element_18", "element_19", "element_2", "element_20", "element_21", "element_22", "element_23", "element_24", "element_25", "element_26", "element_27", "element_28", "element_29", "element_3", "element_30", "element_31", "element_32", "element_33", "element_34", "element_35", "element_36", "element_37", "element_38", "element_39", "element_4", "element_40", "element_41", "element_42", "element_43", "element_44", "element_45", "element_46", "element_47", "element_48", "element_49", "element_5", "element_50", "element_51", "element_52", "element_53", "element_54", "element_55", "element_56", "element_57", "element_58", "element_59", "element_6", "element_60", "element_61", "element_62", "element_63", "element_64", "element_65", "element_66", "element_67", "element_68", "element_69", "element_7", "element_70", "element_71", "element_72", "element_73", "element_74", "element_75", "element_76", "element_77", "element_78", "element_79", "element_8", "element_80", "element_81", "element_82", "element_83", "element_84", "element_85", "element_86", "element_87", "element_88", "element_89", "element_9", "element_90", "element_91", "element_92", "element_93", "element_94", "element_95", "element_96", "element_97", "element_98", "element_99", "elytra", "emerald", "emptyMap", "enchanted_book", "end_crystal", "end_portal_frame", "ender_eye", "ender_pearl", "experience_bottle", "feather", "fence", "fermented_spider_eye", "fireball", "fireworks", "fireworksCharge", "fish", "fishing_rod", "flint", "flint_and_steel", "flower_pot", "frame", "ghast_tear", "glass_bottle", "glow_stick", "glowstone_dust", "gold_ingot", "gold_nugget", "golden_apple", "golden_axe", "golden_boots", "golden_carrot", "golden_chestplate", "golden_helmet", "golden_hoe", "golden_leggings", "golden_pickaxe", "golden_shovel", "golden_sword", "gunpowder", "hard_stained_glass", "hard_stained_glass_pane", "heart_of_the_sea", "hopper", "hopper_minecart", "horsearmordiamond", "horsearmorgold", "horsearmoriron", "horsearmorleather", "ice_bomb", "iron_axe", "iron_boots", "iron_chestplate", "iron_door", "iron_helmet", "iron_hoe", "iron_ingot", "iron_leggings", "iron_nugget", "iron_pickaxe", "iron_shovel", "iron_sword", "jungle_door", "kelp", "lead", "leather", "leather_boots", "leather_chestplate", "leather_helmet", "leather_leggings", "leaves", "leaves2", "lingering_potion", "log", "log2", "magma", "magma_cream", "map", "medicine", "melon", "melon_seeds", "minecart", "monster_egg", "mushroom_stew", "muttonCooked", "muttonRaw", "name_tag", "nautilus_shell", "netherStar", "nether_wart", "netherbrick", "painting", "paper", "piston", "planks", "poisonous_potato", "porkchop", "potato", "potion", "prismarine", "prismarine_crystals", "prismarine_shard", "pufferfish", "pumpkin_pie", "pumpkin_seeds", "purpur_block", "quartz", "quartz_block", "rabbit", "rabbit_foot", "rabbit_hide", "rabbit_stew", "rapid_fertilizer", "record_11", "record_13", "record_blocks", "record_cat", "record_chirp", "record_far", "record_mall", "record_mellohi", "record_stal", "record_strad", "record_wait", "record_ward", "red_flower", "red_mushroom_block", "red_sandstone", "redstone", "reeds", "repeater", "rotten_flesh", "saddle", "salmon", "sand", "sandstone", "sapling", "seaLantern", "sea_pickle", "seagrass", "shears", "shulker_box", "shulker_shell", "sign", "skull", "slime_ball", "snow_layer", "snowball", "sparkler", "spawn_egg", "speckled_melon", "spider_eye", "splash_potion", "sponge", "spruce_door", "stained_glass", "stained_glass_pane", "stained_hardened_clay", "stick", "sticky_piston", "stone", "stone_axe", "stone_hoe", "stone_pickaxe", "stone_shovel", "stone_sword", "stonebrick", "string", "sugar", "tallgrass", "tnt", "tnt_minecart", "totem", "trident", "undyed_shulker_box", "waterlily", "wheat", "wheat_seeds", "wooden_axe", "wooden_door", "wooden_hoe", "wooden_pickaxe", "wooden_shovel", "wooden_slab", "wooden_sword", "wool", "writable_book", "written_book", "yellow_flower"],
 	"entities": ["agent", "area_effect_cloud", "armor_stand", "arrow", "balloon", "bat", "blaze", "boat", "cave_spider", "chest_minecart", "chicken", "cod", "command_block_minecart", "cow", "creeper", "dolphin", "donkey", "dragon_fireball", "drowned", "egg", "elder_guardian", "ender_crystal", "ender_dragon", "ender_pearl", "enderman", "endermite", "evocation_fang", "evocation_illager", "eye_of_ender_signal", "falling_block", "fireball", "fireworks_rocket", "fishing_hook", "ghast", "guardian", "hopper_minecart", "horse", "husk", "ice_bomb", "iron_golem", "item", "leash_knot", "lightning_bolt", "lingering_potion", "llama", "llama_spit", "magma_cube", "minecart", "mooshroom", "moving_block", "mule", "ocelot", "painting", "parrot", "pig", "player", "polar_bear", "pufferfish", "rabbit", "salmon", "sheep", "shulker", "shulker_bullet", "silverfish", "skeleton", "skeleton_horse", "slime", "small_fireball", "snow_golem", "snowball", "spider", "splash_potion", "squid", "stray", "thrown_trident", "tnt", "tnt_minecart", "tropicalfish", "vex", "villager", "vindicator", "witch", "wither", "wither_skeleton", "wither_skull", "wither_skull_dangerous", "wolf", "xp_bottle", "xp_orb", "zombie", "zombie_horse", "zombie_pigman", "zombie_villager"]
