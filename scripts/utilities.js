@@ -107,8 +107,12 @@ function getContextType(pContext, pParentContext) {
 		return "object";
 	} else if(autoData["components"][pParentContext] != undefined && pContext in autoData["components"][pParentContext]) {
 		return convertType(autoData["components"][pParentContext][pContext].type);
-	} else if(pContext == "event" || ((pParentContext == "remove" || pParentContext == "add") && pContext == "component_groups")) {
-		return "string";
+	} else if(pContext == "event") {
+		return "event";
+	} else if(parentCurrentContext == "component_groups" && !Number.isNaN(currentContext)) {
+		return "component_group";
+	} else if((pParentContext == "remove" || pParentContext == "add") && pContext == "component_groups") {
+		return "array";
 	} else {
 		return "object";
 	}
@@ -188,7 +192,11 @@ function selectElement(pE, pOpen=false) {
 			}
 			//UPDATE TYPE && EVALUATE IT
 			currentType = getContextType(currentContext, parentCurrentContext);
-			if(currentType == "object" || currentType == "array") value_list.innerHTML = "";
+			if(currentType == "object" || currentType == "array") {
+				value_list.innerHTML = "";
+			} else {
+				generateValueOptions("", true);
+			}
 
 			//UPDATE INPUT
 			autoFillChildInput();

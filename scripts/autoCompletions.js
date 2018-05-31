@@ -47,7 +47,23 @@ function generateValueOptions(pSearch, pForce=false) {
 				options += "<option value='" + default_value + "'/>";
 			}
 			value_list.innerHTML = options;
-		} else if(currentContext == "into" || currentContext == "id" && currentType == "string") {
+		} else if(currentType== "event") {
+			let obj = getObj(editor)["minecraft:entity"];
+			if(obj != undefined) {
+				value_list.innerHTML = "";
+				for(let event in obj["events"]) {
+					value_list.innerHTML += "<option value='" + event + "'/>"
+				}
+			}
+		} else if(currentType == "component_group") {
+			let obj = getObj(editor)["minecraft:entity"];
+			if(obj != undefined) {
+				value_list.innerHTML = "";
+				for(let event in obj["component_groups"]) {
+					value_list.innerHTML += "<option value='" + event + "'/>"
+				}
+			}
+		} else if(currentContext == "into" || currentContext == "id" && currentType == "string"  || currentContext == "entity_type" && currentType == "string") {
 			value_list.innerHTML = parseFromArray(autoData["entities"], pSearch, 20, "entity", true, "minecraft:");
 		} else if (currentType == "string") {
 			value_list.innerHTML = "<option value='" + getDefault(currentContext, parentCurrentContext) + "'/>";
