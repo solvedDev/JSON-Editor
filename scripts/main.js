@@ -12,6 +12,10 @@ var edit_all = false;
 var auto_completions = true;
 var currentContext = "No context";
 var parentCurrentContext = "No context";
+var currentType = "";
+
+//Setting up highlighter
+var hl = new Highlighter({ solved: "font-weight: bold; color: royalblue; opacity: 0.6;" });
 
 //Setting up KeyInput
 var key_input = new KeyInput();
@@ -22,12 +26,15 @@ window.addEventListener("keyup", key_input.removeEvent);
 function mainLoop() {
 	key_input.processKeys();
 
-	if(auto_completions) generateOptions(child_input.value);
-	if(!auto_completions) data_list.innerHTML = "";
+	if(auto_completions){
+		generateOptions(child_input.value);
+	} else {
+		data_list.innerHTML = "";
+	}
 
 	updateSearchBar(search_bar.value);
 
-	display_currentContext.innerHTML = "Co: " + currentContext + " | paCo: " + parentCurrentContext;
+	display_currentContext.innerHTML = "Co: " + currentContext + " | paCo: " + parentCurrentContext + " | coTy: " + currentType;
 
 	window.requestAnimationFrame(mainLoop);
 }
@@ -107,15 +114,22 @@ function loadFile(file) {
 
 		//Add click event listener
 		editor.onclick = function(e) {
-			if(keys_down.join(" ") == "Control") {
+			let target = e.target;
+			if(target.tagName == "HIGHLIGHT") target = target.parentElement;
+
+			console.log(target);
+			if(e.ctrlKey) {
 				e.preventDefault();
-				key_input.addEdit(e.target);
+				key_input.addEdit(target);
 			} else {
-				if(!e.target.isSameNode(currentSelected) && e.target.parentElement.open && e.target.parentElement.childNodes[1].childNodes[0].tagName != "SPAN") e.preventDefault();
-				console.log(e.target.parentElement.childNodes)
-				selectElement(e.target);
+				//NOT ALREADY SELECTED & OPEN & DOESN'T HAVE SPAN AS CHILD
+				if(!target.isSameNode(currentSelected) && target.parentElement.open && target.parentElement.childNodes[1].childNodes[0].tagName != "SPAN") {
+					e.preventDefault();
+				}
+				selectElement(target);
 			}
 		};
+
 		//Register all onblur events
 		let edits = document.querySelectorAll(".highlight-array, .highlight-object, .highlight-string, .highlight-boolean, .highlight-number, span.value");
 		for(var i = 0; i < edits.length; i++) {
@@ -124,5 +138,6 @@ function loadFile(file) {
 			}
 		}
 		updateEvents();
+		hl.initialLoad();
 	}
 }

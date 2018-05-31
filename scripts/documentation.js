@@ -39,9 +39,12 @@ function openDocumentation() {
 				}
 				for(let argument in component) {
 					if(argument != "__des__") {
+						let default_value = "";
+						if(component[argument].default_value != "") default_value = "(Default: " + component[argument].default_value + ")";
+
 						content_frame.innerHTML += "<li><span style='font-weight: bold; text-decoration: underline;'>" + argument 
 						+ "</span> <span class='highlight-" + convertType(component[argument].type) + "'>[" + component[argument].type + "]</span>: " 
-						+ component[argument].description.replace(/<a[^>]*>/g, "").replace(/Back to top/g, "") + "</li>".replace(/\n/g, "");
+						+ component[argument].description.replace(/<a[^>]*>/g, "").replace(/Back to top/g, "") + default_value + "</li>".replace(/\n/g, "");
 					}
 				}
 				content_frame.innerHTML += "</ul>";
@@ -61,21 +64,6 @@ function openDocumentation() {
 
 			content_frame.innerHTML += "<p>" + "A minecraft " + doc_to_open.split("@")[0] + "</p>";
 		}
-	}
-}
-
-function convertType(pType) {
-	if(pType.toLowerCase() == "string" || pType.toLowerCase() == "boolean") {
-		return pType.toLowerCase();
-	} else if(pType.toLowerCase() == "json object" || pType.toLowerCase() == "minecraft filter") {
-		return "object";
-	} else if(pType.toLowerCase() == "list" || pType.toLowerCase() == "range [a, b]" || pType.toLowerCase() == "vector [a, b, c]") {
-		return "array";
-	} else if(pType.toLowerCase() == "decimal" || pType.toLowerCase() == "integer") {
-		return "number";
-	} else {
-		console.warn("Unhandled argument type: " + pType);
-		return pType;
 	}
 }
 

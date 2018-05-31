@@ -40,8 +40,10 @@
 		<button class="btn btn-outline-success" id="search-component" title="Search!"><i class="	fa fa-search"></i></button>
 		<input onClick="this.setSelectionRange(0, this.value.length)" id="search-input-bar" name="search-input" class="section">
 
-		<!--DATALIST-->
+		<!--DATALISTS-->
 		<datalist id="auto-completions">
+		</datalist>
+		<datalist id="value-auto-completions">
 		</datalist>
 		<datalist id="search-auto-components">
 		</datalist>
@@ -54,12 +56,12 @@
 			Open: Nothing
 		</div>
 		<!--DEBUG ONLY-->
-		<div style="display: none;" class="section inline-element div-fit-size" id="show-context">
+		<div  class="section inline-element div-fit-size" id="show-context">
 			Context: Nothing
 		</div>
 		<!--HINT-->
 		<div class="section inline-element div-fit-size">
-			CTRL & Click an element to edit it
+			CTRL & Click/Enter for editing
 		</div>
 	</div>
 	
@@ -73,18 +75,18 @@
 		<div class="section input-button inline-element">
 			<label for="add-child">Add child</label>
 			<button class="btn btn-outline-success" id="add-child" title="Add child"><i class="fa fa-terminal"></i></button>
-			<input onClick="this.setSelectionRange(0, this.value.length)" id="child-input" list="auto-suggestions" name="value-field" class="section auto-suggestions">
+			<input onClick="this.setSelectionRange(0, this.value.length)" id="child-input" list="auto-completions" name="value-field" class="section auto-suggestions">
 		</div>
 		<div class="section input-button inline-element">
 			<label for="add-value">Add value</label>
 			<button class="btn btn-outline-success" id="add-value" title="Add value"><i class="fa fa-terminal"></i></button>
-			<input onClick="this.setSelectionRange(0, this.value.length)" id="value-input" list="auto-suggestions" name="value-field" class="section auto-suggestions">
+			<input onClick="this.setSelectionRange(0, this.value.length)" id="value-input" list="value-auto-completions" name="value-field" class="section auto-suggestions">
 		</div>
 	</div>
 	<div class="edit-bar" id="array">
 		<div class="section input-button inline-element">
 			<button class="btn btn-outline-success" id="add-child" title="Add child"><i class="fa fa-plus"></i></button>
-			<input onClick="this.setSelectionRange(0, this.value.length)" id="array-input" name="value-field" class="section auto-suggestions">
+			<input onclick="this.setSelectionRange(0, this.value.length)" id="array-input" name="value-field" class="section auto-suggestions">
 		</div>
 	</div>
 
@@ -117,6 +119,13 @@
 			if(auto_completions) {
 				generateOptions("");
 				if(data_list.options.length > 0) child_input.value = data_list.options[0].value;
+				if(currentType != "object" && currentType != "array") {
+					generateValueOptions("", true);
+					if(value_list.options.length > 0) value_input.value = value_list.options[0].value;
+					value_input.focus();
+				} else {
+					child_input.focus();
+				}
 			}
 		}
 		document.getElementById("add-value").onclick = function() {
@@ -126,6 +135,7 @@
 				generateOptions("");
 				if(data_list.options.length > 0) child_input.value = data_list.options[0].value;
 			}
+			child_input.focus();
 		}
 		document.getElementById("allow-edit").onclick = function() {
 			toggleEdits();

@@ -5,8 +5,8 @@
  * Project: JSON Editor
  * 
  * VALID ARGUMENTS:
- * 	type: is_self/is_parent/is_currentContext_component
- *  value: Any string or an array containing strings. Providing an array means that one of the strings in there must be found
+ * 	type: is_self/is_parent/is_currentContext_component/self_contains_but_is_not/parent_contains_but_is_not
+ *  value: Any string or an array containing strings. Providing an array means that one of the strings in there must be found (only supported by is_parent & is_self)
  * 	propose: An array with the auto-completions to propose or a function which creates option HTML manually
  */
 
@@ -16,6 +16,13 @@ var autoConfig = [
 		type: "is_self",
 		value: "minecraft:entity",
 		propose: [ "components", "component_groups", "events", "format_version", "do_not_upgrade" ]
+	},
+	{
+		type: "is_self_type",
+		value: "array",
+		propose: function(pData) {
+			return parseArray();
+		}
 	},
 
 	//COMPONENTS
@@ -79,5 +86,12 @@ var autoConfig = [
 		type: "is_self",
 		value: ["all_of", "any_of"],
 		propose: ["test", "subject", "operator", "domain", "value"]
+	},	
+
+	//SPECIAL ARGUMENTS
+	{
+		type: "self_contains_but_is_not",
+		value: "event",
+		propose: ["event", "target"]
 	}
 ];

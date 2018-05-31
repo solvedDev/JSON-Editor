@@ -6,12 +6,15 @@
  */
 
 var data_list = document.getElementById("auto-completions");
+var value_list = document.getElementById("value-auto-completions");
 var search_data_list = document.getElementById("search-auto-components")
 var child_input = document.getElementById("child-input");
+var value_input = document.getElementById("value-input");
 var entity_options = [ "components", "component_groups", "events", "format_version", "do_not_upgrade" ];
 var last_generated_input = "";
 var last_search = "";
 var last_context = "";
+var last_value_search = "xx";
 
 
 //UPDATE SEARCH BAR
@@ -27,6 +30,32 @@ function updateSearchBar(pSearch) {
 	}
 }
 
+//Generate auto-completions for values
+function generateValueOptions(pSearch, pForce=false) {
+	if(last_value_search != pSearch || pForce) {
+		last_value_search = pSearch;
+
+		if(currentType == "boolean") {
+			value_list.innerHTML = "<option value='true'/><option value='false'/>";
+		} else if (currentType == "number") {
+			let default_value = getDefault(currentContext, parentCurrentContext);
+			if(default_value == "") default_value = 0;
+
+			let options = "<option value='" + default_value + "'/>";
+			for(let i = 0; i < 10; i++) {
+				default_value += i;
+				options += "<option value='" + default_value + "'/>";
+			}
+			value_list.innerHTML = options;
+		} else if(currentContext == "into" || currentContext == "id" && currentType == "string") {
+			value_list.innerHTML = parseFromArray(autoData["entities"], pSearch, 20, "entity", true, "minecraft:");
+		} else if (currentType == "string") {
+			value_list.innerHTML = "<option value='" + getDefault(currentContext, parentCurrentContext) + "'/>";
+		} else {
+			console.warn("Unhandled type: " + currentType);
+		}
+	}
+}
 
 //Evaluate possible suggestions (depending on the config criteria)
 function generateOptions(pSearch) {
@@ -52,6 +81,24 @@ function generateOptions(pSearch) {
 			} else if(autoConfig[i].type == "is_currentContext_component") {
 				//Context: Is a known component
 				if(currentContext in autoData["components"]) {
+					found = true;
+					createOptions(i, pSearch);
+				}
+			} else if(autoConfig[i].type == "self_contains_but_is_not") {
+				//Context: Contains but is not -self
+				if(currentContext.includes(autoConfig[i].value) && currentContext != autoConfig[i].value) {
+					found = true;
+					createOptions(i, pSearch);
+				}
+			} else if(autoConfig[i].type == "parent_contains_but_is_not") {
+				//Context: Contains but is not -parent
+				if(parentCurrentContext.includes(autoConfig[i].value) && parentCurrentContext != autoConfig[i].value) {
+					found = true;
+					createOptions(i, pSearch);
+				}
+			} else if(autoConfig[i].type == "is_self_type") {
+				//Context: Contains but is not -parent
+				if(currentType == autoConfig[i].value) {
 					found = true;
 					createOptions(i, pSearch);
 				}
@@ -84,14 +131,14 @@ function createOptions(pIndex, pSearch) {
  * @param {String} pLabel The label to show (default: "")
  * @param {Boolean} pForceAll Whether you want to show all arguments -even ones already existing in the currentContext
  */
-function parseFromArray(pArray, pSearch, pLimit=20, pLabel="", pForceAll=false) {
+function parseFromArray(pArray, pSearch, pLimit=20, pLabel="", pForceAll=false, pPrefix="") {
 	let options = "";
 	let already_existing = getArgsInContext();
 	if(pForceAll) already_existing = [];
 
 	for(var i = 0; i < pArray.length; i++) {
 		if(!already_existing.contains(pArray[i]) && pArray[i].includes(pSearch) && options.split(">").length < pLimit) {
-			options += "<option value='" + pArray[i] + "' label='" + pLabel + "'/>";
+			options += "<option value='" + pPrefix + pArray[i] + "' label='" + pLabel + "'/>";
 		}
 	}
 	return options;
@@ -101,7 +148,7 @@ function parseFromArray(pArray, pSearch, pLimit=20, pLabel="", pForceAll=false) 
  * Parse all events and return them as HTML options
  * @param {String} pSearch The search term
  * @param {Number} pLimit Maximum results
-* @param {Boolean} pGenerateLabel Whether you want to show a label saying "event"
+ * @param {Boolean} pGenerateLabel Whether you want to show a label saying "event"
  * @param {Boolean} pForceAll Whether you want to show all arguments -even ones already existing in the currentContext
  */
 function parseEvents(pSearch, pLimit=20, pGenerateLabel=false, pForceAll=false) {
@@ -165,6 +212,11 @@ function parseComponent(pComponent, pSearch, pForceAll=false) {
 	return options;
 }
 
+function parseArray() {
+	let childs = currentSelected.parentElement.childNodes[1].childNodes;
+	return "<option value='" + childs.length + "'>";
+}
+
 /**
  * Returns all arguments which already exist in the current context
  */
@@ -174,5 +226,4 @@ function getArgsInContext() {
 	} else {
 		return [];
 	}
-	
 }
