@@ -28,6 +28,7 @@ function mainLoop() {
 
 	if(auto_completions){
 		generateOptions(child_input.value);
+		generateValueOptions(value_input.value);
 	} else {
 		data_list.innerHTML = "";
 	}
@@ -64,8 +65,20 @@ function addChild(pKey) {
 	node.appendChild(document.createElement("summary"));
 	node.appendChild(document.createElement("div"));
 	node.childNodes[0].innerHTML = pKey + button;
-	node.childNodes[0].classList.add("highlight-object");
+
 	node.childNodes[1].classList.add("tab");
+	node.childNodes[0].classList.add("highlight-object");
+	/**
+	 * FIXME: Throws error because parent not found
+	 */
+	if(!Number.isNaN(Number(pKey))){
+		console.log(node.childNodes[0]);
+		let parent = getParent(node.childNodes[0]);
+		console.log(getParent(node.childNodes[0]));
+		parent.classList.remove("highlight-object");
+		parent.classList.add("highlight-array");
+	}
+	
 	//Blur event
 	node.childNodes[0].onblur = function(e) {
 		key_input.removeEdit(e.target);
@@ -93,7 +106,7 @@ function addValue(pValue) {
 		key_input.removeEdit(e.target);
 	};
 
-	
+	currentSelected.parentElement.childNodes[1].classList.add("highlight-" + getType(pValue));
 	currentSelected.parentElement.childNodes[1].appendChild(node);
 	selectElement(getParent(currentSelected), true);
 	updateEvents();
@@ -123,7 +136,7 @@ function loadFile(file) {
 				key_input.addEdit(target);
 			} else {
 				//NOT ALREADY SELECTED & OPEN & DOESN'T HAVE SPAN AS CHILD
-				if(!target.isSameNode(currentSelected) && target.parentElement.open && target.parentElement.childNodes[1].childNodes[0].tagName != "SPAN") {
+				if(!target.isSameNode(currentSelected) && target.parentElement.open && target.parentElement.childNodes[1].childNodes[0] != undefined && target.parentElement.childNodes[1].childNodes[0].tagName != "SPAN") {
 					e.preventDefault();
 				}
 				selectElement(target);

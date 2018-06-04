@@ -21,11 +21,12 @@ var last_value_search = "xx";
 function updateSearchBar(pSearch) {
 	if(last_search != pSearch) {
 		last_search = pSearch;
-		search_data_list.innerHTML = parseComponents(pSearch, 10, true, true);
-		search_data_list.innerHTML += parseEvents(pSearch, 5, "events", true);
-		search_data_list.innerHTML += parseFromArray(autoData["blocks"], pSearch, 5, "block", true);
-		search_data_list.innerHTML += parseFromArray(autoData["items"], pSearch, 5, "item", true);
-		search_data_list.innerHTML += parseFromArray(autoData["entities"], pSearch, 5, "entity", true);
+		search_data_list.innerHTML = parseComponents(pSearch, 10, true, true)
+			+ parseEvents(pSearch, 5, "events", true)
+			+ parseFromArray(autoData["blocks"], pSearch, 5, "block", true)
+			+ parseFromArray(autoData["items"], pSearch, 5, "item", true)
+			+ parseFromArray(autoData["entities"], pSearch, 5, "entity", true);
+		
 		search_bar.setAttribute("list", "search-auto-components");
 	}
 }
@@ -37,14 +38,14 @@ function generateValueOptions(pSearch, pForce=false) {
 
 		if(currentType == "boolean") {
 			value_list.innerHTML = "<option value='true'/><option value='false'/>";
-		} else if (currentType == "number") {
-			let default_value = getDefault(currentContext, parentCurrentContext);
+		} else if (currentType == "number" ||  currentContext == "priority") {
+			let default_value = Number(getDefault(currentContext, parentCurrentContext));
+			console.log(default_value);
 			if(default_value == "") default_value = 0;
 
 			let options = "<option value='" + default_value + "'/>";
-			for(let i = 0; i < 10; i++) {
-				default_value += i;
-				options += "<option value='" + default_value + "'/>";
+			for(let i = 1; i < 10; i++) {
+				options += "<option value='" + (default_value + i) + "'/>";
 			}
 			value_list.innerHTML = options;
 		} else if(currentType== "event") {
@@ -63,8 +64,13 @@ function generateValueOptions(pSearch, pForce=false) {
 					value_list.innerHTML += "<option value='" + event + "'/>"
 				}
 			}
-		} else if(currentContext == "into" || currentContext == "id" && currentType == "string"  || currentContext == "entity_type" && currentType == "string") {
+		} else if(currentType == "subject") {
+			value_list.innerHTML = parseFromArray(["self", "other", "target", "player", "parent"], pSearch, 20, "subject", true);
+		} else if(currentType == "entity") {
 			value_list.innerHTML = parseFromArray(autoData["entities"], pSearch, 20, "entity", true, "minecraft:");
+		} else if(currentType == "item") {
+			value_list.innerHTML = parseFromArray(autoData["items"], pSearch, 10, "item", true, "minecraft:");
+			value_list.innerHTML += parseFromArray(autoData["blocks"], pSearch, 10, "block", true, "minecraft:");
 		} else if (currentType == "string") {
 			value_list.innerHTML = "<option value='" + getDefault(currentContext, parentCurrentContext) + "'/>";
 		} else {
@@ -149,8 +155,7 @@ function createOptions(pIndex, pSearch) {
  */
 function parseFromArray(pArray, pSearch, pLimit=20, pLabel="", pForceAll=false, pPrefix="") {
 	let options = "";
-	let already_existing = getArgsInContext();
-	if(pForceAll) already_existing = [];
+	let already_existing = getArgsInContext(pForceAll);
 
 	for(var i = 0; i < pArray.length; i++) {
 		if(!already_existing.contains(pArray[i]) && pArray[i].includes(pSearch) && options.split(">").length < pLimit) {
@@ -169,8 +174,7 @@ function parseFromArray(pArray, pSearch, pLimit=20, pLabel="", pForceAll=false, 
  */
 function parseEvents(pSearch, pLimit=20, pGenerateLabel=false, pForceAll=false) {
 	let options = "";
-	let already_existing = getArgsInContext();
-	if(pForceAll) already_existing = [];
+	let already_existing = getArgsInContext(pForceAll);
 
 	for(var event in autoData["events"]) {
 		//event isn't on entity & event_name is part of search term & max number of suggestions not reached
@@ -191,8 +195,7 @@ function parseEvents(pSearch, pLimit=20, pGenerateLabel=false, pForceAll=false) 
  */
 function parseComponents(pSearch, pLimit=20, pGenerateLabel=false, pForceAll=false) {
 	let options = "";
-	let already_existing = getArgsInContext();
-	if(pForceAll) already_existing = [];
+	let already_existing = getArgsInContext(pForceAll);
 
 	for(var component_name in autoData["components"]) {
 		//component isn't on entity & component_name is part of search term & max number of suggestions not reached
@@ -213,17 +216,17 @@ function parseComponents(pSearch, pLimit=20, pGenerateLabel=false, pForceAll=fal
  */
 function parseComponent(pComponent, pSearch, pForceAll=false) {
 	let options = "";
-	let already_existing = getArgsInContext();
-	if(pForceAll) already_existing = [];
+	console.log(pForceAll);
+	let already_existing = getArgsInContext(pForceAll);
 
+	if(pComponent.includes("behavior") && "priority".includes(pSearch) && (pForceAll || !already_existing.contains("priority"))) {
+		options += "<option value='priority'/>";
+	}
 	for(var argument in autoData["components"][pComponent]) {
 		//argument isn't already on component & argument is part of search term & max number of suggestions not reached
 		if(!already_existing.contains(argument) && argument != "__des__" && argument.includes(pSearch) && options.split(">").length < 20) {
 			options += "<option value='" + argument + "'/>";
 		}
-	}
-	if(pComponent.includes("behavior") && "priority".includes(pSearch)) {
-		options += "<option value='priority'/>";
 	}
 	return options;
 }
@@ -236,8 +239,8 @@ function parseArray() {
 /**
  * Returns all arguments which already exist in the current context
  */
-function getArgsInContext() {
-	if(currentSelected && currentSelected.parentElement) {
+function getArgsInContext(pForceAll=false) {
+	if(!pForceAll && currentSelected && currentSelected.parentElement) {
 		return Object.keys(getObj(currentSelected.parentElement, false));
 	} else {
 		return [];

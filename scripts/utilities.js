@@ -105,14 +105,20 @@ function convertType(pType) {
 function getContextType(pContext, pParentContext) {
 	if(pContext in autoData["components"]) {
 		return "object";
-	} else if(autoData["components"][pParentContext] != undefined && pContext in autoData["components"][pParentContext]) {
-		return convertType(autoData["components"][pParentContext][pContext].type);
-	} else if(pContext == "event") {
+	} else if(pContext == "event" || pContext == "spawn_event") {
 		return "event";
 	} else if(parentCurrentContext == "component_groups" && !Number.isNaN(currentContext)) {
 		return "component_group";
 	} else if((pParentContext == "remove" || pParentContext == "add") && pContext == "component_groups") {
 		return "array";
+	} else if(pContext == "id" || pContext == "entity_type" || pContext == "into" || pContext == "babyType" || pContext == "spawn_entity") {
+		return "entity";
+	} else if(pContext == "target" || pContext == "subject") {
+		return "subject";
+	} else if(pParentContext.toLowerCase().includes("item") || (pContext.toLowerCase().includes("item") && (autoData["components"][pParentContext] == undefined || autoData["components"][pParentContext][pContext] == undefined || convertType(autoData["components"][pParentContext][pContext].type) == "string") &&  !pContext.toLowerCase().includes("items"))) {
+		return "item";
+	} else if(autoData["components"][pParentContext] != undefined && pContext in autoData["components"][pParentContext]) {
+		return convertType(autoData["components"][pParentContext][pContext].type);
 	} else {
 		return "object";
 	}
@@ -120,6 +126,7 @@ function getContextType(pContext, pParentContext) {
 
 function getDefault(pContext, pParentContext) {
 	try {
+		if(pContext == "priority") return 0;
 		return autoData["components"][pParentContext][pContext].default_value;
 	} catch(e) {
 		console.warn("Context \"" + pParentContext + "." + pContext + " has no default_value")
@@ -130,6 +137,7 @@ function getDefault(pContext, pParentContext) {
 function getParent(pE) {
 	try {
 		let candidate = pE.parentElement.parentElement.parentElement.childNodes[0];
+		console.log(candidate);
 		if(candidate.tagName == "SUMMARY") return candidate;
 	} catch(e) {
 		console.warn("No parent found");

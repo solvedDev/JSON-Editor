@@ -27,7 +27,7 @@ class KeyInput {
 					case "ArrowUp": this.selectPrevious(this.events[i]); break;
 					case "Enter": if(keys_down.join(" ") == "Enter Control" || keys_down.join(" ") == "Control Enter") this.addEdit(currentSelected); break;
 					case "Control":  break;
-					default: console.log(keys_down[i]); break;
+					default: /*console.log(keys_down[i]);*/ break;
 				}
 			}
 		}

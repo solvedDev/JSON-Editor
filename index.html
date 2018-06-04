@@ -8,36 +8,37 @@
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
 	<link rel="stylesheet" href="styles/main.css">
+	<link rel="stylesheet" href="styles/new-clean.css">
 </head>
 
 <body>
 	<!--   DOCUMENTATION   -->
 	<div class="blend-full-screen" style="display: none;" id="documentation-window">
-		<button class="btn btn-outline-success inline-element" id="close-doc-window"><i class="fa fa-remove"></i></button>
+		<button class="btn btn-outline-primary inline-element" id="close-doc-window"><i class="fa fa-remove"></i></button>
 		<div class="section documentation-inner-frame"></div>
 	</div>
 
 	<!--   TOOLBAR   -->
 	<div id="toolbar">
 		<!--OPEN-->
-		<label class="btn btn-outline-success inline-element">
+		<label class="btn btn-outline-primary inline-element">
 			<i class="fa fa-code"></i> Open<input type="file" hidden id="import-json">
 		</label>
 		<!--DOWNLOAD-->
-		<button class="btn btn-outline-success inline-element" id="download-json"><i class="fa fa-cloud-download"></i> Download</button>
+		<button class="btn btn-outline-primary inline-element" id="download-json"><i class="fa fa-cloud-download"></i> Download</button>
 		<!--TOGGLE: AUTO COMPLETIONS-->
 		<div type="checkbox" name="auto-completions-toggle" id="auto-completions-toggle" title="Toggle auto-completions" class="input-toggle toggled"><i class="fa fa-th-list"></i></div>
 		<!--TOGGLE: EDIT ALL-->
 		<div type="checkbox" name="allow-edit" id="allow-edit" title="Toggle whether elements are automatically editable" class="input-toggle"><i class="fa fa-pencil"></i> Edit all: OFF</div>
 		<!--EXPAND ALL-->
-		<button class="btn btn-outline-success inline-element" onclick="expandAll()" title="Expand all"><i class="fa fa-expand"></i></button>
+		<button class="btn btn-outline-primary inline-element" onclick="expandAll()" title="Expand all"><i class="fa fa-expand"></i></button>
 		<!--COLLAPSE ALL-->
-		<button class="btn btn-outline-success inline-element" onclick="collapseAll()" title="Collapse all"><i class="fa fa-compress"></i></button>
+		<button class="btn btn-outline-primary inline-element" onclick="collapseAll()" title="Collapse all"><i class="fa fa-compress"></i></button>
 		<!--REFRESH ALL-->
-		<button class="btn btn-outline-success inline-element" onclick="refresh()" title="Refresh"><i class="fa fa-refresh"></i></button>
+		<button class="btn btn-outline-primary inline-element" onclick="refresh()" title="Refresh"><i class="fa fa-refresh"></i></button>
 		<span class="padding-normal inline-element"></span>
 		<!--SEARCH BAR: COMPONENTS-->
-		<button class="btn btn-outline-success" id="search-component" title="Search!"><i class="	fa fa-search"></i></button>
+		<button class="btn btn-outline-primary" id="search-component" title="Search!"><i class="	fa fa-search"></i></button>
 		<input onClick="this.setSelectionRange(0, this.value.length)" id="search-input-bar" name="search-input" class="section">
 
 		<!--DATALISTS-->
@@ -56,7 +57,7 @@
 			Open: Nothing
 		</div>
 		<!--DEBUG ONLY-->
-		<div style="display: none;" class="section inline-element div-fit-size" id="show-context">
+		<div style="/*display: none;*/" class="section inline-element div-fit-size" id="show-context">
 			Context: Nothing
 		</div>
 		<!--HINT-->
@@ -74,18 +75,18 @@
 	<div class="edit-bar" id="object">
 		<div class="section input-button inline-element">
 			<label for="add-child">Add child</label>
-			<button class="btn btn-outline-success" id="add-child" title="Add child"><i class="fa fa-terminal"></i></button>
+			<button class="btn btn-outline-primary" id="add-child" title="Add child"><i class="fa fa-terminal"></i></button>
 			<input onClick="this.setSelectionRange(0, this.value.length)" id="child-input" list="auto-completions" name="value-field" class="section auto-suggestions">
 		</div>
 		<div class="section input-button inline-element">
 			<label for="add-value">Add value</label>
-			<button class="btn btn-outline-success" id="add-value" title="Add value"><i class="fa fa-terminal"></i></button>
+			<button class="btn btn-outline-primary" id="add-value" title="Add value"><i class="fa fa-terminal"></i></button>
 			<input onClick="this.setSelectionRange(0, this.value.length)" id="value-input" list="value-auto-completions" name="value-field" class="section auto-suggestions">
 		</div>
 	</div>
 	<div class="edit-bar" id="array">
 		<div class="section input-button inline-element">
-			<button class="btn btn-outline-success" id="add-child" title="Add child"><i class="fa fa-plus"></i></button>
+			<button class="btn btn-outline-primary" id="add-child" title="Add child"><i class="fa fa-plus"></i></button>
 			<input onclick="this.setSelectionRange(0, this.value.length)" id="array-input" name="value-field" class="section auto-suggestions">
 		</div>
 	</div>
@@ -101,27 +102,37 @@
 	<script src="scripts/minify.json.js"></script>
 	<script src="scripts/utilities.js"></script>
 	<script src="scripts/keyInput.js"></script>
-	<script src="scripts/reader.js"></script>
+	<script src="scripts/parser.js"></script>
 	<script src="scripts/autoCompletions.js"></script>
 	<script src="scripts/documentation.js"></script>
 	<script src="scripts/highlighter.js"></script>
 	<script src="scripts/main.js"></script>
+
+	<!--   REWRITTEN FILES   -->
+	<script src="scripts/main-new.js"></script>
+	<script src="scripts/tab-new.js"></script>
+	<script src="scripts/editBar-new.js"></script>
+	
 	<script>
+		var app = new Application();
+		//app.openScreen(app.loading_screen);
+		//app.openPopUp("<h3>A test screen</h3><p>A flexible dialog window. You can set the position of the button, hide the scrollbar and set the size of the window</p>")
+		//new PushMessage(document.body, "<h5 style='position: relative; top: 15px;'>Welcome to solvedDev's JSON Editor!</h5>").create();
 		var fileName;
 		document.getElementById("import-json").onchange = function() {
 			fileName = this.files[0].name;
 			loadFile(this.files[0]);
-		}
+		};
 		document.getElementById("download-json").onclick = function() {
-			if(fileName) download(fileName, JSON.stringify(getObj(editor), null, "\t"));
-		}
+			if(fileName) download(fileName, JSON.stringify(app.parser.getObj(editor), null, "\t"));
+		};
 		document.getElementById("add-child").onclick = function() {
 			addChild(document.getElementById("child-input").value);
 
 			if(auto_completions) {
 				generateOptions("");
 				if(data_list.options.length > 0) child_input.value = data_list.options[0].value;
-				if(currentType != "object" && currentType != "array") {
+				if((currentType != "object" && currentType != "array") || currentContext == "priority") {
 					generateValueOptions("", true);
 					if(value_list.options.length > 0) value_input.value = value_list.options[0].value;
 					value_input.focus();
@@ -129,7 +140,7 @@
 					child_input.focus();
 				}
 			}
-		}
+		};
 		document.getElementById("add-value").onclick = function() {
 			addValue(document.getElementById("value-input").value);
 
@@ -137,20 +148,21 @@
 				generateOptions("");
 				if(data_list.options.length > 0) child_input.value = data_list.options[0].value;
 			}
+			value_input.value = "";
 			child_input.focus();
-		}
+		};
 		document.getElementById("allow-edit").onclick = function() {
 			toggleEdits();
-		}
+		};
 		document.getElementById("search-component").onclick = function() {
 			openDocumentation();
-		}
+		};
 		document.getElementById("auto-completions-toggle").onclick = function() {
 			auto_completions = !auto_completions;
 
 			if(auto_completions) document.getElementById("auto-completions-toggle").classList.add("toggled");
 			if(!auto_completions) document.getElementById("auto-completions-toggle").classList.remove("toggled");
-		}
+		};
 
 		mainLoop();
 	</script>

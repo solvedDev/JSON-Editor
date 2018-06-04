@@ -5,65 +5,85 @@
  * Project: JSON Editor
  */
 
+class Documentation {
+	constructor() {
+		
+	}
+	/**
+	 * Opens a new documentation window
+	 * @param {String} pPage The page to open (e.g. component@minecraft:interact)
+	 */
+	openDocumentation(pPage) {
+
+	}
+
+	findPage(pSearch, pDoSecondTest=false) {
+
+	}
+
+	getValidSearch(pSearch, pSection, pDoSecondTest=false) {
+
+	}
+}
+
+
+
 //Manual fix for minecraft:interact
 autoData["components"]["minecraft:interact"]["particle_on_start"].description = "Particle effect that will be triggered at the start of the interaction\n<table border=\"1\">\n<tbody><tr> <th>Name</th> <th>Type</th> <th>Default Value</th> <th>Description</th> </tr>\n<tr>\n<td>particle_offset_towards_interactor</td>\n<td>Boolean</td>\n<td></td>\n<td>Whether or not the particle will appear closer to who performed the interaction</td>\n</tr><tr>\n<td>particle_type</td>\n<td>String</td>\n<td></td>\n<td>The type of particle that will be spawned</td>\n</tr><tr>\n<td>particle_y_offset</td>\n<td>Decimal</td>\n<td></td>\n<td>Will offset the particle this amount in the y direction</td>\n</tr>\n</tbody></table>";
 var behavior_arguments = "<li><span style='font-weight: bold; text-decoration: underline;'>priority</span> <span class='highlight-number'>[Integer]:</span> Tells the entity which behavior has priority. A smaller number correlates to a higher priority</li>";
 
+/** 
+ * --Delete: If new class in use
+ */
 var search_bar = document.getElementById("search-input-bar");
-var doc_window = document.getElementById("documentation-window");
-document.getElementById("close-doc-window").onclick = function() {
-	doc_window.style.display = "none";
-};
 
 function openDocumentation() {
 	let doc_to_open = findPage(search_bar.value);
-	let content_frame = doc_window.querySelector("div.section");
-	content_frame.innerHTML = "";
+	let documentation_text = "";
 
 	if(doc_to_open.split("@")[1] != "do_not_open") {
 		//BUILD COMPONENT PAGE
 		if(doc_to_open.split("@")[0] == "component") {
 			doc_to_open = doc_to_open.split("@")[1];
 
-			doc_window.style.display = "inline-block";
-			content_frame.innerHTML += "<h4>" + doc_to_open + "</h4>";
+			documentation_text += "<h4>" + doc_to_open + "</h4>";
 
 			let component =  autoData.components[doc_to_open];
-			content_frame.innerHTML += "<p>" + component.__des__ + "</p><br>";
+			documentation_text += "<p>" + component.__des__ + "</p><br>";
 
 			if(Object.keys(component).length > 1) {
-				content_frame.innerHTML += "<h5>Arguments</h5>";
-				content_frame.innerHTML += "<ul>";
+				documentation_text += "<h5>Arguments</h5>";
+				documentation_text += "<ul>";
 				if(doc_to_open.includes("behavior")) {
-					content_frame.innerHTML += behavior_arguments;
+					documentation_text += behavior_arguments;
 				}
 				for(let argument in component) {
 					if(argument != "__des__") {
 						let default_value = "";
-						if(component[argument].default_value != "") default_value = "(Default: " + component[argument].default_value + ")";
+						if(component[argument].default_value != "") default_value = " (Default: " + component[argument].default_value + ")";
 
-						content_frame.innerHTML += "<li><span style='font-weight: bold; text-decoration: underline;'>" + argument 
+						documentation_text += "<li><span style='font-weight: bold; text-decoration: underline;'>" + argument 
 						+ "</span> <span class='highlight-" + convertType(component[argument].type) + "'>[" + component[argument].type + "]</span>: " 
 						+ component[argument].description.replace(/<a[^>]*>/g, "").replace(/Back to top/g, "") + default_value + "</li>".replace(/\n/g, "");
 					}
 				}
-				content_frame.innerHTML += "</ul>";
+				documentation_text += "</ul>";
 			} else if(doc_to_open.includes("behavior")) {
-				content_frame.innerHTML += "<h5>Arguments</h5><ul>" + behavior_arguments + "</ul>";
+				documentation_text += "<h5>Arguments</h5><ul>" + behavior_arguments + "</ul>";
 			}
 		} else if(doc_to_open.split("@")[0] == "event") {
 			doc_to_open = doc_to_open.split("@")[1];
-			doc_window.style.display = "inline-block";
-			content_frame.innerHTML += "<h4>" + doc_to_open + "</h4>";
+			documentation_text += "<h4>" + doc_to_open + "</h4>";
 
 			let event =  autoData.events[doc_to_open];
-			content_frame.innerHTML += "<p>" + event.description + "</p>";
+			documentation_text += "<p>" + event.description + "</p>";
 		} else {
-			doc_window.style.display = "inline-block";
-			content_frame.innerHTML += "<h4>minecraft:" + doc_to_open.split("@")[1] + "</h4>";
+			documentation_text += "<h4>minecraft:" + doc_to_open.split("@")[1] + "</h4>";
 
-			content_frame.innerHTML += "<p>" + "A minecraft " + doc_to_open.split("@")[0] + "</p>";
+			documentation_text += "<p>" + "A minecraft " + doc_to_open.split("@")[0] + "</p>";
 		}
+
+		new PopUpWindow("documentation", "90%", "90%", document.body, documentation_text, true).create();
 	}
 }
 

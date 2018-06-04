@@ -2792,6 +2792,180 @@ var autoData = {
 		},
 		"minecraft:wants_jockey": {
 			"__des__": "Sets that this entity wants to become a jockey."
+		},
+		"minecraft:health": {
+			"value": {
+				"type": "Integer",
+				"default_value": "20",
+				"description": ""
+			},
+			"max": {
+				"type": "Integer",
+				"default_value": "20",
+				"description": ""
+			},
+			"min": {
+				"type": "Integer",
+				"default_value": "0",
+				"description": ""
+			},
+			"__des__": "Set the health of an entity."
+		},
+		"minecraft:movement": {
+			"value": {
+				"type": "Integer",
+				"default_value": "1.0",
+				"description": ""
+			},
+			"__des__": "Set the movement speed of an entity."
+		},
+		"minecraft:identifier": {
+			"id": {
+				"type": "String",
+				"default_value": "",
+				"description": ""
+			},
+			"__des__": "Set the identifier (id) of an entity."
+		},
+		"minecraft:physics": {
+			"has_collison": {
+				"type": "Boolean",
+				"default_value": "true",
+				"description": "Sets whether the entity collides with the world"
+			},
+			"has_gravity": {
+				"type": "Boolean",
+				"default_value": "true",
+				"description": "Sets whether the entity is affected by gravity"
+			},
+			"__des__": "Modify the physics of an entity."
+		},
+		"minecraft:fall_damage": {
+			"value": {
+				"type": "Decimal",
+				"default_value": "1.0",
+				"description": ""
+			},
+			"__des__": "Modify the fall damage of an entity."
+		},
+		"minecraft:follow_range": {
+			"value": {
+				"type": "Integer",
+				"default_value": "20",
+				"description": ""
+			},
+			"max": {
+				"type": "Integer",
+				"default_value": "20",
+				"description": ""
+			},
+			"__des__": "Define a follow range for the \"minecraft:behavior.follow_owner\" component."
+		},
+		"minecraft:horse.jump_strength": {
+			"value": {
+				"type": "Decimal",
+				"default_value": "1.0",
+				"description": "You can use this as an object and define range_max and range_min arguments"
+			},
+			"__des__": "Define the jump strength of a horse."
+		},
+		"minecraft:knockback_resistance": {
+			"value": {
+				"type": "Decimal",
+				"default_value": "1.0",
+				"description": ""
+			},
+			"max": {
+				"type": "Decimal",
+				"default_value": "1.0",
+				"description": ""
+			},
+			"__des__": "Modify the knockback resistance of an entity."
+		},
+		"minecraft:underwater_movement": {
+			"value": {
+				"type": "Decimal",
+				"default_value": "1.0",
+				"description": ""
+			},
+			"max": {
+				"type": "Decimal",
+				"default_value": "1.0",
+				"description": ""
+			},
+			"__des__": "Modify the underwater movement of an entity."
+		},
+		"minecraft:player.experience": {
+			"value": {
+				"type": "Decimal",
+				"default_value": "1.0",
+				"description": ""
+			},
+			"max": {
+				"type": "Decimal",
+				"default_value": "1.0",
+				"description": ""
+			},
+			"min": {
+				"type": "Decimal",
+				"default_value": "0.0",
+				"description": ""
+			},
+			"__des__": "Set the player's experience."
+		},
+		"minecraft:player.level": {
+			"value": {
+				"type": "Integer",
+				"default_value": "0",
+				"description": ""
+			},
+			"max": {
+				"type": "Integer",
+				"default_value": "24791",
+				"description": ""
+			},
+			"min": {
+				"type": "Integer",
+				"default_value": "0",
+				"description": ""
+			},
+			"__des__": "Set the player's level."
+		},
+		"minecraft:player.exhaustion": {
+			"value": {
+				"type": "Integer",
+				"default_value": "0",
+				"description": ""
+			},
+			"max": {
+				"type": "Integer",
+				"default_value": "4",
+				"description": ""
+			},
+			"min": {
+				"type": "Integer",
+				"default_value": "0",
+				"description": ""
+			},
+			"__des__": "Set the player's exhaustion."
+		},
+		"minecraft:player.saturation": {
+			"value": {
+				"type": "Integer",
+				"default_value": "20",
+				"description": ""
+			},
+			"max": {
+				"type": "Integer",
+				"default_value": "undefined",
+				"description": ""
+			},
+			"min": {
+				"type": "Integer",
+				"default_value": "0",
+				"description": ""
+			},
+			"__des__": "Set the player's saturation."
 		}
 	},
 	"events": {
