@@ -68,16 +68,6 @@ function addChild(pKey) {
 
 	node.childNodes[1].classList.add("tab");
 	node.childNodes[0].classList.add("highlight-object");
-	/**
-	 * FIXME: Throws error because parent not found
-	 */
-	if(!Number.isNaN(Number(pKey))){
-		console.log(node.childNodes[0]);
-		let parent = getParent(node.childNodes[0]);
-		console.log(getParent(node.childNodes[0]));
-		parent.classList.remove("highlight-object");
-		parent.classList.add("highlight-array");
-	}
 	
 	//Blur event
 	node.childNodes[0].onblur = function(e) {
@@ -90,6 +80,13 @@ function addChild(pKey) {
 	 */
 
 	currentSelected.parentElement.childNodes[1].appendChild(node);
+
+	//UPDATE PARENT COLOR
+	if(!Number.isNaN(Number(pKey))){
+		let parent = getParent(node.childNodes[0]);
+		parent.classList.remove("highlight-object");
+		parent.classList.add("highlight-array");
+	}
 	selectElement(node.childNodes[0], true);
 	updateEvents();
 }

@@ -137,7 +137,6 @@ function getDefault(pContext, pParentContext) {
 function getParent(pE) {
 	try {
 		let candidate = pE.parentElement.parentElement.parentElement.childNodes[0];
-		console.log(candidate);
 		if(candidate.tagName == "SUMMARY") return candidate;
 	} catch(e) {
 		console.warn("No parent found");
