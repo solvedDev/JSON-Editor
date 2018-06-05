@@ -77,16 +77,22 @@ class KeyInput {
 		}
 	}
 	addEdit(pE) {
+		if(pE.childNodes.length == 1) pE.insertBefore(document.createTextNode("Fix me!"), pE.firstChild);
+
 		if(pE.tagName == "SUMMARY" || pE.tagName == "SPAN"){
 			pE.setAttribute("contenteditable", true);
+			//Don't delete button
+			pE.childNodes[1].setAttribute("contenteditable", false);
 		} else if(pE.tagName == "HIGHLIGHT") {
 			pE.parentElement.setAttribute("contenteditable", true);
+			//Don't delete button
+			pE.parentElement.childNodes[1].setAttribute("contenteditable", false);
 		} else {
 			console.warn("Unable to edit " + pE.tagName);
 		}
 		
 	}
 	removeEdit(pE) {
-		pE.setAttribute("contenteditable", false);
+		if(!currentSelected.isSameNode(pE)) pE.setAttribute("contenteditable", false);
 	}
 }

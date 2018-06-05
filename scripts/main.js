@@ -42,22 +42,40 @@ function mainLoop() {
 
 
 function collapseAll() {
+	let loading_window = new LoadingWindow().create();
+
 	let details = document.querySelectorAll("details");
 	for(let i = 0; i < details.length; i++) {
 		details[i].removeAttribute("open");
 	}
+
+	loading_window.destroy();
 }
 
 function expandAll() {
+	let loading_window = new LoadingWindow().create();
+	console.log('loading_window :', loading_window);
+	
 	let details = document.querySelectorAll("details");
 	for(let i = 0; i < details.length; i++) {
-		details[i].setAttribute("open", true);
+		if(!details[i].getAttribute("open")) details[i].setAttribute("open", true);
 	}
+
+	loading_window.destroy();
 }
 
 function refresh() {
-	editor.innerHTML = parseObj(getObj(editor));
-	currentSelected = document.querySelector("details");
+	let loading_window = new LoadingWindow().create();
+	try {
+		editor.innerHTML = parseObj(getObj(editor.childNodes[0]));
+	} catch(e) {
+		console.warn("Unexpected child: " + editor.childNodes[0]);
+		editor.innerHTML = parseObj(getObj(editor.childNodes[1]));
+	}
+	
+	selectElement(document.querySelector("summary"));
+
+	loading_window.destroy();
 }
 
 function addChild(pKey) {
@@ -107,47 +125,39 @@ function addValue(pValue) {
 	currentSelected.parentElement.childNodes[1].appendChild(node);
 	selectElement(getParent(currentSelected), true);
 	updateEvents();
+
+	//Test whether a context is fully filled
+	//If that's the case: Select parent of parent
+	if(auto_completions) {
+		generateOptions("");
+		if(data_list.options.length == 0) selectElement(getParent(currentSelected), true);
+	}
 }
 
-function loadFile(file) {
+function loadFile(pFile, pIndex, pTotal) {
 	let reader = new FileReader();
+
+	//Opening loading window if first file
+	if(pIndex == 0) {
+		app.loading_window = new LoadingWindow().create();
+		app.tab_manager.loaded_tabs = 0;
+	}
+	//Required vars
+	reader.file_name = pFile.name;
+	reader.total = pTotal;
+
 	//Reading file
-	reader.readAsText(file);
+	reader.readAsText(pFile);
+
 	reader.onload = function() {
-		editor.innerHTML = parseObj(JSON.parse(JSON.minify(reader.result)));
-		currentSelected = document.querySelector("details");
-
-		//Display filename
-		let display = document.getElementById("show-filename");
-		display.innerText = "Open: " + fileName;
-		display.style.display = "inline-block";
-
-		//Add click event listener
-		editor.onclick = function(e) {
-			let target = e.target;
-			if(target.tagName == "HIGHLIGHT") target = target.parentElement;
-
-			console.log(target);
-			if(e.ctrlKey) {
-				e.preventDefault();
-				key_input.addEdit(target);
-			} else {
-				//NOT ALREADY SELECTED & OPEN & DOESN'T HAVE SPAN AS CHILD
-				if(!target.isSameNode(currentSelected) && target.parentElement.open && target.parentElement.childNodes[1].childNodes[0] != undefined && target.parentElement.childNodes[1].childNodes[0].tagName != "SPAN") {
-					e.preventDefault();
-				}
-				selectElement(target);
-			}
-		};
-
-		//Register all onblur events
-		let edits = document.querySelectorAll(".highlight-array, .highlight-object, .highlight-string, .highlight-boolean, .highlight-number, span.value");
-		for(var i = 0; i < edits.length; i++) {
-			edits[i].onblur = function(e) {
-				key_input.removeEdit(e.target);
-			}
+		try {
+			app.tab_manager.addTab(this.file_name, JSON.parse(JSON.minify(reader.result)), this.total);
+		} catch(e) {
+			console.warn("An error occurred while trying to open a file: ");
+			console.log(e.message);
+			new PushMessage(document.body, "Invalid JSON!").create();
 		}
-		updateEvents();
-		hl.initialLoad();
+
+		//hl.initialLoad();
 	}
 }

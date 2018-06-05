@@ -163,7 +163,7 @@ label.btn {
 }
 
 /*	Tab	*/
-.tab {
+#editor .tab {
 	padding-left: 1em;
 }
 summary {
@@ -181,14 +181,15 @@ details {
 
 /*		SCROLLBAR		*/
 *::-webkit-scrollbar {
-    width: 10px;
+	width: 6px;
+	height: 6px;
 }
 *::-webkit-scrollbar-track {
     box-shadow: inset 0 0 3px lightgrey;
     border-radius: 50px;
 }
 *::-webkit-scrollbar-thumb {
-    background: var(--brand-primary); 
+    background-color: var(--brand-primary); 
 	border-radius: 5px;
 	box-shadow: inset 0 0 1px var(--brand-primary-darkened);
 }
@@ -206,10 +207,10 @@ details {
 /* DOCUMENTATION */
 .blend-full-screen {
 	margin: 0;
-	padding: 10px;
+	padding: 0;
 	width: 100%;
 	height: 100%;
-	z-index: 10000;
+	z-index: 10;
 	position: fixed;
 
 	background-color: var(--brand-secondary);

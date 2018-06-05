@@ -83,7 +83,7 @@ function openDocumentation() {
 			documentation_text += "<p>" + "A minecraft " + doc_to_open.split("@")[0] + "</p>";
 		}
 
-		new PopUpWindow("documentation", "90%", "90%", document.body, documentation_text, true).create();
+		new PopUpWindow("documentation", "90%", "90%", document.body, documentation_text, true, true).create();
 	}
 }
 

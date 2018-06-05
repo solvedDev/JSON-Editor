@@ -7,7 +7,8 @@
 
 //OPTIONS
 var options = {
-	edit_all: false
+	edit_all: false,
+	auto_completions: true
 };
 
 
@@ -19,8 +20,16 @@ class Application {
 		this.mobile_screen = new MobileScreen();
 
 		this.parser = new Parser();
+		this.tab_manager = new TabManager(document.getElementById("tab-bar")).create();
+		this.tab_manager.addTab("blank.json", {
+			"minecraft:entity": { 
+				"format_version": "1.2.0", 
+				"component_groups": {}, 
+				"components": {}, 
+				"events": {}
+			} 
+		});
 	}
-
 
 	/**
 	 * Opens the screen handed over as a parameter
@@ -114,15 +123,14 @@ class ScreenElement {
 		this[this.node_name].js_element = this;
 	}
 	/**
-	 * Adds the popup window to the context where it is defined
+	 * Adds the ScreenElement to the context where it is defined
 	 */
 	create() {
-		//PopUp needs to be first child
 		this.parent.appendChild(this[this.node_name]);
 		return this;
 	}
 	/**
-	 * Removes the popup window from the context where it is defined
+	 * Removes the ScreenElement from the context where it is defined
 	 */
 	destroy() {
 		this.parent.removeChild(this[this.node_name]);
@@ -130,7 +138,7 @@ class ScreenElement {
 	}
 
 	/**
-	 * Shows popup window
+	 * Shows ScreenElement
 	 */
 	show() {
 		//PopUp needs to be first child
@@ -138,7 +146,7 @@ class ScreenElement {
 		return this;
 	}
 	/**
-	 * Hides popup window
+	 * Hides ScreenElement
 	 */
 	hide() {
 		this[this.node_name].style.display = "none";
@@ -181,11 +189,12 @@ class PopUpWindow extends PriorityScreenElement {
 	 * @param {Number} pW Width of window
 	 * @param {Number} pH Height of window
 	 * @param {Node} pParent The node parent of the popup window
-	 * @param {String} pContent HTML Content for the popup window4
+	 * @param {String} pContent HTML Content for the popup window
+	 * @param {Boolean} pHasCloseButton Whether the dialog shall have a close button
 	 * @param {Boolean} pShowInnerBtn Whether the close button is inside the window
-	 * @param {String} pOverflow Scrolling mode. Can be auto, scroll or none
+	 * @param {String} pOverflow Scrolling mode. Can be auto, scroll or hidden
 	 */
-	constructor(pId, pW, pH, pParent, pContent, pShowInnerBtn=false, pAllowScrolling="auto") {
+	constructor(pId, pW, pH, pParent, pContent, pHasCloseButton=true, pShowInnerBtn=false, pOverflow="auto") {
 		super(pParent, "DIV");
 
 		//Outer DIV - blend background
@@ -195,21 +204,31 @@ class PopUpWindow extends PriorityScreenElement {
 		this.inner_div = document.createElement("DIV");
 		this.inner_div.classList.add("section", "popup-inner-frame");
 		this.inner_div.innerHTML = pContent;
-		this.inner_div.style.overflowY = pAllowScrolling;
+		this.inner_div.style.overflowY = pOverflow;
 		this.inner_div.style.width = pW;
 		this.inner_div.style.setProperty("--window-height", pH);
-		//Close Button
-		this.btn = new CloseButton(this.node).getNode();
 
-		//Building window
-		if(pShowInnerBtn) {
-			this.btn.classList.add("inner")
-			this.inner_div.appendChild(this.btn);
-		} else {
-			this.node.insertBefore(this.btn, this.node.firstChild);
+		//Close Button
+		if(pHasCloseButton) {
+			this.btn = new CloseButton(this.node).getNode();
+
+			//Building window
+			if(pShowInnerBtn) {
+				this.btn.classList.add("inner")
+				this.inner_div.appendChild(this.btn);
+			} else {
+				this.node.insertBefore(this.btn, this.node.firstChild);
+			}
 		}
-		
+
 		this.node.appendChild(this.inner_div);
+	}
+}
+
+class LoadingWindow extends PopUpWindow {
+	constructor() {
+		let loading_animation = "<div class='loading-outer center'><div class='loading-inner'></div></div>";
+		super("loading", "40%", "102px", document.body, loading_animation, false, false, "hidden");
 	}
 }
 
@@ -238,6 +257,7 @@ class PushMessage extends PriorityScreenElement {
 	}
 }
 
+
 //Buttons
 class ActionButton extends ScreenElement {
 	/**
@@ -263,7 +283,6 @@ class ActionButton extends ScreenElement {
 
 class CloseButton extends ActionButton {
 	/**
-	 * 
 	 * @param {Node} pParent The button's parent HTML element
 	 * @param {String} pText Text to show on the button (can be HTML)
 	 */

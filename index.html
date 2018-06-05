@@ -22,7 +22,7 @@
 	<div id="toolbar">
 		<!--OPEN-->
 		<label class="btn btn-outline-primary inline-element">
-			<i class="fa fa-code"></i> Open<input type="file" hidden id="import-json">
+			<i class="fa fa-code"></i> Open<input type="file" hidden id="import-json" multiple>
 		</label>
 		<!--DOWNLOAD-->
 		<button class="btn btn-outline-primary inline-element" id="download-json"><i class="fa fa-cloud-download"></i> Download</button>
@@ -35,7 +35,7 @@
 		<!--COLLAPSE ALL-->
 		<button class="btn btn-outline-primary inline-element" onclick="collapseAll()" title="Collapse all"><i class="fa fa-compress"></i></button>
 		<!--REFRESH ALL-->
-		<button class="btn btn-outline-primary inline-element" onclick="refresh()" title="Refresh"><i class="fa fa-refresh"></i></button>
+		<button class="btn btn-outline-primary inline-element" onclick="app.tab_manager.reloadCurrentTab()" title="Refresh"><i class="fa fa-refresh"></i></button>
 		<span class="padding-normal inline-element"></span>
 		<!--SEARCH BAR: COMPONENTS-->
 		<button class="btn btn-outline-primary" id="search-component" title="Search!"><i class="	fa fa-search"></i></button>
@@ -57,7 +57,7 @@
 			Open: Nothing
 		</div>
 		<!--DEBUG ONLY-->
-		<div style="/*display: none;*/" class="section inline-element div-fit-size" id="show-context">
+		<div style="display: none;" class="section inline-element div-fit-size" id="show-context">
 			Context: Nothing
 		</div>
 		<!--HINT-->
@@ -65,29 +65,34 @@
 			CTRL & Click/Enter for editing
 		</div>
 	</div>
-	
-	<!--   EDITOR   -->
-	<div id="editor" class="section">
-		
-	</div>
 
-	<!--   EDITBAR   -->
-	<div class="edit-bar" id="object">
-		<div class="section input-button inline-element">
-			<label for="add-child">Add child</label>
-			<button class="btn btn-outline-primary" id="add-child" title="Add child"><i class="fa fa-terminal"></i></button>
-			<input onClick="this.setSelectionRange(0, this.value.length)" id="child-input" list="auto-completions" name="value-field" class="section auto-suggestions">
+	<div id="editor-wrapper">
+		<!--   INFO BAR   -->
+		<div id="tab-bar">
 		</div>
-		<div class="section input-button inline-element">
-			<label for="add-value">Add value</label>
-			<button class="btn btn-outline-primary" id="add-value" title="Add value"><i class="fa fa-terminal"></i></button>
-			<input onClick="this.setSelectionRange(0, this.value.length)" id="value-input" list="value-auto-completions" name="value-field" class="section auto-suggestions">
+
+		<!--   EDITOR   -->
+		<div id="editor" class="section">
 		</div>
-	</div>
-	<div class="edit-bar" id="array">
-		<div class="section input-button inline-element">
-			<button class="btn btn-outline-primary" id="add-child" title="Add child"><i class="fa fa-plus"></i></button>
-			<input onclick="this.setSelectionRange(0, this.value.length)" id="array-input" name="value-field" class="section auto-suggestions">
+
+		<!--   EDITBAR   -->
+		<div class="edit-bar" id="object">
+			<div class="section input-button inline-element">
+				<label for="add-child">Add child</label>
+				<button class="btn btn-outline-primary" id="add-child" title="Add child"><i class="fa fa-terminal"></i></button>
+				<input onClick="this.setSelectionRange(0, this.value.length)" id="child-input" list="auto-completions" name="value-field" class="section auto-suggestions">
+			</div>
+			<div class="section input-button inline-element">
+				<label for="add-value">Add value</label>
+				<button class="btn btn-outline-primary" id="add-value" title="Add value"><i class="fa fa-terminal"></i></button>
+				<input onClick="this.setSelectionRange(0, this.value.length)" id="value-input" list="value-auto-completions" name="value-field" class="section auto-suggestions">
+			</div>
+		</div>
+		<div class="edit-bar" id="array">
+			<div class="section input-button inline-element">
+				<button class="btn btn-outline-primary" id="add-child" title="Add child"><i class="fa fa-plus"></i></button>
+				<input onclick="this.setSelectionRange(0, this.value.length)" id="array-input" name="value-field" class="section auto-suggestions">
+			</div>
 		</div>
 	</div>
 
@@ -118,13 +123,18 @@
 		//app.openScreen(app.loading_screen);
 		//app.openPopUp("<h3>A test screen</h3><p>A flexible dialog window. You can set the position of the button, hide the scrollbar and set the size of the window</p>")
 		//new PushMessage(document.body, "<h5 style='position: relative; top: 15px;'>Welcome to solvedDev's JSON Editor!</h5>").create();
+
 		var fileName;
 		document.getElementById("import-json").onchange = function() {
-			fileName = this.files[0].name;
-			loadFile(this.files[0]);
+			for(let i = 0; i < this.files.length; i++) {
+				loadFile(this.files[i], i, this.files.length);
+			}
 		};
 		document.getElementById("download-json").onclick = function() {
-			if(fileName) download(fileName, JSON.stringify(app.parser.getObj(editor), null, "\t"));
+			if(app.tab_manager.hasTabs()) {
+				let tab = app.tab_manager.getSelectedTab();
+				download(tab.getName(), JSON.stringify(tab.getObj(), null, "\t"));
+			}
 		};
 		document.getElementById("add-child").onclick = function() {
 			addChild(document.getElementById("child-input").value);
@@ -152,7 +162,9 @@
 			child_input.focus();
 		};
 		document.getElementById("allow-edit").onclick = function() {
+			let loading_window = new LoadingWindow().create();
 			toggleEdits();
+			loading_window.destroy();
 		};
 		document.getElementById("search-component").onclick = function() {
 			openDocumentation();

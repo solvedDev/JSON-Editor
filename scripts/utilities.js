@@ -181,8 +181,8 @@ function selectElement(pE, pOpen=false) {
 
 		if(childs.length == 0 || childs.length > 0 && childs[0].tagName != "SPAN") {
 			//HANDLE OLD SELECTED
-			currentSelected.classList.remove("selected");
-			if(currentSelected.tagName == "SUMMARY") hl.highlight(currentSelected);
+			if(currentSelected != null ) currentSelected.classList.remove("selected");
+			if(currentSelected && currentSelected.tagName == "SUMMARY") hl.highlight(currentSelected);
 
 			//PREPARE NEW SELECTED
 			currentSelected = pE;
@@ -218,16 +218,21 @@ function selectElement(pE, pOpen=false) {
 	}
 }
 
-function selectNextOpenElement(pElement) {
-	let next_childs = pElement.parentElement.childNodes[1].childNodes;
+function selectNextOpenElement(pElement, pFirst=true) {
+	/*let next_childs = pElement.parentElement.childNodes[1].childNodes;
 	let next_siblings = [];
 	let counter = 0;
 	let start;
+	if(!pFirst) {
+		if(selectElement(pElement)) {
+			return;
+		}
+	}
 
 	//Tryng to select a child if the element is open
 	if(pElement.parentElement.open && next_childs[0] != undefined) {
-		while(!selectElement(next_childs[counter].childNodes[0]) && counter < next_childs.length-1) {
-			counter++;
+		if(!selectElement(next_childs[0].childNodes[0])) {
+			selectNextOpenElement()
 		}
 	}
 
@@ -255,11 +260,11 @@ function selectNextOpenElement(pElement) {
 		while(counter < next_parents.length && !selectElement(next_parents[counter].childNodes[0])){
 			counter++;
 		}
-	}
+	}*/
 }
 
 function selectPreviousOpenElement(pElement) {
-	let previous_childs = pElement.parentElement.childNodes[1].childNodes;
+	/*let previous_childs = pElement.parentElement.childNodes[1].childNodes;
 	let next_siblings = [];
 	let counter = 0;
 	let start;
@@ -298,7 +303,7 @@ function selectPreviousOpenElement(pElement) {
 		while(counter >= 0 && !selectElement(next_parents[counter].childNodes[0])){
 			counter--;
 		}
-	}
+	}*/
 }
 
 function findSelf(pElements, pSelf) {
