@@ -115,11 +115,13 @@
 
 	<!--   REWRITTEN FILES   -->
 	<script src="scripts/main-new.js"></script>
-	<script src="scripts/tab-new.js"></script>
+	<script src="scripts/treeManager-new.js"></script>
+	<script src="scripts/tabSystem-new.js"></script>
 	<script src="scripts/editBar-new.js"></script>
 	
 	<script>
 		var app = new Application();
+		app.start();
 		//app.openScreen(app.loading_screen);
 		//app.openPopUp("<h3>A test screen</h3><p>A flexible dialog window. You can set the position of the button, hide the scrollbar and set the size of the window</p>")
 		//new PushMessage(document.body, "<h5 style='position: relative; top: 15px;'>Welcome to solvedDev's JSON Editor!</h5>").create();
@@ -137,7 +139,10 @@
 			}
 		};
 		document.getElementById("add-child").onclick = function() {
-			addChild(document.getElementById("child-input").value);
+			//addChild(document.getElementById("child-input").value);
+			let key = document.getElementById("child-input").value;
+			let editor = app.tab_manager.getSelectedTab().editor;
+			editor.tree_manager.addElement(key, editor.selection.currentSelected);
 
 			if(auto_completions) {
 				generateOptions("");

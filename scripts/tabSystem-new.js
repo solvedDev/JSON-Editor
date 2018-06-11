@@ -13,20 +13,25 @@ class TabManager extends ScreenElement {
 
 		//Add click event listener to editor
 		this.editor_node = document.getElementById("editor");
+		this.editor_node.js_parent = this;
 		this.editor_node.onclick = function(e) {
 			let target = e.target;
 			if(target.tagName == "HIGHLIGHT") target = target.parentElement;
 
+			let tab = this.js_parent.getSelectedTab();
+			let t_m = tab.editor.tree_manager;
+			let c_s = tab.editor.selection.currentSelected;
+
 			if(e.ctrlKey) {
 				e.preventDefault();
-				selectElement(target);
+				t_m.selectElement(target);
 				key_input.addEdit(target);
 			} else {
 				//NOT ALREADY SELECTED & OPEN & DOESN'T HAVE SPAN AS CHILD
-				if(!target.isSameNode(currentSelected) && target.parentElement.open && target.parentElement.childNodes[1].childNodes[0] != undefined && target.parentElement.childNodes[1].childNodes[0].tagName != "SPAN") {
+				if(!target.isSameNode(c_s) && target.parentElement.open && target.parentElement.childNodes[1].childNodes[0] != undefined && target.parentElement.childNodes[1].childNodes[0].tagName != "SPAN") {
 					e.preventDefault();
 				}
-				selectElement(target);
+				t_m.selectElement(target);
 			}
 		};
 	}
@@ -82,9 +87,7 @@ class TabManager extends ScreenElement {
 	 */
 	addTab(pName, pJSON, pTotal) {
 		this.tabs.push(new Tab(this, pName, pJSON));
-		this.tabs[this.tabs.length - 1].create();
-		selectElement(this.tabs[this.tabs.length - 1].editor.editor_content.querySelector("summary"));
-		this.tabs[this.tabs.length - 1].enable();
+		this.tabs[this.tabs.length - 1].create().enable(this.tabs[this.tabs.length - 1], true);
 
 		this.loaded_tabs++;
 		if(this.loaded_tabs == pTotal) app.loading_window.destroy();
@@ -137,7 +140,7 @@ class Tab extends ScreenElement {
 			tabs[0].enable();
 			
 		} else {
-			new PopUpWindow("notify", "300px", "50px", document.body, "<h5>Cannot remove last tab!</h5>", true, true, "hidden").create();
+			new PopUpWindow("notify", "400px", "50px", document.body, "<h5>You cannot remove the last tab!</h5>", true, true, "hidden").create();
 			this.js_parent.marked = false;
 		}
 	}
@@ -178,13 +181,22 @@ class Tab extends ScreenElement {
 	 * Changes to this tab
 	 * @returns {Tab} this
 	 */
-	enable(pContext=this) {
+	enable(pContext=this, pInitial=false) {
 		if(!pContext.is_open) {
 			pContext.js_parent.disableAll();
 			pContext.node.classList.add("selected-tab");
 			pContext.is_open = true;
 			pContext.editor.create();
 			pContext.node.scrollIntoView();
+
+			//Handling content
+			if(pInitial) {
+				this.editor.tree_manager.selectElement(this.editor.editor_content.querySelector("summary"));
+				this.editor.editor_content.querySelector("summary").focus();
+			} else {
+				this.editor.selection.currentSelected.focus();
+			}
+			
 		}
 		return this;
 	}
@@ -208,17 +220,18 @@ class Editor extends ScreenElement {
 			this.editor_content.innerHTML = parser.parseObj(pJSON);
 		}
 		
-		//this.tree_manager = new TreeManager();
+		this.tree_manager = new TreeManager(this);
 		this.highlighter = new Highlighter();
 
 		this.selection = {
 			path: "",
 			currentContext: "",
-			currentParentContext: "",
-			currentSelected: ""
+			parentCurrentContext: "",
+			currentSelected: document.querySelector("#editor summary")
 		};
 
 		this.registerEvents();
+		//document.querySelector("#editor summary").focus();
 	}
 	/**
 	 * Reload the editor
@@ -226,7 +239,8 @@ class Editor extends ScreenElement {
 	 */
 	refresh() {
 		this.editor_content.innerHTML = app.parser.parseObj(app.parser.getObj(this.editor_content));
-		selectElement(document.querySelector("#editor summary"));
+		//selectElement(document.querySelector("#editor summary"));
+		this.tree_manager.selectElement(document.querySelector("#editor summary"), true);
 		return this;
 	}
 

@@ -219,6 +219,7 @@ function selectElement(pE, pOpen=false) {
 }
 
 function selectNextOpenElement(pElement, pFirst=true) {
+	app.tab_manager.getSelectedTab().editor.tree_manager.selectNextOpenElement();
 	/*let next_childs = pElement.parentElement.childNodes[1].childNodes;
 	let next_siblings = [];
 	let counter = 0;
@@ -264,6 +265,7 @@ function selectNextOpenElement(pElement, pFirst=true) {
 }
 
 function selectPreviousOpenElement(pElement) {
+	app.tab_manager.getSelectedTab().editor.tree_manager.selectPreviousOpenElement();
 	/*let previous_childs = pElement.parentElement.childNodes[1].childNodes;
 	let next_siblings = [];
 	let counter = 0;

@@ -20,15 +20,29 @@ class Application {
 		this.mobile_screen = new MobileScreen();
 
 		this.parser = new Parser();
-		this.tab_manager = new TabManager(document.getElementById("tab-bar")).create();
-		this.tab_manager.addTab("blank.json", {
-			"minecraft:entity": { 
-				"format_version": "1.2.0", 
-				"component_groups": {}, 
-				"components": {}, 
-				"events": {}
-			} 
-		});
+	}
+
+	start() {
+		var is_mobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+		if(is_mobile || window.innerWidth <= 800 && window.innerHeight <= 600){
+			console.log("found")
+			this.openScreen(app.mobile_screen);
+		} else {
+			console.log("No mobile device detected. Loading data...");
+			//Load data
+			///TO_DO: ACTUALLY LOADING DATA
+
+			//Initialize tabs
+			this.tab_manager = new TabManager(document.getElementById("tab-bar")).create();
+			this.tab_manager.addTab("blank.json", {
+				"minecraft:entity": { 
+					"format_version": "1.2.0", 
+					"component_groups": {}, 
+					"components": {}, 
+					"events": {}
+				} 
+			});
+		}
 	}
 
 	/**

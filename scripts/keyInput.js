@@ -12,9 +12,12 @@ class KeyInput {
 		keys_down = [];
 		this.events = [];
 		this.pause = 0;
+		//this.currentSelected = app.tab_manager.getSelectedTab().editor.selection.currentSelected;
 	}
 	
 	processKeys() {
+		this.currentSelected = app.tab_manager.getSelectedTab().editor.selection.currentSelected;
+
 		if(this.pause < 9) this.pause++;
 		if(keys_down == undefined || keys_down.length == 0){
 			
@@ -25,7 +28,7 @@ class KeyInput {
 					case "Delete": case "Backspace": this.remove(); break;
 					case "ArrowDown": this.selectNext(this.events[i]); break;
 					case "ArrowUp": this.selectPrevious(this.events[i]); break;
-					case "Enter": if(keys_down.join(" ") == "Enter Control" || keys_down.join(" ") == "Control Enter") this.addEdit(currentSelected); break;
+					case "Enter": if(keys_down.join(" ") == "Enter Control" || keys_down.join(" ") == "Control Enter") this.addEdit(this.currentSelected); break;
 					case "Control":  break;
 					default: /*console.log(keys_down[i]);*/ break;
 				}
@@ -52,24 +55,23 @@ class KeyInput {
 
 	//Special
 	selectNext(e) {
-		console.log(e);
 		//e.preventDefault();
-		if(this.pause > 8 && currentSelected.contentEditable == "false") {
+		if(this.pause > 8 && this.currentSelected.contentEditable == "false") {
 			this.pause = 0;
-			selectNextOpenElement(currentSelected);
+			selectNextOpenElement(this.currentSelected);
 		}
 	}
 	selectPrevious(e) {
-		if(this.pause > 8 && currentSelected.contentEditable == "false") {
+		if(this.pause > 8 && this.currentSelected.contentEditable == "false") {
 			this.pause = 0;
-			selectPreviousOpenElement(currentSelected);
+			selectPreviousOpenElement(this.currentSelected);
 		}
 	}
 	remove() {
-		if(!isInInput() && this.pause > 8 && currentSelected.contentEditable == "false") {
+		if(!isInInput() && this.pause > 8 && this.currentSelected.contentEditable == "false") {
 			this.pause = 0;
 			try {
-				removeElement(currentSelected);
+				removeElement(this.currentSelected);
 			}
 			catch(e) {
 				console.warn("No currently selected element.")
@@ -93,6 +95,6 @@ class KeyInput {
 		
 	}
 	removeEdit(pE) {
-		if(!currentSelected.isSameNode(pE)) pE.setAttribute("contenteditable", false);
+		if(!this.currentSelected.isSameNode(pE)) pE.setAttribute("contenteditable", false);
 	}
 }

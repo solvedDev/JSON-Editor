@@ -92,11 +92,6 @@ function addChild(pKey) {
 		key_input.removeEdit(e.target);
 	};
 
-	//Update parent
-	/**
-	 * TO-DO: UPDATING THE COLOR OF THE PARENT. ONLY WAY TO KNOW WHETHER BLUE OR RED COLOR (OBJECT/ARRAY)
-	 */
-
 	currentSelected.parentElement.childNodes[1].appendChild(node);
 
 	//UPDATE PARENT COLOR
