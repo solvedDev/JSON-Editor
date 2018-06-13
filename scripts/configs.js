@@ -79,7 +79,7 @@ var autoConfig = [
 	//FILTERS
 	{
 		type: "is_self",
-		value: "filter",
+		value: "filters",
 		propose: ["all_of", "any_of", "test", "subject", "operator", "domain", "value"]
 	},
 	{
