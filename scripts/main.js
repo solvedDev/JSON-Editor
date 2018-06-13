@@ -35,7 +35,7 @@ function mainLoop() {
 
 	updateSearchBar(search_bar.value);
 
-	display_currentContext.innerHTML = "Co: " + currentContext + " | paCo: " + parentCurrentContext + " | coTy: " + currentType;
+	display_currentContext.innerHTML = "Path: " + app.tab_manager.getSelectedTab().editor.path.getPath() + " | coTy: " + currentType;
 
 	window.requestAnimationFrame(mainLoop);
 }

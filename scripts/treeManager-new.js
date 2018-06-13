@@ -15,27 +15,24 @@ class TreeManager {
 	selectElement(pElement, pOpen=false) {
 		if(pElement.nodeName == "SUMMARY" || pElement.nodeName == "SPAN") {
 			let selection = this.editor.selection;
+			let path = this.editor.path;
 
 			//Handle old currentSelected
-			if(selection.currentSelected != undefined && selection.currentSelected != "") {
-				selection.currentSelected.classList.remove("selected");
-				hl.highlight(selection.currentSelected);
+			if(path.getCurrentContext() != undefined && path.getCurrentContext() != "") {
+				path.getCurrentContext().classList.remove("selected");
+				hl.highlight(path.getCurrentContext());
 			}
 
+			//Update path
+			path.reset();
+			this.getNewPath(pElement, path);
+
 			//Handle new selected
-			selection.currentSelected = pElement;
 			pElement.classList.add("selected");
 			pElement.focus();
 			pElement.scrollIntoView();
-			selection.path = this.getNewPath(pElement);
 
-			//Update context
-			selection.currentContext = selection.currentSelected.innerText;
-			if(this.node_system.hasParent(selection.currentSelected)) {
-				selection.parentCurrentContext = this.node_system.getParent(selection.currentSelected).innerText;
-			} else {
-				selection.parentCurrentContext = "No context"
-			}
+
 			//UPDATE TYPE && EVALUATE IT
 			selection.currentType = getContextType(currentContext, parentCurrentContext);
 			if(currentType == "object" || currentType == "array") {
@@ -47,8 +44,7 @@ class TreeManager {
 			//UPDATE INPUT
 			autoFillChildInput();
 
-			if(pOpen) selection.currentSelected.parentElement.setAttribute("open", true);
-			this.editor.selection = selection;
+			if(pOpen) path.getCurrentContext().parentElement.setAttribute("open", true);
 			return true;
 
 		} else {
@@ -142,11 +138,11 @@ class TreeManager {
 	/**
 	 * @returns {String} The new path to the key
 	 */
-	getNewPath(pNode) {
+	getNewPath(pNode, pPathObj) {
+		pPathObj.expandPath(pNode, true);
+
 		if(this.node_system.hasParent(pNode)) {
-			return this.getNewPath(this.node_system.getParent(pNode)) + "/" + pNode.innerText;
-		} else {
-			return pNode.innerText;
+			this.getNewPath(this.node_system.getParent(pNode), pPathObj);
 		}
 	}
 
@@ -229,11 +225,15 @@ class NodeSystem {
 	 * @returns {Node} Parent of the given node or undefined
 	 */
 	getParent(pNode) {
-		try {
-			return pNode.parentElement.parentElement.parentElement.childNodes[0];
-		} catch(e) {
-			console.warn("Unexpected node structure: Called .parentElement on undefined.");
-			return undefined;
+		if(pNode && pNode.tagName == "SUMMARY") {
+			try {
+				return pNode.parentElement.parentElement.parentElement.childNodes[0];
+			} catch(e) {
+				console.warn("Unexpected node structure: Called .parentElement on undefined.");
+				return undefined;
+			}
+		} else {
+			return pNode.parentElement.parentElement.childNodes[0];
 		}
 	}
 	/**
@@ -281,7 +281,7 @@ class NodeSystem {
 	 * @returns {Boolean}
 	 */
 	hasParent(pNode) {
-		return this.getParent(pNode) != undefined && this.getParent(pNode).tagName == "SUMMARY";
+		return this.getParent(pNode) != undefined && (this.getParent(pNode).tagName == "SUMMARY" || this.getParent(pNode).tagName == "SPAN");
 	}
 	/**
 	 * Tests whether a node has childs
@@ -338,5 +338,126 @@ class NodeSystem {
 		} catch(e) {
 			console.warn("Undefined sibling!");
 		}		
+	}
+}
+
+class Path {
+	constructor() {
+		this.path = "";
+		this.node_path = [];
+	}
+
+	expandPath(pNode, pReverse=true) {
+		let text = pNode.innerText.replace(/\//g, "-");
+
+		if(pReverse) {
+			this.node_path.unshift(pNode);
+			if(this.path != "") {
+				this.path = text + "/" + this.path;
+			} else {
+				this.path = text;
+			}
+		} else {
+			this.node_path.push(pNode);
+			if(this.path != "") {
+				this.path = this.path + "/" + text;
+			} else {
+				this.path = text;
+			}
+		}
+	}
+	reset() {
+		this.path = "";
+		this.node_path = [];
+	}
+	/**
+	 * @returns {String} path
+	 */
+	getPath() {
+		return this.path;
+	}
+	/**
+	 * Set the path
+	 * @param {String} pPath The new path
+	 */
+	setPath(pPath) {
+		this.path = pPath;
+	}
+
+	
+	/**
+	 * Returns the 
+	 * @param {Number} pDepth How deep the required context is
+	 * @param {Boolean} pReturnNode Whether to return a string or node
+	 * @returns {String|Node} The context as string
+	 */
+	getContextOfDepth(pDepth, pReturnNode=true) {
+		if(pReturnNode) {
+			return this.node_path[this.node_path.length - 1 - pDepth];
+		} else {
+			let arr_path = this.path.split("/");
+			return arr_path[arr_path.length - 1 - pDepth];
+		}
+	}
+	/**
+	 * @param {Boolean} pReturnNode Whether to return a string or node
+	 * @returns {String|Node} The currentContext as string
+	 */
+	getCurrentContext(pReturnNode=true) {
+		return this.getContextOfDepth(0, pReturnNode);
+	}
+	/**
+	 * @param {Boolean} pReturnNode Whether to return a string or node
+	 * @returns {String|Node} The currentParentContext as string
+	 */
+	getCurrentParentContext(pReturnNode=true) {
+		return this.getContextOfDepth(1, pReturnNode);
+	}
+
+
+	/**
+	 * Compares this.paths against the given path and returns whether they're equal
+	 * Features: 
+	 * 		'../' (The start of the path doesn't matter), 
+	 * 		'./' (The name of this element doesn't matter), 
+	 * 		'/..' (The end of the path doesn't matter)
+	 * @param {String} pPath The path to compare this path with
+	 */
+	isPath(pPath) {
+		let arr_path = pPath.split("/");
+		let own_arr_path = this.path.split("/");
+
+		let j = 0;
+		if(arr_path[0] == "..") {
+			while(j < own_arr_path.length && own_arr_path[j] != arr_path[1]) {
+				j++;
+			}
+		}
+		return this.compareArr(j, own_arr_path, j > 0 ? 1 : 0, arr_path, true);
+	}
+	compareArr(pStart1, pArr1, pStart2, pArr2, pAllowWildCard=true) {
+		let delta = pStart2 - pStart1;
+
+		for(var i = pStart1; i < pArr1.length; i++) {
+			if(pArr2[i + delta] == "..") return true; 
+			if(pArr1[i] == pArr2[i + delta] || (pAllowWildCard && pArr2[i + delta] == ".")) {
+				
+			} else {
+				return false;
+			}
+		}
+		return i == pArr2.length - delta || pArr2[i + delta] == "..";
+	}
+
+	guessJSONType() {
+		if(this.isPath("minecraft:entity/..")) {
+			return "entity";
+		} else if(this.isPath("tiers/..")) {
+			return "trade";
+		} else if(this.isPath("pools/..")) {
+			return "loot_table";
+		} else {
+			console.warn("Unable to guess jsonType of \"" + this.path + "\".");
+		}
 	}
 }

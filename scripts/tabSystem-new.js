@@ -229,7 +229,7 @@ class Editor extends ScreenElement {
 			parentCurrentContext: "",
 			currentSelected: document.querySelector("#editor summary")
 		};
-
+		this.path = new Path();
 		this.registerEvents();
 		//document.querySelector("#editor summary").focus();
 	}
