@@ -65,7 +65,6 @@ class LoadingSystem {
 		this.request("data/BP/entities/" + pFileName);
 	}
 	requestEntities(pNames) {
-		console.log(arguments);
 		for (let i = 0; i < pNames.length; i++) {
 			if(pNames[i] == "cod") pNames[i] = "fish";
 			if(!this.entity_blacklist.contains(pNames[i])) {

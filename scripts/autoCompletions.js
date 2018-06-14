@@ -5,7 +5,7 @@
  * Project: JSON Editor
  */
 
-var data_list = document.getElementById("auto-completions");
+/*var data_list = document.getElementById("auto-completions");
 var value_list = document.getElementById("value-auto-completions");
 var search_data_list = document.getElementById("search-auto-components")
 var child_input = document.getElementById("child-input");
@@ -141,7 +141,7 @@ function createOptions(pIndex, pSearch) {
 	} else {
 		data_list.innerHTML = parseFromArray(autoConfig[pIndex].propose, pSearch);
 	}
-}
+}*/
 
 
 

@@ -16,11 +16,12 @@ class TreeManager {
 		if(pElement.nodeName == "SUMMARY" || pElement.nodeName == "SPAN") {
 			let selection = this.editor.selection;
 			let path = this.editor.path;
+			let s_hl = this.editor.highlighter;
 
 			//Handle old currentSelected
 			if(path.getCurrentContext() != undefined && path.getCurrentContext() != "") {
 				path.getCurrentContext().classList.remove("selected");
-				hl.highlight(path.getCurrentContext());
+				s_hl.highlight(path.getCurrentContext());
 			}
 
 			//Update path
@@ -34,12 +35,12 @@ class TreeManager {
 
 
 			//UPDATE TYPE && EVALUATE IT
-			selection.currentType = getContextType(currentContext, parentCurrentContext);
+			/*selection.currentType = getContextType(currentContext, parentCurrentContext);
 			if(currentType == "object" || currentType == "array") {
 				value_list.innerHTML = "";
 			} else {
 				generateValueOptions("", true);
-			}
+			}*/
 
 			//UPDATE INPUT
 			autoFillChildInput();
@@ -178,6 +179,7 @@ class TreeManager {
 			this.selectElement(node.childNodes[0], true);
 			this.updateEvents(node);
 		} else {
+			console.warn("Invalid parent: " + pParent);
 			new PopUpWindow("invalid-parent", "80%", "20%", document.body, "You cannot add \"" + pKey + "\" here.", true, true).create();
 		}
 	}

@@ -111,6 +111,7 @@
 
 	<!--   REWRITTEN FILES   -->
 	<script src="scripts/main-new.js"></script>
+	<script src="scripts/autoCompletions-new.js"></script>
 	<script src="scripts/fileRequester.js"></script>
 	<script src="scripts/treeManager-new.js"></script>
 	<script src="scripts/tabSystem-new.js"></script>
@@ -139,7 +140,7 @@
 			//addChild(document.getElementById("child-input").value);
 			let key = document.getElementById("child-input").value;
 			let editor = app.tab_manager.getSelectedTab().editor;
-			editor.tree_manager.addElement(key, editor.selection.currentSelected);
+			editor.tree_manager.addElement(key, editor.path.getCurrentContext());
 
 			if(auto_completions) {
 				generateOptions("");

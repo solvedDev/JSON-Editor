@@ -221,7 +221,8 @@ class Editor extends ScreenElement {
 		}
 		
 		this.tree_manager = new TreeManager(this);
-		this.highlighter = new Highlighter();
+		this.highlighter = new Highlighter({solved: "font-weight: bold; color: royalblue;"});
+		this.auto_completions = new AutoCompletions(this);
 
 		this.selection = {
 			path: "",

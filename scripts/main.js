@@ -14,9 +14,6 @@ var currentContext = "No context";
 var parentCurrentContext = "No context";
 var currentType = "";
 
-//Setting up highlighter
-var hl = new Highlighter({ solved: "font-weight: bold; color: royalblue; opacity: 0.6;" });
-
 //Setting up KeyInput
 var key_input = new KeyInput();
 window.addEventListener("keydown", key_input.addEvent);
@@ -26,14 +23,14 @@ window.addEventListener("keyup", key_input.removeEvent);
 function mainLoop() {
 	key_input.processKeys();
 
-	if(auto_completions){
+	/*if(auto_completions){
 		generateOptions(child_input.value);
 		generateValueOptions(value_input.value);
 	} else {
 		data_list.innerHTML = "";
 	}
 
-	updateSearchBar(search_bar.value);
+	updateSearchBar(search_bar.value);*/
 
 	display_currentContext.innerHTML = "Path: " + app.tab_manager.getSelectedTab().editor.path.getPath() + " | coTy: " + currentType;
 
@@ -152,7 +149,5 @@ function loadFile(pFile, pIndex, pTotal) {
 			console.log(e.message);
 			new PushMessage(document.body, "Invalid JSON!").create();
 		}
-
-		//hl.initialLoad();
 	}
 }

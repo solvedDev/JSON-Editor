@@ -11,6 +11,7 @@ String.prototype.insert = function (pString, pIndex) {
 	else
 	  return pString + this;
 };
+String.prototype.contains = String.prototype.includes;
 
 String.prototype.removeCharAtIndex = function (pIndex) {
 	return this.substring(0, pIndex - 1) + this.substring(pIndex, this.length);
@@ -218,96 +219,6 @@ function selectElement(pE, pOpen=false) {
 	}
 }
 
-function selectNextOpenElement(pElement, pFirst=true) {
-	app.tab_manager.getSelectedTab().editor.tree_manager.selectNextOpenElement();
-	/*let next_childs = pElement.parentElement.childNodes[1].childNodes;
-	let next_siblings = [];
-	let counter = 0;
-	let start;
-	if(!pFirst) {
-		if(selectElement(pElement)) {
-			return;
-		}
-	}
-
-	//Tryng to select a child if the element is open
-	if(pElement.parentElement.open && next_childs[0] != undefined) {
-		if(!selectElement(next_childs[0].childNodes[0])) {
-			selectNextOpenElement()
-		}
-	}
-
-	//Trying to select a sibling
-	if(counter == next_childs.length-1 || !pElement.parentElement.open || next_childs[0] == undefined) {
-		next_siblings = pElement.parentElement.parentElement.childNodes;
-		start = findSelf(next_siblings, pElement.parentElement);
-		
-		//Only if own node was found
-		if(start != undefined) {
-			counter = start+1;
-			while(counter < next_siblings.length && !selectElement(next_siblings[counter].childNodes[0])) {
-				counter++;
-			}
-		}
-	} 
-
-	if(counter == next_siblings.length) {
-		//                           SELF           SIBLINGS                    PARENTS
-		//                 summary -   details   -     div     -   details   -     div 
-		let next_parents = pElement.parentElement.parentElement.parentElement.parentElement.childNodes;
-		start = findSelf(next_parents, pElement.parentElement.parentElement.parentElement);
-		console.log(start, next_parents);
-		counter = start+1;
-		while(counter < next_parents.length && !selectElement(next_parents[counter].childNodes[0])){
-			counter++;
-		}
-	}*/
-}
-
-function selectPreviousOpenElement(pElement) {
-	app.tab_manager.getSelectedTab().editor.tree_manager.selectPreviousOpenElement();
-	/*let previous_childs = pElement.parentElement.childNodes[1].childNodes;
-	let next_siblings = [];
-	let counter = 0;
-	let start;
-	let found = false;
-
-	//PARSE SIBLINGS
-	next_siblings = pElement.parentElement.parentElement.childNodes;
-	start = findSelf(next_siblings, pElement.parentElement);
-	//Only if own node was found
-	if(start != undefined) {
-		counter = start-1;
-		while(counter >= 0 && !found) {
-			//If open, try to select childs
-			if(next_siblings[counter].open) {
-				let next_childs = next_siblings[counter].childNodes[1].childNodes;
-				let counter2 = next_childs.length-1;
-				while(counter2 >= 0 && !found) {
-					if(!found) found = selectElement(next_childs[counter2].childNodes[0]);
-					counter2--;
-				}
-			}
-			//If unable to select a child, try to select self
-			if(!found) found = selectElement(next_siblings[counter].childNodes[0]);
-			counter--;
-		}
-	}
-
-	//Parse parents
-	if(!found) {
-		//                           SELF           SIBLINGS                    PARENTS
-		//                 summary -   details   -     div     -   details   -     div 
-		let next_parents = pElement.parentElement.parentElement.parentElement.parentElement.childNodes;
-		start = findSelf(next_parents, pElement.parentElement.parentElement.parentElement);
-		console.log(start, next_parents);
-		counter = start;
-		while(counter >= 0 && !selectElement(next_parents[counter].childNodes[0])){
-			counter--;
-		}
-	}*/
-}
-
 function findSelf(pElements, pSelf) {
 	let counter = 0;
 	while(counter < pElements.length && !pElements[counter].isSameNode(pSelf)) {
@@ -318,10 +229,10 @@ function findSelf(pElements, pSelf) {
 }
 
 function autoFillChildInput() {
-	generateOptions("");
+	/*generateOptions("");
 	if(data_list.options.length > 0){
 		child_input.value = data_list.options[0].value;
 	} else {
 		child_input.value = "";
-	}
+	}*/
 }
