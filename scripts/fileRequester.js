@@ -5,32 +5,60 @@
  * Project: JSON Editor
  */
 
-class LoadingSystem {
-	constructor(pConfig) {
-		this.config = pConfig;
-		this.data = {};
-		this.entity_blacklist = ["item", "leash_knot", "painting", "xp_orb", "falling_block", "moving_block", "evocation_fang"]
+class RequestSystem {
+	constructor(pParent) {
+		this.cached_data = {};
+		this.load_files = 0;
+		this.total_files = 0;
+		this.parent = pParent;
+
+		this.onReady = undefined;
+		this.onChange = undefined;
 	}
 
-	request(pPath, pCallback=this.onRequestReady) {
+	/**
+	 * Request a file from local cache or the internet
+	 * @param {String} pPath 
+	 * @param {Function} pContinue Arguments: Data & context
+	 */
+	request(pPath, pContinue) {
+		this.load_files++;
+		this.total_files++;
+		if(this.onChange){
+			let progress = 100 - Math.round(this.load_files / this.total_files * 1000) / 10;
+			this.onChange(progress + "%", this.parent);
+		}
+
 		fetch("https://solveddev.github.io/JSON-Editor-Data/" + pPath)
 			.then(pResponse => pResponse.text())
-			.then(pJson => pCallback(pPath, JSON.parse(JSON.minify(pJson)), this))
-			.catch(pError =>  console.log(pError));
+			.then(pText => this.onRequestReady(pPath, JSON.parse(JSON.minify(pText)), pContinue, this))
+			.catch(pError =>  console.log(pPath + ": " + pError));
+	}
+	onRequestReady(pPath, pData, pContinue, pSelf=this) {
+		pSelf.cacheData(pPath, pSelf.cached_data, pData, pSelf);
+
+		if(pContinue != undefined) pContinue(pData, pSelf);
+
+		pSelf.load_files--;
+		if(pSelf.onChange){
+			let progress = 100 - Math.round(pSelf.load_files / pSelf.total_files * 1000) / 10;
+			pSelf.onChange(progress + "%", pSelf.parent);
+		}
+		if(pSelf.load_files <= 0 && pSelf.onReady) {
+			pSelf.onReady(pSelf.parent);
+		}
+		return pData;
 	}
 
-	onRequestReady(pPath, pData, pSelf=this) {
-		pSelf.saveLocalData(pPath, pSelf.data, pData, pSelf);
-	}
-	
 	/**
 	 * Stores requested data
-	 * @param {Array<String>} pPath The path describing where to save data
+	 * @param {Array<String>|String} pPath The path describing where to save data
 	 * @param {Object} pDict The dict in which  you want to save the data
 	 * @param {any} pData The data to save
 	 * @param {Object} pSelf Context
+	 * @returns {Object} Modified dict
 	 */
-	saveLocalData(pPath, pDict, pData, pSelf=this) {
+	cacheData(pPath, pDict, pData, pSelf=this) {
 		if(typeof pPath == "string") {
 			pPath = pPath.split("/");
 		}
@@ -39,13 +67,20 @@ class LoadingSystem {
 
 		if(pPath.length > 0) {
 			if(!dict[my_key]) dict[my_key] = {};
-			dict[my_key] = pSelf.saveLocalData(pPath, dict[my_key], pData, pSelf);
+			dict[my_key] = pSelf.cacheData(pPath, dict[my_key], pData, pSelf);
 		} else {
 			dict[my_key] = pData;
 		}
 		return dict;
 	}
-	getLocalData(pPath, pDict=this.data, pSelf=this) {
+	/**
+	 * Get data from the cache
+	 * @param {Array<String>|String} pPath Path to data
+	 * @param {Object} pDict Object to use the path on
+	 * @param {Object} pSelf Context
+	 * @returns {Object} Requested data
+	 */
+	getCachedData(pPath, pDict=this.cached_data, pSelf=this) {
 		if(typeof pPath == "string") {
 			pPath = pPath.split("/");
 		}
@@ -54,27 +89,48 @@ class LoadingSystem {
 		let dict = pDict;
 
 		if(pPath.length > 0) {
-			return pSelf.getLocalData(pPath, dict[my_key]);
+			return pSelf.getCachedData(pPath, dict[my_key]);
 		} else {
 			return dict[my_key];
 		}
 	}
-
-
-	requestEntity(pFileName) {
-		this.request("data/BP/entities/" + pFileName);
-	}
-	requestEntities(pNames) {
-		for (let i = 0; i < pNames.length; i++) {
-			if(pNames[i] == "cod") pNames[i] = "fish";
-			if(!this.entity_blacklist.contains(pNames[i])) {
-				this.requestEntity(pNames[i] + ".json");
-			}
-		}
-	}
 }
 
-l = new LoadingSystem();
-l.requestEntity("agent.json");
-l.requestEntity("blaze.json");
-l.requestEntities(autoData["entities"]);
+class LoadingSystem extends RequestSystem {
+	constructor(pParent) {
+		super(pParent);
+	}
+	/**
+	 * Loads all files from the load_definition.json file
+	 */
+	loadAll() {
+		this.request("load_definition.json", function(pData, pSelf) {
+			//Other
+			for(let i = 0; i < pData.other.length; i++) {
+				pSelf.request("data/" + pData.other[i]);
+			}
+
+			//BP
+			for(let i = 0; i < pData.entities.length; i++) {
+				pSelf.request("data/BP/entities/" + pData.entities[i] + ".json");
+			}
+			for(let i = 0; i < pData.loot_tables.length; i++) {
+				pSelf.request("data/BP/loot_tables/" + pData.loot_tables[i]);
+			}
+			for(let i = 0; i < pData.trades.length; i++) {
+				pSelf.request("data/BP/trading/" + pData.trades[i]);
+			}
+			for(let i = 0; i < pData.recipes.length; i++) {
+				pSelf.request("data/BP/recipes/" + pData.recipes[i]);
+			}
+
+			//RP
+			for(let i = 0; i < pData.models.length; i++) {
+				pSelf.request("data/RP/models/" + pData.models[i]);
+			}
+			for(let i = 0; i < pData.ui.length; i++) {
+				pSelf.request("data/RP/ui/" + pData.ui[i]);
+			}
+		});
+	}
+}

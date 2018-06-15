@@ -15,17 +15,20 @@ class LogicStatement {
 	constructor(pStatement) {
 		this.statement = pStatement;
 	}
-
-	evaluate() {
+	/**
+	 * Execute the LogicStatement
+	 * @returns {Boolean} Whether the statement is true
+	 */
+	execute() {
 		if(this.statement[0] == "(") this.statement = this.statement.slice(1, -1);
 		let arr = this.statement.split(" ");
 
-		let val = new FunctionStatement(arr[0]).evaluate();
+		let val = new FunctionStatement(arr[0]).execute();
 		for(let i = 1; i < arr.length; i += 2) {
 			if(arr[i] == "and") {
-				val = val && new FunctionStatement(arr[i+1]).evaluate();
+				val = val && new FunctionStatement(arr[i+1]).execute();
 			} else if(arr[i] == "or") {
-				val = val || new FunctionStatement(arr[i+1]).evaluate();
+				val = val || new FunctionStatement(arr[i+1]).execute();
 			} else {
 				console.warn("Unknown logic operator: " + arr[i]);
 			}
@@ -40,7 +43,22 @@ class FunctionStatement {
 		this.statement = pStatement;
 		this.editor = pEditor;
 	}
+	/**
+	 * Execute the FunctionStatement
+	 * @returns {Boolean} Whether the statement is true
+	 */
+	execute() {
+		if(!this.evaluated) this.evaluate();
 
+		try {
+			return eval(this.evaluated);
+		} catch(e) {
+			console.warn("Invalid function statement \"" + this.statement + "\":\n\n" + e);
+		}
+	}
+	/**
+	 * Evaluate the FunctionStatement
+	 */
 	evaluate() {
 		let parts = this.statement.split("_on_");
 
@@ -51,13 +69,13 @@ class FunctionStatement {
 			parts[0] = this.getFunction(parts[0]);
 		}
 
-		try {
-			return eval(parts[0]);
-		} catch(e) {
-			console.warn("Invalid function statement \"" + this.statement + "\":\n\n" + e);
-		}
+		this.evaluated = parts[0];
 	}
-
+	/**
+	 * Returns an -through eval()- executable JS function
+	 * @param {String} pString 1 function statement
+	 * @param {} pFuncArg Additional argument
+	 */
 	getFunction(pString, pFuncArg) {
 		let func = pString;
 		if(func.contains("(")) {
@@ -103,6 +121,3 @@ class FunctionStatement {
 		return !$is_path(pArg);
 	}
 }
-
-var f = new FunctionStatement("$is(minecraft:entity)", app.tab_manager.getSelectedTab().editor);
-var ls = new LogicStatement("$is(test) or $is(testing)");

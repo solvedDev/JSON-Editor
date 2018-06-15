@@ -20,6 +20,7 @@ class Application {
 		this.mobile_screen = new MobileScreen();
 
 		this.parser = new Parser();
+		this.loading_system = new LoadingSystem(this);
 	}
 
 	start() {
@@ -28,20 +29,29 @@ class Application {
 			console.log("found")
 			this.openScreen(app.mobile_screen);
 		} else {
+			//this.openScreen(app.loading_screen);
 			console.log("No mobile device detected. Loading data...");
+			
+			//Register events
+			this.loading_system.onReady = function(pSelf) {
+				//pSelf.openScreen(app.editor_screen);
+				
+				//Initialize tabs
+				pSelf.tab_manager = new TabManager(document.getElementById("tab-bar")).create();
+				pSelf.tab_manager.addTab("blank.json", {
+					"minecraft:entity": { 
+						"format_version": "1.2.0", 
+						"component_groups": {}, 
+						"components": {}, 
+						"events": {}
+					} 
+				});
+			};
+			this.loading_system.onChange = function(pProgress, pSelf) {
+				//document.body.querySelector("p").innerText = "Progress: " + pProgress;
+			};
 			//Load data
-			///TO_DO: ACTUALLY LOADING DATA
-
-			//Initialize tabs
-			this.tab_manager = new TabManager(document.getElementById("tab-bar")).create();
-			this.tab_manager.addTab("blank.json", {
-				"minecraft:entity": { 
-					"format_version": "1.2.0", 
-					"component_groups": {}, 
-					"components": {}, 
-					"events": {}
-				} 
-			});
+			this.loading_system.loadAll();
 		}
 	}
 
@@ -118,7 +128,7 @@ class EditorScreen extends Screen {
 
 class LoadingScreen extends Screen {
 	constructor(pParent) {
-		super(pParent, "<div class='center blue-section'><h1>Loading data</h1><div class='loading-outer center'><div class='loading-inner'></div></div><h5>We are preparing your<br> new JSON Experience!</h5></div>");
+		super(pParent, "<div class='center blue-section'><h1>Loading data</h1><div class='loading-outer center'><div class='loading-inner'></div></div><h5>We are preparing your<br> new JSON Experience!</h5><p></p></div>");
 	}
 }
 
