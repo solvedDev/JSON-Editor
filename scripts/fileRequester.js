@@ -50,7 +50,7 @@ class RequestSystem {
 		fetch("https://solveddev.github.io/JSON-Editor-Data/" + pPath)
 			.then(pResponse => pResponse.text())
 			.then(pText => this.onRequestReady(pPath, pText, pContinue, this))
-			.catch(pError =>  console.log(pPath + ": " + pError));
+			.catch(pError =>  console.warn(pPath + ": " + pError));
 	}
 	onRequestReady(pPath, pData, pContinue, pSelf=this) {
 		pSelf.cacheData(pPath, pSelf.cached_data, pData, pSelf);
