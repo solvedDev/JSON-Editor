@@ -16,7 +16,6 @@ var options = {
 class Application {
 	constructor() {
 		this.loading_screen = new LoadingScreen();
-		this.editor_screen = new EditorScreen(this);
 		this.mobile_screen = new MobileScreen();
 
 		this.parser = new Parser();
@@ -27,14 +26,15 @@ class Application {
 		var is_mobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 		if(is_mobile || window.innerWidth <= 800 && window.innerHeight <= 600){
 			console.log("found")
-			this.openScreen(app.mobile_screen);
+			this.openScreen(this.mobile_screen);
 		} else {
-			//this.openScreen(app.loading_screen);
+			this.openScreen(this.loading_screen);
 			console.log("No mobile device detected. Loading data...");
-			
+
 			//Register events
 			this.loading_system.onReady = function(pSelf) {
-				//pSelf.openScreen(app.editor_screen);
+				pSelf.editor_screen = new EditorScreen(this, pSelf.loading_system.getCachedData("data/html/editor_template.html"));
+				pSelf.openScreen(pSelf.editor_screen);
 				
 				//Initialize tabs
 				pSelf.tab_manager = new TabManager(document.getElementById("tab-bar")).create();
@@ -48,7 +48,7 @@ class Application {
 				});
 			};
 			this.loading_system.onChange = function(pProgress, pSelf) {
-				//document.body.querySelector("p").innerText = "Progress: " + pProgress;
+				document.body.querySelector("p").innerText = "Progress: " + pProgress;
 			};
 			//Load data
 			this.loading_system.loadAll();
@@ -113,8 +113,8 @@ class MobileScreen extends Screen {
 }
 
 class EditorScreen extends Screen {
-	constructor(pParent) {
-		super(pParent, "<h1>EDITOR</h1>");
+	constructor(pParent, pHTML) {
+		super(pParent, pHTML);
 
 		this.tabs = [];
 	}

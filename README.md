@@ -4,6 +4,10 @@ Visit https://solveddev.github.io/JSON-Editor/ to get started!
 
 This Editor is optimized towards editing Minecraft behavior files. It has auto-completion and the documentation built-in.
 
+## What's this magic dev-build?
+The dev-build branch currently stores the progress of the next major update: v1.5!
+
+
 ### Technologies used:
 - https://github.com/getify/JSON.minify
 - http://getbootstrap.com/

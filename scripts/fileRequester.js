@@ -17,7 +17,7 @@ class RequestSystem {
 	}
 
 	/**
-	 * Request a file from local cache or the internet
+	 * Request a JSON file from the internet
 	 * @param {String} pPath 
 	 * @param {Function} pContinue Arguments: Data & context
 	 */
@@ -32,6 +32,24 @@ class RequestSystem {
 		fetch("https://solveddev.github.io/JSON-Editor-Data/" + pPath)
 			.then(pResponse => pResponse.text())
 			.then(pText => this.onRequestReady(pPath, JSON.parse(JSON.minify(pText)), pContinue, this))
+			.catch(pError =>  console.log(pPath + ": " + pError));
+	}
+	/**
+	 * Request a file from the internet
+	 * @param {String} pPath 
+	 * @param {Function} pContinue Arguments: Data & context
+	 */
+	requestString(pPath, pContinue) {
+		this.load_files++;
+		this.total_files++;
+		if(this.onChange){
+			let progress = 100 - Math.round(this.load_files / this.total_files * 1000) / 10;
+			this.onChange(progress + "%", this.parent);
+		}
+
+		fetch("https://solveddev.github.io/JSON-Editor-Data/" + pPath)
+			.then(pResponse => pResponse.text())
+			.then(pText => this.onRequestReady(pPath, pText, pContinue, this))
 			.catch(pError =>  console.log(pPath + ": " + pError));
 	}
 	onRequestReady(pPath, pData, pContinue, pSelf=this) {
@@ -105,6 +123,11 @@ class LoadingSystem extends RequestSystem {
 	 */
 	loadAll() {
 		this.request("load_definition.json", function(pData, pSelf) {
+			//html
+			for(let i = 0; i < pData.html.length; i++) {
+				pSelf.requestString("data/html/" + pData.html[i]);
+			}
+
 			//Other
 			for(let i = 0; i < pData.other.length; i++) {
 				pSelf.request("data/" + pData.other[i]);
