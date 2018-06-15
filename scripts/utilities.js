@@ -44,28 +44,6 @@ if( typeof Array.isArray !== 'function' ) {
 	};
 }
 
-function download(filename, text) {
-	var element = document.createElement('a');
-	element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-	element.setAttribute('download', filename);
-  
-	element.style.display = 'none';
-	document.body.appendChild(element);
-  
-	element.click();
-	
-	document.body.removeChild(element);
-}
-
-function updateEvents() {
-	let btns = document.querySelectorAll(".destroy-e");
-	for(var i = 0; i < btns.length; i++) {
-		btns[i].onclick = function(e) {
-			removeElement(e.target.parentElement);
-		}
-	}
-}
-
 function toggleEdits() {
 	let edits = document.querySelectorAll(".highlight-array, .highlight-object, .highlight-string, .highlight-boolean, .highlight-number, span.value");
 
@@ -134,17 +112,6 @@ function getDefault(pContext, pParentContext) {
 	}
 }
 
-//EXPECTS SUMMARY
-function getParent(pE) {
-	try {
-		let candidate = pE.parentElement.parentElement.parentElement.childNodes[0];
-		if(candidate.tagName == "SUMMARY") return candidate;
-	} catch(e) {
-		console.warn("No parent found");
-		console.log(pE);
-		return undefined;
-	}
-}
 
 //Remove an element: Returns whether new element was selected
 function removeElement(pElement) {
@@ -171,52 +138,6 @@ function removeElement(pElement) {
 		}
 	}
 	return false;
-}
-
-//EXPECTS SUMMARY
-function selectElement(pE, pOpen=false) {
-	console.log(pE.tagName);
-
-	if(pE.tagName == "SUMMARY") {
-		let childs = pE.parentElement.childNodes[1].childNodes;
-
-		if(childs.length == 0 || childs.length > 0 && childs[0].tagName != "SPAN") {
-			//HANDLE OLD SELECTED
-			if(currentSelected != null ) currentSelected.classList.remove("selected");
-			if(currentSelected && currentSelected.tagName == "SUMMARY") hl.highlight(currentSelected);
-
-			//PREPARE NEW SELECTED
-			currentSelected = pE;
-			pE.classList.add("selected");
-			pE.focus();
-			pE.scrollIntoView();
-			
-			//Update context
-			currentContext = currentSelected.innerText;
-			if(getParent(currentSelected)) {
-				parentCurrentContext = getParent(currentSelected).innerText;
-			} else {
-				parentCurrentContext = "No context"
-			}
-			//UPDATE TYPE && EVALUATE IT
-			currentType = getContextType(currentContext, parentCurrentContext);
-			if(currentType == "object" || currentType == "array") {
-				value_list.innerHTML = "";
-			} else {
-				generateValueOptions("", true);
-			}
-
-			//UPDATE INPUT
-			autoFillChildInput();
-
-			if(pOpen) currentSelected.parentElement.setAttribute("open", true);
-			return true;
-		} else {
-			return false;
-		}
-	} else {
-		return false;
-	}
 }
 
 function findSelf(pElements, pSelf) {

@@ -120,64 +120,6 @@
 	<script>
 		var app = new Application();
 		app.start();
-		//app.openScreen(app.loading_screen);
-		//app.openPopUp("<h3>A test screen</h3><p>A flexible dialog window. You can set the position of the button, hide the scrollbar and set the size of the window</p>")
-		//new PushMessage(document.body, "<h5 style='position: relative; top: 15px;'>Welcome to solvedDev's JSON Editor!</h5>").create();
-
-		var fileName;
-		document.getElementById("import-json").onchange = function() {
-			for(let i = 0; i < this.files.length; i++) {
-				loadFile(this.files[i], i, this.files.length);
-			}
-		};
-		document.getElementById("download-json").onclick = function() {
-			if(app.tab_manager.hasTabs()) {
-				let tab = app.tab_manager.getSelectedTab();
-				download(tab.getName(), JSON.stringify(tab.getObj(), null, "\t"));
-			}
-		};
-		document.getElementById("add-child").onclick = function() {
-			//addChild(document.getElementById("child-input").value);
-			let key = document.getElementById("child-input").value;
-			let editor = app.tab_manager.getSelectedTab().editor;
-			editor.tree_manager.addElement(key, editor.path.getCurrentContext());
-
-			if(auto_completions) {
-				generateOptions("");
-				if(data_list.options.length > 0) child_input.value = data_list.options[0].value;
-				if((currentType != "object" && currentType != "array") || currentContext == "priority") {
-					generateValueOptions("", true);
-					if(value_list.options.length > 0) value_input.value = value_list.options[0].value;
-					value_input.focus();
-				} else {
-					child_input.focus();
-				}
-			}
-		};
-		document.getElementById("add-value").onclick = function() {
-			addValue(document.getElementById("value-input").value);
-
-			if(auto_completions) {
-				generateOptions("");
-				if(data_list.options.length > 0) child_input.value = data_list.options[0].value;
-			}
-			value_input.value = "";
-			child_input.focus();
-		};
-		document.getElementById("allow-edit").onclick = function() {
-			let loading_window = new LoadingWindow().create();
-			toggleEdits();
-			loading_window.destroy();
-		};
-		document.getElementById("search-component").onclick = function() {
-			openDocumentation();
-		};
-		document.getElementById("auto-completions-toggle").onclick = function() {
-			auto_completions = !auto_completions;
-
-			if(auto_completions) document.getElementById("auto-completions-toggle").classList.add("toggled");
-			if(!auto_completions) document.getElementById("auto-completions-toggle").classList.remove("toggled");
-		};
 
 		mainLoop();
 	</script>

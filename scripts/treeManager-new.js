@@ -61,10 +61,10 @@ class TreeManager {
 			node = node.firstChild;
 		}
 
-		if(node.parentElement != undefined && node.parentElement.open && this.node_system.hasChilds(node)) {
-			let first_child = this.node_system.getChilds(node)[0];
+		if(node.parentElement != undefined && node.parentElement.open && this.node_system.hasChildren(node)) {
+			let first_child = this.node_system.getChildren(node)[0];
 			if(first_child.nodeName == "#text") {
-				first_child = this.node_system.getChilds(node)[0].parentElement;
+				first_child = this.node_system.getChildren(node)[0].parentElement;
 			}
 			if(this.selectElement(first_child)) {
 				return true;
@@ -105,11 +105,11 @@ class TreeManager {
 			node = node.firstChild;
 		}
 		let previous_sibling = this.node_system.getPreviousSibling(node);
-		if(previous_sibling != undefined && previous_sibling.parentElement != undefined && previous_sibling.parentElement.open && this.node_system.hasChilds(previous_sibling)) {
-			let childs = this.node_system.getChilds(previous_sibling);
-			let last_child = childs[childs.length-1];
+		if(previous_sibling != undefined && previous_sibling.parentElement != undefined && previous_sibling.parentElement.open && this.node_system.hasChildren(previous_sibling)) {
+			let children = this.node_system.getChildren(previous_sibling);
+			let last_child = children[children.length-1];
 			if(last_child.nodeName == "#text") {
-				last_child = childs[childs.length-1].parentElement;
+				last_child = children[children.length-1].parentElement;
 			}
 			if(this.selectElement(last_child)) {
 				return true;
@@ -152,7 +152,7 @@ class TreeManager {
 	 * @param {String} pKey The key to add (e.g. 'minecraft:attack')
 	 * @param {Node} pParent The parent node
 	 */
-	addElement(pKey, pParent) {
+	addObj(pKey, pParent) {
 		if(this.isValidParent(pParent)) {
 			let div_parent = pParent.parentElement.childNodes[1];
 
@@ -175,13 +175,61 @@ class TreeManager {
 				parent.classList.remove("highlight-object");
 				parent.classList.add("highlight-array");
 			}
+			//Open parent
+			if(!pParent.parentElement.open) pParent.parentElement.open = true;
 			//Select new child & update detsroy buttons
 			this.selectElement(node.childNodes[0], true);
 			this.updateEvents(node);
 		} else {
-			console.warn("Invalid parent: " + pParent);
+			console.warn("Invalid parent: " + pParent.innerText);
 			new PopUpWindow("invalid-parent", "80%", "20%", document.body, "You cannot add \"" + pKey + "\" here.", true, true).create();
 		}
+	}
+	/**
+	 * TODO: Remove obj
+	 */
+	removeObj() {
+
+	}
+	/**
+	 * Always expects summaries
+	 * @param {String} pKey The key to add (e.g. 'minecraft:attack')
+	 * @param {Node} pParent The parent node
+	 */
+	addValue(pValue, pParent) {
+		if(this.isValidParent(pParent) && !this.node_system.hasChildren(pParent)) {
+			let span_parent = document.createElement("span");
+			span_parent.classList.add("value");
+			span_parent.innerHTML = pValue + button;
+			pParent.removeAttribute("class");
+			pParent.classList.add("highlight-" + getType(pValue));
+			pParent.classList.add("selected");
+			//Blur event
+			span_parent.onblur = function(e) {
+				key_input.removeEdit(e.target);
+			};
+
+			pParent.parentElement.childNodes[1].classList.add("highlight-" + getType(pValue));
+			pParent.parentElement.childNodes[1].appendChild(span_parent);
+			this.selectElement(getParent(pParent), true);
+			this.updateEvents(span_parent);
+
+			//Test whether a context is fully filled
+			//If that's the case: Select parent of parent
+			/**if(auto_completions) {
+				generateOptions("");
+				if(data_list.options.length == 0) this.selectElement(getParent(pParent), true);
+			}*/
+		} else {
+			console.warn("Invalid parent for a value: " + pParent.innerText);
+			new PopUpWindow("invalid-parent", "80%", "20%", document.body, "You cannot add \"" + pValue + "\" here.", true, true).create();
+		}
+	}
+	/**
+	 * TODO: Remove val
+	 */
+	removeValue() {
+		
 	}
 
 	/**
@@ -191,8 +239,8 @@ class TreeManager {
 	 */
 	isValidParent(pNode) {
 		if(pNode != undefined && pNode.tagName == "SUMMARY") {
-			let childs = pNode.parentElement.childNodes[1].childNodes;
-			if(childs[0] == undefined || childs[0].tagName != "SPAN") {
+			let children = pNode.parentElement.childNodes[1].childNodes;
+			if(children[0] == undefined || children[0].tagName != "SPAN") {
 				return true;
 			} else {
 				return false;
@@ -239,18 +287,18 @@ class NodeSystem {
 		}
 	}
 	/**
-	 * Returns childs of a node
+	 * Returns children of a node
 	 * @param {Node} pNode The node to get the children from
 	 * @returns {Array<Node>} Returns array of 'SUMMARY' nodes
 	 */
-	getChilds(pNode, pExludeSelf=false) {
-		let childs = pNode.parentElement.childNodes[1].childNodes;
-		let sum_childs = [];
-		childs.forEach(child => {
-			sum_childs.push(child.firstChild);
+	getChildren(pNode, pExludeSelf=false) {
+		let children = pNode.parentElement.childNodes[1].childNodes;
+		let sum_children = [];
+		children.forEach(child => {
+			sum_children.push(child.firstChild);
 		}, this);
 
-		return sum_childs;
+		return sum_children;
 	}
 	/**
 	 * Returns siblings of a node
@@ -286,12 +334,12 @@ class NodeSystem {
 		return this.getParent(pNode) != undefined && (this.getParent(pNode).tagName == "SUMMARY" || this.getParent(pNode).tagName == "SPAN");
 	}
 	/**
-	 * Tests whether a node has childs
-	 * @param {Node} pNode The node to test for childs
+	 * Tests whether a node has children
+	 * @param {Node} pNode The node to test for children
 	 * @returns {Boolean}
 	 */
-	hasChilds(pNode) {
-		return this.getChilds(pNode).length > 0;
+	hasChildren(pNode) {
+		return this.getChildren(pNode).length > 0;
 	}
 	/**
 	 * Tests whether a node has siblings

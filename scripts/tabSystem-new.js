@@ -125,7 +125,7 @@ class Tab extends ScreenElement {
 		}
 
 		this.is_open = false;
-		this.editor = new Editor(editor, pJSON);
+		this.editor = new Editor(document.getElementById("editor"), pJSON);
 	}
 
 	/**
@@ -161,7 +161,6 @@ class Tab extends ScreenElement {
 	 * @returns {Tab} this
 	 */
 	refresh() {
-		console.log("refreshes")
 		this.editor.refresh();
 	}
 
@@ -240,7 +239,7 @@ class Editor extends ScreenElement {
 	 */
 	refresh() {
 		this.editor_content.innerHTML = app.parser.parseObj(app.parser.getObj(this.editor_content));
-		//selectElement(document.querySelector("#editor summary"));
+		
 		this.tree_manager.selectElement(document.querySelector("#editor summary"), true);
 		return this;
 	}

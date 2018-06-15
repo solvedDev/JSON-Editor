@@ -35,16 +35,17 @@ class Application {
 			this.loading_system.onReady = function(pSelf) {
 				pSelf.editor_screen = new EditorScreen(this, pSelf.loading_system.getCachedData("data/html/editor_template.html"));
 				pSelf.openScreen(pSelf.editor_screen);
-				
+				pSelf.editor_screen.init();
+
 				//Initialize tabs
 				pSelf.tab_manager = new TabManager(document.getElementById("tab-bar")).create();
 				pSelf.tab_manager.addTab("blank.json", {
-					"minecraft:entity": { 
-						"format_version": "1.2.0", 
-						"component_groups": {}, 
-						"components": {}, 
+					"minecraft:entity": {
+						"format_version": "1.6.0",
+						"component_groups": {},
+						"components": {},
 						"events": {}
-					} 
+					}
 				});
 			};
 			this.loading_system.onChange = function(pProgress, pSelf) {
@@ -67,6 +68,45 @@ class Application {
 	openPopUp(pText) {
 		let popup = new PopUpWindow("test", "90%", "90%", document.body, pText, true);
 		popup.create();
+	}
+
+	loadFile(pFile, pIndex, pTotal) {
+		let reader = new FileReader();
+	
+		//Opening loading window if first file
+		if(pIndex == 0) {
+			app.loading_window = new LoadingWindow().create();
+			app.tab_manager.loaded_tabs = 0;
+		}
+		//Required vars
+		reader.file_name = pFile.name;
+		reader.total = pTotal;
+	
+		//Reading file
+		reader.readAsText(pFile);
+	
+		reader.onload = function() {
+			try {
+				app.tab_manager.addTab(this.file_name, JSON.parse(JSON.minify(reader.result)), this.total);
+			} catch(e) {
+				console.warn("An error occurred while trying to open the file \"" + this.file_name + "\": ");
+				console.log(e.message);
+				new PushMessage(document.body, "Invalid JSON!").create();
+			}
+		}
+	}
+
+	download(pFileName, pText) {
+		var element = document.createElement('a');
+		element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(pText));
+		element.setAttribute('download', pFileName);
+	  
+		element.style.display = 'none';
+		document.body.appendChild(element);
+	  
+		element.click();
+		
+		document.body.removeChild(element);
 	}
 }
 
@@ -115,14 +155,80 @@ class MobileScreen extends Screen {
 class EditorScreen extends Screen {
 	constructor(pParent, pHTML) {
 		super(pParent, pHTML);
-
-		this.tabs = [];
 	}
 	/**
 	 * Initialize special styles for the screen
 	 */
 	initStyles() {
 		document.body.classList.remove("blue-background");
+	}
+
+	init() {
+		this.ui_elements = {
+			import_json: document.getElementById("import-json"),
+			download_json: document.getElementById("download-json"),
+			add_child_btn: document.getElementById("add-child"),
+			add_value_btn: document.getElementById("add-value"),
+			allow_edit_toggle: document.getElementById("allow-edit"),
+			search_component_btn: document.getElementById("search-component"),
+			auto_completions_toggle: document.getElementById("auto-completions-toggle")
+		};
+
+		this.ui_elements.import_json.onchange = function() {
+			for(let i = 0; i < this.files.length; i++) {
+				app.loadFile(this.files[i], i, this.files.length);
+			}
+		};
+		this.ui_elements.download_json.onclick = function() {
+			if(app.tab_manager.hasTabs()) {
+				let tab = app.tab_manager.getSelectedTab();
+				app.download(tab.getName(), JSON.stringify(tab.getObj(), null, "\t"));
+			}
+		};
+		this.ui_elements.add_child_btn.onclick = function() {
+			//addChild(document.getElementById("child-input").value);
+			let key = document.getElementById("child-input").value;
+			let editor = app.tab_manager.getSelectedTab().editor;
+			editor.tree_manager.addObj(key, editor.path.getCurrentContext());
+
+			/*if(auto_completions) {
+				generateOptions("");
+				if(data_list.options.length > 0) child_input.value = data_list.options[0].value;
+				if((currentType != "object" && currentType != "array") || currentContext == "priority") {
+					generateValueOptions("", true);
+					if(value_list.options.length > 0) value_input.value = value_list.options[0].value;
+					value_input.focus();
+				} else {
+					child_input.focus();
+				}
+			}*/
+		};
+		this.ui_elements.add_value_btn.onclick = function() {
+			let value = document.getElementById("value-input").value;
+			let editor = app.tab_manager.getSelectedTab().editor;
+			editor.tree_manager.addValue(value, editor.path.getCurrentContext());
+
+			/*if(auto_completions) {
+				generateOptions("");
+				if(data_list.options.length > 0) child_input.value = data_list.options[0].value;
+			}
+			value_input.value = "";
+			child_input.focus();*/
+		};
+		this.ui_elements.allow_edit_toggle.onclick = function() {
+			let loading_window = new LoadingWindow().create();
+			toggleEdits();
+			loading_window.destroy();
+		};
+		this.ui_elements.search_component_btn.onclick = function() {
+			openDocumentation();
+		};
+		this.ui_elements.auto_completions_toggle.onclick = function() {
+			auto_completions = !auto_completions;
+
+			if(auto_completions) document.getElementById("auto-completions-toggle").classList.add("toggled");
+			if(!auto_completions) document.getElementById("auto-completions-toggle").classList.remove("toggled");
+		};
 	}
 }
 
