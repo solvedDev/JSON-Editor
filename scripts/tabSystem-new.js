@@ -36,6 +36,10 @@ class TabManager extends ScreenElement {
 		};
 	}
 
+	start() {
+		app.tick();
+	}
+
 	/**
 	 * @returns {Boolean} Whether the TabManager has tabs
 	 */
@@ -101,6 +105,13 @@ class TabManager extends ScreenElement {
 			this.tabs[i].disable();
 		}
 	}
+
+	/**
+	 * Ticks the current tab
+	 */
+	tick() {
+		this.getSelectedTab().tick();
+	}
 }
 
 
@@ -125,7 +136,7 @@ class Tab extends ScreenElement {
 		}
 
 		this.is_open = false;
-		this.editor = new Editor(document.getElementById("editor"), pJSON);
+		this.editor = new Editor(this, document.getElementById("editor"), pJSON);
 	}
 
 	/**
@@ -192,6 +203,8 @@ class Tab extends ScreenElement {
 			if(pInitial) {
 				this.editor.tree_manager.selectElement(this.editor.editor_content.querySelector("summary"));
 				this.editor.editor_content.querySelector("summary").focus();
+				//Intialize auto_completions
+				this.editor.auto_completions.init();
 			} else {
 				this.editor.selection.currentSelected.focus();
 			}
@@ -205,12 +218,20 @@ class Tab extends ScreenElement {
 	node_enable() {
 		this.js_parent.enable(this.js_parent);
 	}
+
+	/**
+	 * Ticks the editor
+	 */
+	tick() {
+		this.editor.tick();
+	}
 }
 
 class Editor extends ScreenElement {
-	constructor(pParent, pJSON) {
+	constructor(pTab, pParent, pJSON) {
 		super(pParent, "DIV", "editor_content");
-		
+		this.tab = pTab;
+
 		try {
 			this.editor_content.innerHTML = app.parser.parseObj(pJSON);
 		} catch(e) {
@@ -221,7 +242,6 @@ class Editor extends ScreenElement {
 		
 		this.tree_manager = new TreeManager(this);
 		this.highlighter = new Highlighter({solved: "font-weight: bold; color: royalblue;"});
-		this.auto_completions = new AutoCompletions(this);
 
 		this.selection = {
 			path: "",
@@ -229,9 +249,10 @@ class Editor extends ScreenElement {
 			parentCurrentContext: "",
 			currentSelected: document.querySelector("#editor summary")
 		};
-		this.path = new Path();
 		this.registerEvents();
-		//document.querySelector("#editor summary").focus();
+
+		this.path = new Path();
+		this.auto_completions = new AutoCompletions(this);
 	}
 	/**
 	 * Reload the editor
@@ -263,5 +284,17 @@ class Editor extends ScreenElement {
 				key_input.removeEdit(e.target);
 			}
 		}
+	}
+
+	/**
+	 * Tick the editor & its functionality
+	 */
+	tick() {
+
+	}
+
+
+	getCachedData(pPath) {
+		return app.loading_system.getCachedData(pPath);
 	}
 }

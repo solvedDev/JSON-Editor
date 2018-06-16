@@ -47,6 +47,7 @@ class Application {
 						"events": {}
 					}
 				});
+				pSelf.tab_manager.start();
 			};
 			this.loading_system.onChange = function(pProgress, pSelf) {
 				document.body.querySelector("p").innerText = "Progress: " + pProgress;
@@ -107,6 +108,17 @@ class Application {
 		element.click();
 		
 		document.body.removeChild(element);
+	}
+
+	tick() {
+		app.tab_manager.tick();
+
+		let path =  "Path: " + app.tab_manager.getSelectedTab().editor.path.getPath();
+		let type = " | Type: " + app.tab_manager.getSelectedTab().editor.auto_completions.file_type;
+		document.getElementById("dev-display").innerHTML = path + type;
+
+
+		window.requestAnimationFrame(app.tick);
 	}
 }
 

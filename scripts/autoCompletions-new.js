@@ -8,12 +8,44 @@
 class AutoCompletions {
 	constructor(pEditor) {
 		this.editor = pEditor;
+
+		this.auto_data = this.editor.getCachedData("data/custom/auto_completions.json");
+		this.child_list = [];
+		this.value_list = [];
+		this.file_type = "";
+	}
+	/**
+	 * Update the auto_completion lists
+	 */
+	update() {
+
+	}
+
+	/**
+	 * TODO: Description
+	 */
+	init() {
+		this.file_type = this.getFileType();
+		console.log(this.file_type);
+	}
+
+	/**
+	 * TODO: Description
+	 */
+	getFileType() {
+		for(let key in this.auto_data) {
+			if(new LogicStatement(this.auto_data[key].define, this.editor).execute()) {
+				return key;
+			}
+		}
+		console.warn("Unknown file type: " + this.editor.tab.getName());
 	}
 }
 
 class LogicStatement {
-	constructor(pStatement) {
+	constructor(pStatement, pEditor) {
 		this.statement = pStatement;
+		this.editor = pEditor;
 	}
 	/**
 	 * Execute the LogicStatement
@@ -23,12 +55,12 @@ class LogicStatement {
 		if(this.statement[0] == "(") this.statement = this.statement.slice(1, -1);
 		let arr = this.statement.split(" ");
 
-		let val = new FunctionStatement(arr[0]).execute();
+		let val = new FunctionStatement(arr[0], this.editor).execute();
 		for(let i = 1; i < arr.length; i += 2) {
 			if(arr[i] == "and") {
-				val = val && new FunctionStatement(arr[i+1]).execute();
+				val = val && new FunctionStatement(arr[i+1], this.editor).execute();
 			} else if(arr[i] == "or") {
-				val = val || new FunctionStatement(arr[i+1]).execute();
+				val = val || new FunctionStatement(arr[i+1], this.editor).execute();
 			} else {
 				console.warn("Unknown logic operator: " + arr[i]);
 			}
