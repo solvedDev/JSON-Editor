@@ -8,25 +8,61 @@
 class AutoCompletions {
 	constructor(pEditor) {
 		this.editor = pEditor;
+		this.documentation_parser = new DocumentationParser(this);
 
 		this.auto_data = this.editor.getCachedData("data/custom/auto_completions.json");
+		this.completion_data = {};
+
 		this.child_list = [];
 		this.value_list = [];
 		this.file_type = "";
-	}
-	/**
-	 * Update the auto_completion lists
-	 */
-	update() {
 
+		this.last_path = "";
+		this.last_child_search = "";
+		this.last_value_search = "";
+		this.add_child_input = new DropDown(document.getElementById("add-child-input"), "input");
+		this.add_child_input.create();
+		this.add_value_input = new DropDown(document.getElementById("add-value-input"), "input");
+		this.add_value_input.create();
 	}
-
 	/**
 	 * TODO: Description
 	 */
 	init() {
 		this.file_type = this.getFileType();
+		this.completion_data = this.auto_data[this.file_type];
 		console.log(this.file_type);
+	}
+
+	/**
+	 * Update the auto_completion lists
+	 */
+	update(pSearchChild=this.add_child_input.input.value, pSearchVal=this.add_value_input.input.value, pContextArgs=this.getArgsInContext()) {
+		if(this.getPath() != this.last_path || this.last_child_search != pSearchChild || this.last_value_search != pSearchVal) {
+			this.last_path = this.getPath();
+			this.last_child_search = pSearchChild;
+			this.last_value_search = pSearchVal;
+			this.updateLists(pSearchChild, pSearchVal, pContextArgs);
+		}
+	}
+	forceUpdate() {
+		this.last_path = this.getPath();
+		this.last_child_search = "";
+		this.last_value_search = "";
+		this.updateLists("", "", this.getArgsInContext());
+	}
+	updateInputs() {
+		let child = this.add_child_input.list.getSelectedValue();
+		let val = this.add_value_input.list.getSelectedValue();
+		this.add_child_input.input.value = child ? child : "";
+		this.add_value_input.input.value = val ? val : "";
+	}
+
+	/**
+	 * TODO: Description
+	 */
+	getPath() {
+		return this.editor.path.getPath();
 	}
 
 	/**
@@ -39,6 +75,79 @@ class AutoCompletions {
 			}
 		}
 		console.warn("Unknown file type: " + this.editor.tab.getName());
+	}
+
+	/**
+	 * DO NOT ACCESS DIRECTLY; USE update()
+	 * TODO: Description
+	 */
+	updateLists(pSearchChild=this.add_child_input.input.value, pSearchVal=this.add_value_input.input.value, pContextArgs=[]) {
+		this.child_list = [];
+		this.value_list = [];
+
+		let extend = this.completion_data.extend;
+		if(extend) {
+			for(let i = 0; i < extend.length; i++) {
+				if(new LogicStatement(extend[i].recognize, this.editor).execute()) {
+					let res = this.parsePropose(extend[i].propose);
+
+					this.child_list = this.child_list.concat(res.c);
+					this.value_list = this.value_list.concat(res.v);
+				}
+			}
+		}
+
+		this.add_child_input.list.addArray(this.child_list, pSearchChild, true, pContextArgs);
+		this.add_value_input.list.addArray(this.value_list, pSearchVal, true, pContextArgs);
+	}
+
+	/**
+	 * Parses the "propose": [] array and returns two usable arrays
+	 * @param {Array<Object>} pPropose Array containing the proposals
+	 * @returns {Object} Attributes c & v with arrays
+	 */
+	parsePropose(pPropose) {
+		let child_list = [];
+		let value_list = [];
+
+		for(let i = 0; i < pPropose.length; i++) {
+			if(pPropose[i].function != undefined) {
+				let res = new FunctionStatement(pPropose[i].function, this.editor).execute();
+				if(this.isChild(pPropose[i].type)) {
+					child_list = child_list.concat(res);
+				} else {
+					value_list = value_list.concat(res);
+				}
+			} else if(this.isChild(pPropose[i].type)) {
+				child_list.push(pPropose[i]);
+			} else {
+				value_list.push(pPropose[i]);
+			}
+		}
+
+		return { c: child_list, v: value_list };
+	}
+
+	isValue(pKey) {
+		return !this.isChild(pKey);
+	}
+	isChild(pKey) {
+		return pKey == "object" || pKey == "list" || pKey == "array";
+	}
+
+	getArgsInContext(pForceAll=false) {
+		let currentSelected = this.editor.path.getCurrentContext();
+		if(!pForceAll && currentSelected && currentSelected.parentElement) {
+			try {
+				if(currentSelected.tagName != "SPAN") {
+					return Object.keys(app.parser.getObj(currentSelected.parentElement, false));
+				}
+			} catch(e) {
+				return [];
+			}
+		} else {
+			return [];
+		}
 	}
 }
 
@@ -112,19 +221,19 @@ class FunctionStatement {
 		let func = pString;
 		if(func.contains("(")) {
 			let func_core = pString.split("(")[0].replace(/(;)|(\n)|(\()|(\))/g, "");
-			let argument = "\"" + pString.split("(")[1].split(")")[0] + "\"";
+			let args = "\"" + pString.split("(")[1].split(")")[0].split(", ").join("\", \"") + "\"";
 
-			if(pFuncArg) argument = argument + "," + pFuncArg;
-			//console.log(func_core, argument);
+			if(pFuncArg) args = args + "," + pFuncArg;
+			//console.log(func_core, args);
 
-			return "this." + func_core + "(" + argument + ")";
+			return "this." + func_core + "(" + args + ")";
 		} else {
 			return "this." + pString.replace(/(;)|(\n)|(\()|(\))/g, "") + "()";
 		}
 		
 	}
 
-	//ACCESS FUNCTIONS
+	//LOGIC FUNCTIONS
 	$on_me(pArg, pArg2) {
 		return pArg + 1 + pArg2;
 	}
@@ -136,13 +245,13 @@ class FunctionStatement {
 		return pArg2 == pArg;
 	}
 	$is_not(pArg, pArg2=this.editor.path.getCurrentContext(false)) {
-		return !$is(pArg, pArg2)
+		return !this.$is(pArg, pArg2)
 	}
 	$contains(pArg, pArg2=this.editor.path.getCurrentContext(false)) {
 		return pArg2.contains(pArg);
 	}
 	$contains_not(pArg, pArg2=this.editor.path.getCurrentContext(false)) {
-		return !$contains(pArg, pArg2);
+		return !this.$contains(pArg, pArg2);
 	}
 
 	//TODO: pArg2 not supported
@@ -150,6 +259,54 @@ class FunctionStatement {
 		return this.editor.path.isPath(pArg);
 	}
 	$is_path_not(pArg) {
-		return !$is_path(pArg);
+		return !this.$is_path(pArg);
+	}
+
+	//TODO: TYPE RECOGNIZING
+	$is_type(pArg) {
+		return false;
+	}
+	$is_type_not(pArg) {
+		return !this.$is_type(pArg);
+	}
+
+	//PROPOSE FUNCTIONS
+	$parse_documentation(pPath, pType="object", pPushKey=false) {
+		return this.$parse_file(pPath, pType, this.editor.auto_completions.documentation_parser.getDocumentation(), pPushKey);
+	}
+	$parse_file(pPath, pType="object", pDict=this.editor.tab.getObj(), pPushKey=true) {
+		let arr = [];
+		let dict = app.loading_system.getCachedData(pPath, pDict);
+
+		for(let key in dict){
+			if(typeof dict[key] != "function" && key != "__des__") {
+				if(pPushKey || pPushKey == "true") {
+					arr.push({ key: key, type: pType });
+				} else {
+					arr.push({ key: dict[key], type: pType });
+				}
+			}
+		}
+
+		return arr;
+	}
+
+	$next_list_index() {
+		let path = this.editor.path.getPath();
+		let arr = app.loading_system.getCachedData(path, this.editor.tab.getObj());
+		if(arr.length == undefined) arr.length = 0;
+		return { key: arr.length, type: "object" };
+	}
+
+	$get_component_args() {
+		let arr_path = this.editor.path.getPath().split("/");
+		let component = arr_path[arr_path.length - 1];
+		return this.$parse_documentation("components/" + component, "object", true);
+	}
+	$get_component_values() {
+		let arr_path = this.editor.path.getPath().split("/");
+		let component = arr_path[arr_path.length - 2];
+		let arg = arr_path[arr_path.length - 1];
+		return this.$parse_documentation("components/" + component + "/" + arg + "/default_value", "value", false);
 	}
 }

@@ -254,6 +254,25 @@ class Editor extends ScreenElement {
 		this.path = new Path();
 		this.auto_completions = new AutoCompletions(this);
 	}
+
+	/**
+	 * Tick the editor & its functionality
+	 */
+	tick() {
+		this.auto_completions.update();
+	}
+	
+	create() {
+		super.create();
+		this.auto_completions.add_child_input.create();
+		this.auto_completions.add_value_input.create();
+	}
+	destroy() {
+		super.destroy();
+		this.auto_completions.add_child_input.destroy();
+		this.auto_completions.add_value_input.destroy();
+	}
+
 	/**
 	 * Reload the editor
 	 * @returns {Editor} this
@@ -281,20 +300,34 @@ class Editor extends ScreenElement {
 		let edits = this.editor_content.querySelectorAll(".highlight-array, .highlight-object, .highlight-string, .highlight-boolean, .highlight-number, span.value");
 		for(var i = 0; i < edits.length; i++) {
 			edits[i].onblur = function(e) {
-				key_input.removeEdit(e.target);
+				app.tab_manager.getSelectedTab().editor.removeEdit(e.target);
 			}
 		}
-	}
-
-	/**
-	 * Tick the editor & its functionality
-	 */
-	tick() {
-
 	}
 
 
 	getCachedData(pPath) {
 		return app.loading_system.getCachedData(pPath);
+	}
+
+	//CONTENT EDITABLE
+	addEdit(pE) {
+		if(pE.childNodes.length == 1) pE.insertBefore(document.createTextNode("Fix me!"), pE.firstChild);
+
+		if(pE.tagName == "SUMMARY" || pE.tagName == "SPAN"){
+			pE.setAttribute("contenteditable", true);
+			//Don't delete button
+			pE.childNodes[1].setAttribute("contenteditable", false);
+		} else if(pE.tagName == "HIGHLIGHT") {
+			pE.parentElement.setAttribute("contenteditable", true);
+			//Don't delete button
+			pE.parentElement.childNodes[1].setAttribute("contenteditable", false);
+		} else {
+			console.warn("Unable to edit " + pE.tagName);
+		}
+		
+	}
+	removeEdit(pE) {
+		if(!this.path.getCurrentContext().isSameNode(pE)) pE.setAttribute("contenteditable", false);
 	}
 }

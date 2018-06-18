@@ -33,6 +33,9 @@ class TreeManager {
 			pElement.focus();
 			pElement.scrollIntoView();
 
+			//UPDATE INPUTS
+			this.editor.auto_completions.forceUpdate();
+			this.editor.auto_completions.updateInputs();
 
 			//UPDATE TYPE && EVALUATE IT
 			/*selection.currentType = getContextType(currentContext, parentCurrentContext);
@@ -41,9 +44,6 @@ class TreeManager {
 			} else {
 				generateValueOptions("", true);
 			}*/
-
-			//UPDATE INPUT
-			autoFillChildInput();
 
 			if(pOpen) path.getCurrentContext().parentElement.setAttribute("open", true);
 			return true;
@@ -167,11 +167,11 @@ class TreeManager {
 
 			//Blur event
 			node.childNodes[0].onblur = function(e) {
-				key_input.removeEdit(e.target);
+				app.tab_manager.getSelectedTab().editor.removeEdit(e.target);
 			};
 			//UPDATE PARENT COLOR
-			if(!Number.isNaN(Number(pKey))){
-				let parent = getParent(node.childNodes[0]);
+			let parent = this.node_system.getParent(node.childNodes[0]);
+			if(!Number.isNaN(Number(pKey)) && this.node_system.getChildren(parent).length == 1){
 				parent.classList.remove("highlight-object");
 				parent.classList.add("highlight-array");
 			}
@@ -200,26 +200,26 @@ class TreeManager {
 		if(this.isValidParent(pParent) && !this.node_system.hasChildren(pParent)) {
 			let span_parent = document.createElement("span");
 			span_parent.classList.add("value");
-			span_parent.innerHTML = pValue + button;
+			span_parent.innerHTML = pValue + this.btn;
 			pParent.removeAttribute("class");
-			pParent.classList.add("highlight-" + getType(pValue));
+			pParent.classList.add("highlight-" + this.getType(pValue));
 			pParent.classList.add("selected");
 			//Blur event
 			span_parent.onblur = function(e) {
 				key_input.removeEdit(e.target);
 			};
 
-			pParent.parentElement.childNodes[1].classList.add("highlight-" + getType(pValue));
+			pParent.parentElement.childNodes[1].classList.add("highlight-" + this.getType(pValue));
 			pParent.parentElement.childNodes[1].appendChild(span_parent);
-			this.selectElement(getParent(pParent), true);
+			this.selectElement(this.node_system.getParent(pParent), true);
 			this.updateEvents(span_parent);
 
 			//Test whether a context is fully filled
 			//If that's the case: Select parent of parent
-			/**if(auto_completions) {
-				generateOptions("");
-				if(data_list.options.length == 0) this.selectElement(getParent(pParent), true);
-			}*/
+			if(this.editor.auto_completions.add_child_input.list.list_elements.length == 0) {
+				let parents_parent = this.node_system.getParent(this.node_system.getParent(pParent));
+				this.selectElement(parents_parent, true);
+			}
 		} else {
 			console.warn("Invalid parent for a value: " + pParent.innerText);
 			new PopUpWindow("invalid-parent", "80%", "20%", document.body, "You cannot add \"" + pValue + "\" here.", true, true).create();
@@ -262,6 +262,16 @@ class TreeManager {
 			}
 		}
 	}
+
+	getType(pString) {
+		if(pString == "false" || pString == "true") {
+			return "boolean";
+		} else if(isNaN(Number(pString))) {
+			return "string";
+		} else {
+			return "number";
+		}
+	}
 }
 
 /**
@@ -292,13 +302,18 @@ class NodeSystem {
 	 * @returns {Array<Node>} Returns array of 'SUMMARY' nodes
 	 */
 	getChildren(pNode, pExludeSelf=false) {
-		let children = pNode.parentElement.childNodes[1].childNodes;
-		let sum_children = [];
-		children.forEach(child => {
-			sum_children.push(child.firstChild);
-		}, this);
+		if(pNode && pNode.parentElement.childNodes[1] != undefined) {
+			let children = pNode.parentElement.childNodes[1].childNodes;
+		
+			let sum_children = [];
+			children.forEach(child => {
+				sum_children.push(child.firstChild);
+			}, this);
 
-		return sum_children;
+			return sum_children;
+		} else {
+			return [];
+		}
 	}
 	/**
 	 * Returns siblings of a node
@@ -475,21 +490,21 @@ class Path {
 	 */
 	isPath(pPath) {
 		let arr_path = pPath.split("/");
-		let own_arr_path = this.path.split("/");
+		let own_arr_path = this.findRepetitivePath(this.path).split("/");
 
 		let j = 0;
 		if(arr_path[0] == "..") {
 			while(j < own_arr_path.length && own_arr_path[j] != arr_path[1]) {
 				j++;
 			}
+			return this.compareArr(j, own_arr_path, 1, arr_path, true);
 		}
-		return this.compareArr(j, own_arr_path, j > 0 ? 1 : 0, arr_path, true);
+		return this.compareArr(j, own_arr_path, 0, arr_path, true);
 	}
 	compareArr(pStart1, pArr1, pStart2, pArr2, pAllowWildCard=true) {
 		let delta = pStart2 - pStart1;
-
 		for(var i = pStart1; i < pArr1.length; i++) {
-			if(pArr2[i + delta] == "..") return true; 
+			if(pArr2[i + delta] == ".." && i + delta > 0) return true; 
 			if(pArr1[i] == pArr2[i + delta] || (pAllowWildCard && pArr2[i + delta] == ".")) {
 				
 			} else {
@@ -498,16 +513,13 @@ class Path {
 		}
 		return i == pArr2.length - delta || pArr2[i + delta] == "..";
 	}
-
-	guessJSONType() {
-		if(this.isPath("minecraft:entity/..")) {
-			return "entity";
-		} else if(this.isPath("tiers/..")) {
-			return "trade";
-		} else if(this.isPath("pools/..")) {
-			return "loot_table";
+	findRepetitivePath(pPath) {
+		if(pPath.contains("/")) {
+			let path_arr = pPath.split("/");
+			let pattern = pPath.split(path_arr[0] + "/");
+			return path_arr[0] + "/" + pattern[pattern.length-1];
 		} else {
-			console.warn("Unable to guess jsonType of \"" + this.path + "\".");
+			return pPath;
 		}
 	}
 }

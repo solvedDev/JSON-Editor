@@ -199,7 +199,7 @@ class EditorScreen extends Screen {
 		};
 		this.ui_elements.add_child_btn.onclick = function() {
 			//addChild(document.getElementById("child-input").value);
-			let key = document.getElementById("child-input").value;
+			let key = document.getElementById("add-child-input").childNodes[5].childNodes[0].value;
 			let editor = app.tab_manager.getSelectedTab().editor;
 			editor.tree_manager.addObj(key, editor.path.getCurrentContext());
 
@@ -216,7 +216,7 @@ class EditorScreen extends Screen {
 			}*/
 		};
 		this.ui_elements.add_value_btn.onclick = function() {
-			let value = document.getElementById("value-input").value;
+			let value = document.getElementById("add-value-input").childNodes[5].childNodes[0].value;
 			let editor = app.tab_manager.getSelectedTab().editor;
 			editor.tree_manager.addValue(value, editor.path.getCurrentContext());
 
@@ -263,6 +263,7 @@ class ScreenElement {
 
 		this[this.node_name] = document.createElement(pNodeType);
 		this[this.node_name].js_element = this;
+		this.hidden = false;
 	}
 	/**
 	 * Adds the ScreenElement to the context where it is defined
@@ -283,17 +284,29 @@ class ScreenElement {
 	 * Shows ScreenElement
 	 */
 	show() {
-		//PopUp needs to be first child
-		this[this.node_name].style.display = "inline-block";
+		this.hidden = false;
+		this[this.node_name].style.display = "block";
 		return this;
 	}
 	/**
 	 * Hides ScreenElement
 	 */
 	hide() {
+		this.hidden = true;
 		this[this.node_name].style.display = "none";
 		return this;
 	}
+	/**
+	 * Toggles the visability of a ScreenElement
+	 */
+	toggle() {
+		if(this.hidden) {
+			return this.show();
+		} else {
+			return this.hide();
+		}
+	}
+
 	/**
 	 * Returns HTML of node
 	 * @returns {String} HTML
@@ -356,7 +369,7 @@ class PopUpWindow extends PriorityScreenElement {
 
 			//Building window
 			if(pShowInnerBtn) {
-				this.btn.classList.add("inner")
+				this.btn.classList.add("inner");
 				this.inner_div.appendChild(this.btn);
 			} else {
 				this.node.insertBefore(this.btn, this.node.firstChild);
@@ -421,6 +434,10 @@ class ActionButton extends ScreenElement {
 	onclick() {
 		console.log("Button clicked!");
 	}
+	create() {
+		super.create();
+		this.btn.onclick = this.onclick;
+	}
 }
 
 class CloseButton extends ActionButton {
@@ -436,5 +453,211 @@ class CloseButton extends ActionButton {
 
 	onclick() {
 		this.parent.js_element.destroy();
+	}
+}
+
+//Lists
+class List extends ScreenElement {
+	constructor(pParent) {
+		super(pParent, "UL", "n_list");
+		this.list_elements = [];
+	}
+
+	addElement(pContent) {
+		let element = new ListElement(this.n_list, pContent);
+		element.create();
+		if(this.list_elements.length == 0) {
+			element.select(undefined, element.list_element, false, false);
+		}
+		this.list_elements.push(element);
+	}
+
+	addArray(pArr, pSearch="", pReset=true, pArrArg=[]) {
+		if(pReset) {
+			this.n_list.innerHTML = "";
+			this.list_elements = [];
+		}
+		
+		for(let i = 0; i < pArr.length; i++) {
+			if((typeof pArr[i].key != "string" || pArr[i].key.contains(pSearch)) && !pArrArg.contains(pArr[i].key)) {
+				let element = new ListElement(this.n_list, pArr[i].key)
+				element.create();
+
+				if(this.list_elements.length == 0) {
+					element.select(undefined, element.list_element, false, false);
+				}
+				this.list_elements.push(element);
+			}
+		}
+	}
+
+	getSelectedValue() {
+		for(let i = 0; i < this.list_elements.length; i++) {
+			if(this.list_elements[i].selected) {
+				return this.list_elements[i].list_element.innerText;
+			}
+		}
+	}
+
+	/**
+	 * Removes "selected-li" class from all childs
+	 */
+	removeSelected() {
+		for(let i = 0; i < this.list_elements.length; i++) {
+			this.list_elements[i].unselect();
+		}
+	}
+
+	selectNext() {
+		for(let i = 0; i < this.list_elements.length; i++) {
+			if(this.list_elements[i].selected) {
+				this.list_elements[i].unselect();
+
+				if(i+1 == this.list_elements.length) i = -1;
+				this.list_elements[i+1].select(undefined, this.list_elements[i+1].list_element, false, false);
+				return undefined;
+			}
+		}
+	}
+	selectPrevious() {
+		for(let i = 0; i < this.list_elements.length; i++) {
+			if(this.list_elements[i].selected) {
+				this.list_elements[i].unselect();
+
+				if(i == 0) i = this.list_elements.length;
+				this.list_elements[i-1].select(undefined, this.list_elements[i-1].list_element, false, false);
+				return undefined;
+			}
+		}
+	}
+}
+class ListElement extends ScreenElement {
+	constructor(pParent, pContent) {
+		super(pParent, "LI", "list_element");
+		this.list_element.innerHTML = pContent;
+		this.list_element.tabIndex = -1;
+		this.selected = false;
+
+		this.list_element.onclick = this.select;
+	}
+	
+	/**
+	 * Selects this ListElement
+	 * @param {Event} pE Event handed over
+	 * @param {*} pSelf Context
+	 */
+	select(pE, pSelf=this, pRemoveSelected=true, pFillInput=true) {
+		let dd = pSelf.js_element.parent.js_element.parent.js_element;
+
+		if(!pSelf.js_element.selected) {
+			if(pRemoveSelected) pSelf.js_element.parent.js_element.removeSelected();
+			pSelf.js_element.selected = true;
+			pSelf.classList.add("selected-li");
+			pSelf.scrollIntoView();
+
+			//Reselect button
+			dd.input.focus();
+		} 
+
+		if(dd.input.tagName == "INPUT" && pFillInput) {
+			dd.fillInput(pSelf.innerText);
+		}
+	}
+
+	/**
+	 * Unselects this ListElement
+	 */
+	unselect(pSelf=this) {
+		if(pSelf.selected) {
+			pSelf.list_element.classList.remove("selected-li");
+			pSelf.selected = false;
+		}
+	}
+}
+
+//Dropdowns
+class DropDown extends ScreenElement {
+	constructor(pParent, pInputType="button", pText="undefined") {
+		super(pParent, "SPAN", "drop_wrapper");
+
+		//Self
+		this.drop_wrapper.classList.add("dropdown");
+
+		//TOGGLE BUTTON
+		this.initInput(pInputType, pText);
+
+		//LIST
+		this.list = new List(this.drop_wrapper);
+		this.list.hide();
+		this.list.n_list.classList.add("section", "dropdown-content");
+		this.list.create();
+	}
+
+	initInput(pInputType, pText) {
+		this.input = document.createElement(pInputType);
+		this.input.classList.add("dropdown-button", "section", "inline-element", "inline-button");
+		if(pInputType == "button") {
+			this.input.classList.add("btn", "btn-outline-primary");
+			this.input.innerHTML = pText;
+
+			this.input.onclick = function() {
+				let list = this.parentElement.js_element.list;
+				if(list.list_elements.length != 0) {
+					list.toggle();
+					list.n_list.focus();
+				}
+			};
+		} else {
+			this.input.classList.add("auto-suggestions");
+			this.input.onclick = function() {
+				this.setSelectionRange(0, this.value.length);
+
+				let list = this.parentElement.js_element.list;
+				if(list.list_elements.length != 0) {
+					list.toggle();
+					list.n_list.focus();
+				}
+			}
+		}
+
+		this.input.onblur = function(e) {
+			if(e.relatedTarget && e.relatedTarget.tagName == "LI") {
+				e.preventDefault();
+			} else {
+				this.parentElement.js_element.list.hide();
+			}
+		};
+		this.input.onkeydown = function(e) {
+			if(e.key == "ArrowDown") {
+				e.preventDefault();
+				this.parentElement.js_element.list.selectNext();
+			} else if(e.key == "ArrowUp") {
+				e.preventDefault();
+				this.parentElement.js_element.list.selectPrevious();
+			} else if(e.key == "Enter") {
+				this.parentElement.js_element.onEnter();
+			} else if(e.key == "Tab") {
+				e.preventDefault();
+				this.parentElement.js_element.fillInput(this.parentElement.js_element.list.getSelectedValue());
+			}
+		};
+
+		this.drop_wrapper.appendChild(this.input);
+	}
+
+	onEnter() {
+		if(this.input.tagName == "INPUT") {
+			if(window.getSelection().toString() == this.input.value) {
+				this.drop_wrapper.parentElement.childNodes[3].click();
+			} else {
+				this.fillInput(this.list.getSelectedValue());
+			}
+		}
+	}
+
+	fillInput(pValue) {
+		console.log();
+		this.input.value = pValue;
+		this.input.setSelectionRange(0, this.input.value.length);
 	}
 }

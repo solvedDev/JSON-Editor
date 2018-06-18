@@ -12,11 +12,11 @@ class KeyInput {
 		keys_down = [];
 		this.events = [];
 		this.pause = 0;
-		//this.currentSelected = app.tab_manager.getSelectedTab().editor.selection.currentSelected;
+		this.path = app.tab_manager.getSelectedTab().editor.path;
 	}
 	
 	processKeys() {
-		this.currentSelected = app.tab_manager.getSelectedTab().editor.selection.currentSelected;
+		this.path = app.tab_manager.getSelectedTab().editor.path;
 
 		if(this.pause < 9) this.pause++;
 		if(keys_down == undefined || keys_down.length == 0){
@@ -95,6 +95,6 @@ class KeyInput {
 		
 	}
 	removeEdit(pE) {
-		if(!this.currentSelected.isSameNode(pE)) pE.setAttribute("contenteditable", false);
+		if(!this.path.getCurrentContext().isSameNode(pE)) pE.setAttribute("contenteditable", false);
 	}
 }

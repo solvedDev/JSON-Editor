@@ -15,13 +15,13 @@ var parentCurrentContext = "No context";
 var currentType = "";
 
 //Setting up KeyInput
-var key_input = new KeyInput();
-window.addEventListener("keydown", key_input.addEvent);
-window.addEventListener("keyup", key_input.removeEvent);
+//var key_input = new KeyInput();
+//window.addEventListener("keydown", key_input.addEvent);
+//window.addEventListener("keyup", key_input.removeEvent);
 
 //Main loop
 function mainLoop() {
-	key_input.processKeys();
+	//key_input.processKeys();
 
 	/*if(auto_completions){
 		generateOptions(child_input.value);
@@ -32,7 +32,7 @@ function mainLoop() {
 
 	updateSearchBar(search_bar.value);*/
 
-	display_currentContext.innerHTML = "Path: " + app.tab_manager.getSelectedTab().editor.path.getPath() + " | coTy: " + currentType;
+	//display_currentContext.innerHTML = "Path: " + app.tab_manager.getSelectedTab().editor.path.getPath() + " | coTy: " + currentType;
 
 	window.requestAnimationFrame(mainLoop);
 }
