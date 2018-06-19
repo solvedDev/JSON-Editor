@@ -96,7 +96,7 @@ class DocumentationParser extends HTMLParser {
 		this.json.events = tmp_events;
 	
 		//Other
-		this.json.entities = this.parseTable(this.getNextTable(this.html.getElementById("[10]Entities").parentNode), 0, 1, "minecraft:");
+		this.json.entities = this.parseTable(this.getNextTable(this.html.getElementById("[10]Entities").parentNode), 0, 1);
 		this.json.blocks = this.parseTable(this.getNextTable(this.html.getElementById("[11]Blocks").parentNode), 0, 1);
 		this.json.blocks = this.json.blocks.filter(block => Number.isNaN(Number(block)));
 		this.json.items = this.parseTable(this.getNextTable(this.html.getElementById("[12]Items").parentNode), 0, 1);

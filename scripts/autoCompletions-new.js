@@ -271,19 +271,19 @@ class FunctionStatement {
 	}
 
 	//PROPOSE FUNCTIONS
-	$parse_documentation(pPath, pType="object", pPushKey=false) {
-		return this.$parse_file(pPath, pType, this.editor.auto_completions.documentation_parser.getDocumentation(), pPushKey);
+	$parse_documentation(pPath, pType="object", pPrefix="", pPushKey=false) {
+		return this.$parse_file(pPath, pType, pPrefix, this.editor.auto_completions.documentation_parser.getDocumentation(), pPushKey);
 	}
-	$parse_file(pPath, pType="object", pDict=this.editor.tab.getObj(), pPushKey=true) {
+	$parse_file(pPath, pType="object", pPrefix="", pDict=this.editor.tab.getObj(), pPushKey=true) {
 		let arr = [];
 		let dict = app.loading_system.getCachedData(pPath, pDict);
 
 		for(let key in dict){
 			if(typeof dict[key] != "function" && key != "__des__") {
 				if(pPushKey || pPushKey == "true") {
-					arr.push({ key: key, type: pType });
+					arr.push({ key: pPrefix + key, type: pType });
 				} else {
-					arr.push({ key: dict[key], type: pType });
+					arr.push({ key: pPrefix + dict[key], type: pType });
 				}
 			}
 		}
@@ -301,12 +301,12 @@ class FunctionStatement {
 	$get_component_args() {
 		let arr_path = this.editor.path.getPath().split("/");
 		let component = arr_path[arr_path.length - 1];
-		return this.$parse_documentation("components/" + component, "object", true);
+		return this.$parse_documentation("components/" + component, "object", "", true);
 	}
 	$get_component_values() {
 		let arr_path = this.editor.path.getPath().split("/");
 		let component = arr_path[arr_path.length - 2];
 		let arg = arr_path[arr_path.length - 1];
-		return this.$parse_documentation("components/" + component + "/" + arg + "/default_value", "value", false);
+		return this.$parse_documentation("components/" + component + "/" + arg + "/default_value", "value", "", false);
 	}
 }
