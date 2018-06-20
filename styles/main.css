@@ -138,9 +138,6 @@ label.btn {
 
 
 /*	Different color highlights	*/
-.selected {
-	text-decoration: underline;
-}
 .highlight-string {
 	color: #76c653;
 }

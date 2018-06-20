@@ -170,10 +170,9 @@ class TreeManager {
 				app.tab_manager.getSelectedTab().editor.removeEdit(e.target);
 			};
 			//UPDATE PARENT COLOR
-			let parent = this.node_system.getParent(node.childNodes[0]);
-			if(!Number.isNaN(Number(pKey)) && this.node_system.getChildren(parent).length == 1){
-				parent.classList.remove("highlight-object");
-				parent.classList.add("highlight-array");
+			if(!Number.isNaN(Number(pKey)) && this.node_system.getChildren(pParent).length == 1){
+				pParent.classList.remove("highlight-object");
+				pParent.classList.add("highlight-array");
 			}
 			//Open parent
 			if(!pParent.parentElement.open) pParent.parentElement.open = true;

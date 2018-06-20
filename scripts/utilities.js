@@ -20,6 +20,14 @@ String.prototype.removeCharAtIndex = function (pIndex) {
 Array.prototype.contains = function(pValue) {
 	return this.indexOf(pValue) > -1;
 }
+Array.prototype.containsObj = function(pArg, pValue) {
+	for(let i = 0; i < this.length; i++) {
+		if(this[i][pArg] == pValue) {
+			return true;
+		}
+	}
+	return false;
+}
 
 Array.prototype.removeStrings = function(pStrings) {
 	if(Array.isArray(pStrings)) {

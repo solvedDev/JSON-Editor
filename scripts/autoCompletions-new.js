@@ -82,23 +82,25 @@ class AutoCompletions {
 	 * TODO: Description
 	 */
 	updateLists(pSearchChild=this.add_child_input.input.value, pSearchVal=this.add_value_input.input.value, pContextArgs=[]) {
-		this.child_list = [];
-		this.value_list = [];
+		if(this.completion_data != undefined) {
+			this.child_list = [];
+			this.value_list = [];
 
-		let extend = this.completion_data.extend;
-		if(extend) {
-			for(let i = 0; i < extend.length; i++) {
-				if(new LogicStatement(extend[i].recognize, this.editor).execute()) {
-					let res = this.parsePropose(extend[i].propose);
+			let extend = this.completion_data.extend;
+			if(extend) {
+				for(let i = 0; i < extend.length; i++) {
+					if(new LogicStatement(extend[i].recognize, this.editor).execute()) {
+						let res = this.parsePropose(extend[i].propose);
 
-					this.child_list = this.child_list.concat(res.c);
-					this.value_list = this.value_list.concat(res.v);
+						this.child_list = this.child_list.concat(res.c);
+						this.value_list = this.value_list.concat(res.v);
+					}
 				}
 			}
-		}
 
-		this.add_child_input.list.addArray(this.child_list, pSearchChild, true, pContextArgs);
-		this.add_value_input.list.addArray(this.value_list, pSearchVal, true, pContextArgs);
+			this.add_child_input.list.addArray(this.child_list, pSearchChild, true, pContextArgs);
+			this.add_value_input.list.addArray(this.value_list, pSearchVal, true, pContextArgs);
+		}
 	}
 
 	/**
@@ -124,6 +126,9 @@ class AutoCompletions {
 				value_list.push(pPropose[i]);
 			}
 		}
+
+		child_list = child_list.filter(e => child_list.containsObj("key", e.key));
+		value_list = value_list.filter(e => value_list.containsObj("key", e.key));
 
 		return { c: child_list, v: value_list };
 	}
@@ -217,28 +222,57 @@ class FunctionStatement {
 	 * @param {String} pString 1 function statement
 	 * @param {} pFuncArg Additional argument
 	 */
-	getFunction(pString, pFuncArg) {
+	getFunction(pString, pFuncArg="") {
 		let func = pString;
 		if(func.contains("(")) {
 			let func_core = pString.split("(")[0].replace(/(;)|(\n)|(\()|(\))/g, "");
 			let args = "\"" + pString.split("(")[1].split(")")[0].split(", ").join("\", \"") + "\"";
 
-			if(pFuncArg) args = args + "," + pFuncArg;
+			if(pFuncArg != "") args = args + "," + pFuncArg;
 			//console.log(func_core, args);
 
 			return "this." + func_core + "(" + args + ")";
 		} else {
-			return "this." + pString.replace(/(;)|(\n)|(\()|(\))/g, "") + "()";
+			return "this." + pString.replace(/(;)|(\n)|(\()|(\))/g, "") + "(" + pFuncArg + ")";
 		}
 		
 	}
 
 	//LOGIC FUNCTIONS
-	$on_me(pArg, pArg2) {
-		return pArg + 1 + pArg2;
+	/**
+	 * Returns the value of the specified sibling
+	 */
+	$sibling_value(pSibling) {
+		let path = this.editor.path.getPath().split("/");
+		path.pop();
+		path = path.join("/");
+		let dict = app.loading_system.getCachedData(path, this.editor.tab.getObj());
+
+		for(let key in dict){
+			if(key == pSibling) {
+				return dict[key];
+			}
+		}
 	}
-	$get_sibling() {
-		return "my_sibling";
+	$value() {
+		let path = this.editor.path.getPath();
+		let dict = app.loading_system.getCachedData(path, this.editor.tab.getObj());
+		return dict;
+	}
+	$as_chars(pType="string", pArr) {
+		let arr = [];
+		for(let i = 0; i < pArr.length; i++) {
+			if(typeof pArr[i].key == "string") {
+				for(let j = 0; j < pArr[i].key.length; j++) {
+					if(!arr.containsObj("key", pArr[i].key[j])) {
+						arr.push({ key: pArr[i].key[j], type: pType});
+					}
+				}
+			} else {
+				arr.push(pArr[i]);
+			}
+		}
+		return arr;
 	}
 
 	$is(pArg, pArg2=this.editor.path.getCurrentContext(false)) {
@@ -272,15 +306,18 @@ class FunctionStatement {
 
 	//PROPOSE FUNCTIONS
 	$parse_documentation(pPath, pType="object", pPrefix="", pPushKey=false) {
-		return this.$parse_file(pPath, pType, pPrefix, this.editor.auto_completions.documentation_parser.getDocumentation(), pPushKey);
+		return this.parse_file(pPath, pType, pPrefix, this.editor.auto_completions.documentation_parser.getDocumentation(), pPushKey);
 	}
-	$parse_file(pPath, pType="object", pPrefix="", pDict=this.editor.tab.getObj(), pPushKey=true) {
+	$parse_file(pPath, pType="object", pPrefix="", pPushKey=true) {
+		return this.parse_file(pPath, pType, pPrefix, this.editor.tab.getObj(), pPushKey);
+	}
+	parse_file(pPath, pType="object", pPrefix="", pDict=this.editor.tab.getObj(), pPushKey=true) {
 		let arr = [];
 		let dict = app.loading_system.getCachedData(pPath, pDict);
 
 		for(let key in dict){
 			if(typeof dict[key] != "function" && key != "__des__") {
-				if(pPushKey || pPushKey == "true") {
+				if((typeof pPushKey == "boolean" && pPushKey) || pPushKey == "true") {
 					arr.push({ key: pPrefix + key, type: pType });
 				} else {
 					arr.push({ key: pPrefix + dict[key], type: pType });

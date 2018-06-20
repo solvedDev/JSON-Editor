@@ -157,6 +157,9 @@ body {
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
 }
+.selected {
+	text-decoration: underline;
+}
 /*Editor destroy buttons*/
 #editor .btn {
 	margin-top: 2px;
