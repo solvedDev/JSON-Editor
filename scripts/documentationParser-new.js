@@ -6,8 +6,8 @@
  */
 
 class HTMLParser {
-	constructor(pParent) {
-		this.parent = pParent;
+	constructor(pCacheLocation) {
+		this.cache_location = pCacheLocation;
 	}
 
 	getNextTable(pElement, pFirst=true) {
@@ -52,7 +52,7 @@ class DocumentationParser extends HTMLParser {
 		super(pParent);
 
 		this.html = document.implementation.createHTMLDocument("documentation");
-		this.html.body.innerHTML = this.parent.editor.getCachedData("data/html/documentation.html");
+		this.html.body.innerHTML = this.cache_location.getCachedData("data/html/documentation.html");
 
 		this.json = {};
 		this.createDocumentation();
@@ -82,7 +82,7 @@ class DocumentationParser extends HTMLParser {
 			components[component_names[i]]["__des__"] = this.getNextDescription(this.html.getElementById(component_names[i]).parentNode);
 		}
 
-		Object.assign(components, this.parent.editor.getCachedData("data/custom/additional_components.json"));
+		Object.assign(components, this.cache_location.getCachedData("data/custom/additional_components.json"));
 		this.json.components = components;
 	}
 	loadOther() {
@@ -100,6 +100,7 @@ class DocumentationParser extends HTMLParser {
 		this.json.blocks = this.parseTable(this.getNextTable(this.html.getElementById("[11]Blocks").parentNode), 0, 1);
 		this.json.blocks = this.json.blocks.filter(block => Number.isNaN(Number(block)));
 		this.json.items = this.parseTable(this.getNextTable(this.html.getElementById("[12]Items").parentNode), 0, 1);
+		this.json.filter_basic = { test: {}, subject: {}, operator: {}, domain: {}, value: {} };
 	}
 
 	//SMALLER SCALE METHODS

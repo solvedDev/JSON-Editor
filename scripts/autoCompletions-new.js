@@ -8,7 +8,7 @@
 class AutoCompletions {
 	constructor(pEditor) {
 		this.editor = pEditor;
-		this.documentation_parser = new DocumentationParser(this);
+		this.documentation_parser = new DocumentationParser(this.editor);
 
 		this.auto_data = this.editor.getCachedData("data/custom/auto_completions.json");
 		this.completion_data = {};
@@ -115,10 +115,12 @@ class AutoCompletions {
 		for(let i = 0; i < pPropose.length; i++) {
 			if(pPropose[i].function != undefined) {
 				let res = new FunctionStatement(pPropose[i].function, this.editor).execute();
-				if(this.isChild(pPropose[i].type)) {
-					child_list = child_list.concat(res);
-				} else {
-					value_list = value_list.concat(res);
+				if(res) {
+					if(this.isChild(pPropose[i].type)) {
+						child_list = child_list.concat(res);
+					} else {
+						value_list = value_list.concat(res);
+					}
 				}
 			} else if(this.isChild(pPropose[i].type)) {
 				child_list.push(pPropose[i]);
@@ -127,8 +129,8 @@ class AutoCompletions {
 			}
 		}
 
-		child_list = child_list.filter(e => child_list.containsObj("key", e.key));
-		value_list = value_list.filter(e => value_list.containsObj("key", e.key));
+		//child_list = child_list.filter(e => child_list.containsObj("key", e.key));
+		//value_list = value_list.filter(e => value_list.containsObj("key", e.key));
 
 		return { c: child_list, v: value_list };
 	}
@@ -142,10 +144,13 @@ class AutoCompletions {
 
 	getArgsInContext(pForceAll=false) {
 		let currentSelected = this.editor.path.getCurrentContext();
+		if(this.editor.path.getCurrentContext(false) == "") currentSelected = this.editor.editor_content;
 		if(!pForceAll && currentSelected && currentSelected.parentElement) {
 			try {
-				if(currentSelected.tagName != "SPAN") {
+				if(currentSelected.tagName != "SPAN" && currentSelected.tagName != "DIV") {
 					return Object.keys(app.parser.getObj(currentSelected.parentElement, false));
+				} else if(currentSelected.tagName == "DIV") {
+					return Object.keys(app.parser.getObj(currentSelected, true));
 				}
 			} catch(e) {
 				return [];
@@ -254,10 +259,24 @@ class FunctionStatement {
 			}
 		}
 	}
+	$child_value(pChild) {
+		let path = this.editor.path.getPath();
+		let dict = app.loading_system.getCachedData(path, this.editor.tab.getObj());
+		if(path == "") dict = this.editor.tab.getObj();
+		for(let key in dict){
+			if(key == pChild) {
+				return dict[key];
+			}
+		}
+	}
 	$value() {
 		let path = this.editor.path.getPath();
 		let dict = app.loading_system.getCachedData(path, this.editor.tab.getObj());
-		return dict;
+		if(typeof dict == "string") {
+			return dict;
+		} else {
+			return "";
+		}
 	}
 	$as_chars(pType="string", pArr) {
 		let arr = [];
@@ -286,6 +305,26 @@ class FunctionStatement {
 	}
 	$contains_not(pArg, pArg2=this.editor.path.getCurrentContext(false)) {
 		return !this.$contains(pArg, pArg2);
+	}
+	$is_root() {
+		return this.$is("");
+	}
+	$is_root_not() {
+		return !this.$is_root();
+	}
+	$has_child(pName) {
+		let path = this.editor.path.getPath();
+		let dict = app.loading_system.getCachedData(path, this.editor.tab.getObj());
+		if(path == "") dict = this.editor.tab.getObj();
+		for(let key in dict){
+			if(key == pName) {
+				return true;
+			}
+		}
+		return false;
+	}
+	$has_child_not(pName) {
+		return !this.$has_child(pName);
 	}
 
 	//TODO: pArg2 not supported
@@ -328,11 +367,11 @@ class FunctionStatement {
 		return arr;
 	}
 
-	$next_list_index() {
+	$next_list_index(pCap) {
 		let path = this.editor.path.getPath();
 		let arr = app.loading_system.getCachedData(path, this.editor.tab.getObj());
 		if(arr.length == undefined) arr.length = 0;
-		return { key: arr.length, type: "object" };
+		if(!pCap || arr.length <= pCap) return { key: arr.length, type: "object" };
 	}
 
 	$get_component_args() {

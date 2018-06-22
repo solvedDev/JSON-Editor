@@ -148,17 +148,19 @@ body {
 #editor-wrapper {
 	position: relative;
 	top: -20px;
+	height: calc(100% - 205px);
 }
 #editor {
 	margin: 0 10px;
 	padding: 0 5px;
-	height: 480px;
+	height: calc(100% - 52px);
 	overflow-y: scroll;
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
 }
 .selected {
 	text-decoration: underline;
+	font-style: italic;
 }
 /*Editor destroy buttons*/
 #editor .btn {
@@ -181,7 +183,7 @@ body {
 	top: 20.5px;
 
 	height: fit-content;
-	width: fit-content;
+	width: fill;
 }
 .nav-tab {
 	padding: 0 2px;

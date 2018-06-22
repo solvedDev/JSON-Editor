@@ -24,10 +24,10 @@ class Application {
 
 	start() {
 		var is_mobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-		if(is_mobile || window.innerWidth <= 800 && window.innerHeight <= 600){
+		/*if(is_mobile || window.innerWidth <= 800 && window.innerHeight <= 600){
 			console.log("found")
 			this.openScreen(this.mobile_screen);
-		} else {
+		} else {*/
 			this.openScreen(this.loading_screen);
 			console.log("No mobile device detected. Loading data...");
 
@@ -48,13 +48,14 @@ class Application {
 					}
 				});
 				pSelf.tab_manager.start();
+				pSelf.documentation = new Documentation(pSelf);
 			};
 			this.loading_system.onChange = function(pProgress, pSelf) {
 				document.body.querySelector("p").innerText = "Progress: " + pProgress;
 			};
 			//Load data
 			this.loading_system.loadAll();
-		}
+		//}
 	}
 
 	/**
@@ -98,7 +99,8 @@ class Application {
 	}
 
 	download(pFileName, pText) {
-		var element = document.createElement('a');
+		let l_s = new LoadingWindow(document.body).create();
+		let element = document.createElement('a');
 		element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(pText));
 		element.setAttribute('download', pFileName);
 	  
@@ -108,6 +110,7 @@ class Application {
 		element.click();
 		
 		document.body.removeChild(element);
+		l_s.destroy();
 	}
 
 	tick() {
@@ -173,6 +176,7 @@ class EditorScreen extends Screen {
 	 */
 	initStyles() {
 		document.body.classList.remove("blue-background");
+		document.body.style.height = window.innerHeight + "px";
 	}
 
 	init() {
@@ -181,9 +185,8 @@ class EditorScreen extends Screen {
 			download_json: document.getElementById("download-json"),
 			add_child_btn: document.getElementById("add-child"),
 			add_value_btn: document.getElementById("add-value"),
-			allow_edit_toggle: document.getElementById("allow-edit"),
 			search_component_btn: document.getElementById("search-component"),
-			auto_completions_toggle: document.getElementById("auto-completions-toggle")
+			select_super_obj_btn: document.getElementById("select-super-obj")
 		};
 
 		this.ui_elements.import_json.onchange = function() {
@@ -202,45 +205,44 @@ class EditorScreen extends Screen {
 			let key = document.getElementById("add-child-input").childNodes[5].childNodes[0].value;
 			let editor = app.tab_manager.getSelectedTab().editor;
 			editor.tree_manager.addObj(key, editor.path.getCurrentContext());
-
-			/*if(auto_completions) {
-				generateOptions("");
-				if(data_list.options.length > 0) child_input.value = data_list.options[0].value;
-				if((currentType != "object" && currentType != "array") || currentContext == "priority") {
-					generateValueOptions("", true);
-					if(value_list.options.length > 0) value_input.value = value_list.options[0].value;
-					value_input.focus();
-				} else {
-					child_input.focus();
-				}
-			}*/
 		};
 		this.ui_elements.add_value_btn.onclick = function() {
 			let value = document.getElementById("add-value-input").childNodes[5].childNodes[0].value;
 			let editor = app.tab_manager.getSelectedTab().editor;
 			editor.tree_manager.addValue(value, editor.path.getCurrentContext());
-
-			/*if(auto_completions) {
-				generateOptions("");
-				if(data_list.options.length > 0) child_input.value = data_list.options[0].value;
-			}
-			value_input.value = "";
-			child_input.focus();*/
-		};
-		this.ui_elements.allow_edit_toggle.onclick = function() {
-			let loading_window = new LoadingWindow().create();
-			toggleEdits();
-			loading_window.destroy();
 		};
 		this.ui_elements.search_component_btn.onclick = function() {
-			openDocumentation();
+			app.documentation.openDocumentation();
 		};
-		this.ui_elements.auto_completions_toggle.onclick = function() {
-			auto_completions = !auto_completions;
+		this.ui_elements.select_super_obj_btn.onclick = function() {
+			let editor = app.tab_manager.getSelectedTab().editor;
+			editor.tree_manager.unselectElement();
+			editor.auto_completions.forceUpdate();
+			editor.auto_completions.updateInputs();
+		}
+	}
 
-			if(auto_completions) document.getElementById("auto-completions-toggle").classList.add("toggled");
-			if(!auto_completions) document.getElementById("auto-completions-toggle").classList.remove("toggled");
-		};
+	expandAll() {
+		let loading_window = new LoadingWindow().create();
+		console.log('loading_window :', loading_window);
+		
+		let details = document.querySelectorAll("details");
+		for(let i = 0; i < details.length; i++) {
+			if(!details[i].getAttribute("open")) details[i].setAttribute("open", true);
+		}
+	
+		loading_window.destroy();
+	}
+
+	collapseAll() {
+		let loading_window = new LoadingWindow().create();
+	
+		let details = document.querySelectorAll("details");
+		for(let i = 0; i < details.length; i++) {
+			details[i].removeAttribute("open");
+		}
+	
+		loading_window.destroy();
 	}
 }
 
@@ -467,7 +469,7 @@ class List extends ScreenElement {
 		let element = new ListElement(this.n_list, pContent);
 		element.create();
 		if(this.list_elements.length == 0) {
-			element.select(undefined, element.list_element, false, false);
+			element.select(undefined, element.list_element, false, false, false);
 		}
 		this.list_elements.push(element);
 	}
@@ -484,7 +486,7 @@ class List extends ScreenElement {
 				element.create();
 
 				if(this.list_elements.length == 0) {
-					element.select(undefined, element.list_element, false, false);
+					element.select(undefined, element.list_element, false, false, false);
 				}
 				this.list_elements.push(element);
 			}
@@ -546,7 +548,7 @@ class ListElement extends ScreenElement {
 	 * @param {Event} pE Event handed over
 	 * @param {*} pSelf Context
 	 */
-	select(pE, pSelf=this, pRemoveSelected=true, pFillInput=true) {
+	select(pE, pSelf=this, pRemoveSelected=true, pFillInput=true, pFocus=true) {
 		let dd = pSelf.js_element.parent.js_element.parent.js_element;
 
 		if(!pSelf.js_element.selected) {
@@ -556,7 +558,7 @@ class ListElement extends ScreenElement {
 			pSelf.scrollIntoView();
 
 			//Reselect button
-			dd.input.focus();
+			if(pFocus) dd.input.focus();
 		} 
 
 		if(dd.input.tagName == "INPUT" && pFillInput) {
@@ -647,7 +649,8 @@ class DropDown extends ScreenElement {
 
 	onEnter() {
 		if(this.input.tagName == "INPUT") {
-			if(window.getSelection().toString() == this.input.value) {
+			console.log(window.getSelection().toString(), this.input.value)
+			if(window.getSelection().toString() == this.input.value && this.input.value != "") {
 				this.drop_wrapper.parentElement.childNodes[3].click();
 			} else {
 				this.fillInput(this.list.getSelectedValue());

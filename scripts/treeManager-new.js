@@ -8,24 +8,33 @@ class TreeManager {
 		this.node_system = new NodeSystem();
 	}
 	/**
+	 * Unselects the current summary
+	 */
+	unselectElement() {
+		let path = this.editor.path;
+		let s_hl = this.editor.highlighter;
+
+		//Handle old currentSelected
+		if(path.getCurrentContext() != undefined && path.getCurrentContext() != "") {
+			path.getCurrentContext().classList.remove("selected");
+			s_hl.highlight(path.getCurrentContext());
+		}
+
+		//Reset path
+		path.reset();
+	}
+	/**
 	 * Selects the given summary
 	 * @param {Node} pElement The element to select
 	 * @returns {Boolean} Whether the selection was successful
 	 */
 	selectElement(pElement, pOpen=false) {
 		if(pElement.nodeName == "SUMMARY" || pElement.nodeName == "SPAN") {
-			let selection = this.editor.selection;
 			let path = this.editor.path;
 			let s_hl = this.editor.highlighter;
-
-			//Handle old currentSelected
-			if(path.getCurrentContext() != undefined && path.getCurrentContext() != "") {
-				path.getCurrentContext().classList.remove("selected");
-				s_hl.highlight(path.getCurrentContext());
-			}
+			this.unselectElement();
 
 			//Update path
-			path.reset();
 			this.getNewPath(pElement, path);
 
 			//Handle new selected
@@ -33,17 +42,9 @@ class TreeManager {
 			pElement.focus();
 			pElement.scrollIntoView();
 
-			//UPDATE INPUTS
+			//UPDATE INPUTS & AUTO COMPLETIONS
 			this.editor.auto_completions.forceUpdate();
 			this.editor.auto_completions.updateInputs();
-
-			//UPDATE TYPE && EVALUATE IT
-			/*selection.currentType = getContextType(currentContext, parentCurrentContext);
-			if(currentType == "object" || currentType == "array") {
-				value_list.innerHTML = "";
-			} else {
-				generateValueOptions("", true);
-			}*/
 
 			if(pOpen) path.getCurrentContext().parentElement.setAttribute("open", true);
 			return true;
@@ -56,7 +57,7 @@ class TreeManager {
 	 * Selects the next open element
 	 */
 	selectNextOpenElement() {
-		let node = this.editor.selection.currentSelected;
+		let node = this.editor.path.getCurrentContext();
 		if(node.tagName == "SPAN"){
 			node = node.firstChild;
 		}
@@ -99,7 +100,7 @@ class TreeManager {
 	 * Selects the previous open element
 	 */
 	selectPreviousOpenElement() {
-		let node = this.editor.selection.currentSelected;
+		let node = this.editor.path.getCurrentContext();
 		console.log(node.tagName);
 		if(node.tagName == "SPAN"){
 			node = node.firstChild;
@@ -152,9 +153,15 @@ class TreeManager {
 	 * @param {String} pKey The key to add (e.g. 'minecraft:attack')
 	 * @param {Node} pParent The parent node
 	 */
-	addObj(pKey, pParent) {
-		if(this.isValidParent(pParent)) {
-			let div_parent = pParent.parentElement.childNodes[1];
+	addObj(pKey, pParent, pForce=false) {
+		let path = this.editor.path;
+		if(this.isValidParent(pParent) || pForce) {
+			if(!pForce) {
+				var div_parent = pParent.parentElement.childNodes[1];
+			} else {
+				var div_parent = pParent;
+			}
+			
 
 			let node = document.createElement("details");
 			node.appendChild(document.createElement("summary"));
@@ -162,7 +169,6 @@ class TreeManager {
 			node.childNodes[0].innerHTML = pKey + this.btn;
 			node.childNodes[0].classList.add("highlight-object");
 			node.childNodes[1].classList.add("tab");
-
 			div_parent.appendChild(node);
 
 			//Blur event
@@ -170,7 +176,7 @@ class TreeManager {
 				app.tab_manager.getSelectedTab().editor.removeEdit(e.target);
 			};
 			//UPDATE PARENT COLOR
-			if(!Number.isNaN(Number(pKey)) && this.node_system.getChildren(pParent).length == 1){
+			if(!pForce && !Number.isNaN(Number(pKey)) && this.node_system.getChildren(pParent).length == 1){
 				pParent.classList.remove("highlight-object");
 				pParent.classList.add("highlight-array");
 			}
@@ -179,16 +185,12 @@ class TreeManager {
 			//Select new child & update detsroy buttons
 			this.selectElement(node.childNodes[0], true);
 			this.updateEvents(node);
+		} else if(path.getCurrentContext(false) == "") {
+			this.addObj(pKey, this.editor.editor_content.childNodes[0], true);
 		} else {
 			console.warn("Invalid parent: " + pParent.innerText);
 			new PopUpWindow("invalid-parent", "80%", "20%", document.body, "You cannot add \"" + pKey + "\" here.", true, true).create();
 		}
-	}
-	/**
-	 * TODO: Remove obj
-	 */
-	removeObj() {
-
 	}
 	/**
 	 * Always expects summaries
@@ -215,20 +217,55 @@ class TreeManager {
 
 			//Test whether a context is fully filled
 			//If that's the case: Select parent of parent
-			if(this.editor.auto_completions.add_child_input.list.list_elements.length == 0) {
-				let parents_parent = this.node_system.getParent(this.node_system.getParent(pParent));
-				this.selectElement(parents_parent, true);
+			let select_node = this.node_system.getParent(pParent);
+			while(this.editor.auto_completions.add_child_input.list.list_elements.length == 0 && select_node.tagName == "SUMMARY") {
+				select_node = this.node_system.getParent(select_node);
+				console.log(select_node)
+				this.selectElement(select_node, true);
 			}
+			if(select_node.tagName != "SUMMARY") {
+				this.unselectElement();
+				this.editor.auto_completions.forceUpdate();
+				this.editor.auto_completions.updateInputs();
+			} 
 		} else {
 			console.warn("Invalid parent for a value: " + pParent.innerText);
 			new PopUpWindow("invalid-parent", "80%", "20%", document.body, "You cannot add \"" + pValue + "\" here.", true, true).create();
 		}
 	}
 	/**
-	 * TODO: Remove val
+	 * Removes an element
 	 */
-	removeValue() {
-		
+	removeElement(pElement) {
+		//Remove element  |  summary/span -   details
+		let remove_element =  pElement.parentElement;
+		if(pElement.tagName == "BUTTON") remove_element = remove_element.parentElement;
+		if(true || window.confirm("Are you sure you want to delete the element " + pElement.innerHTML.split("<")[0] + "?")) {
+			let currentSelected = this.editor.path.getCurrentContext();
+			
+			//Context    |    details    -  div
+			let div_ctxt = remove_element.parentElement;
+			div_ctxt.removeChild(remove_element);
+
+			//Test whether this element was a child of the root
+			if(div_ctxt.parentElement.tagName != "DIV" || remove_element.childNodes[0].tagName == "SPAN") {
+				//Readd div if it got removed & select new element
+				if(div_ctxt.childNodes.length == 1 && remove_element.childNodes[0].tagName == "SPAN") {
+					let div = document.createElement("DIV");
+					div.classList.add("tab");
+					div_ctxt.appendChild(div);
+					if(currentSelected.isSameNode(pElement)) return this.selectElement(div_ctxt.childNodes[0]);
+				} else if(div_ctxt.childNodes.length > 0 && currentSelected.isSameNode(pElement)) {
+					return this.selectElement(div_ctxt.childNodes[0].childNodes[0], true);
+				} else if(currentSelected.isSameNode(pElement)) {
+					return this.selectElement(div_ctxt.parentElement.childNodes[0], true);
+				}
+			} else {
+				this.unselectElement();
+				this.editor.auto_completions.forceUpdate();
+				this.editor.auto_completions.updateInputs();
+			}
+		}
 	}
 
 	/**
@@ -256,8 +293,9 @@ class TreeManager {
 	updateEvents(pScope=document) {
 		let btns = pScope.querySelectorAll(".destroy-e");
 		for(var i = 0; i < btns.length; i++) {
+			btns[i].self = this;
 			btns[i].onclick = function(e) {
-				removeElement(e.target.parentElement);
+				this.self.removeElement(e.target.parentElement);
 			}
 		}
 	}
@@ -331,7 +369,7 @@ class NodeSystem {
 					sum_siblings.push(sibling.firstChild);
 				}
 			} catch(e) {
-				console.warn("Undefined sibling!");
+				console.warn("Invalid sibling: " + sibling);
 			}
 			
 		}, this);

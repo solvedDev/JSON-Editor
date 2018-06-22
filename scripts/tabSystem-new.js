@@ -8,6 +8,7 @@
 class TabManager extends ScreenElement {
 	constructor(pParent) {
 		super(pParent, "DIV");
+
 		this.tabs = [];
 		this.loaded_tabs = 0;
 
@@ -20,7 +21,7 @@ class TabManager extends ScreenElement {
 
 			let tab = this.js_parent.getSelectedTab();
 			let t_m = tab.editor.tree_manager;
-			let c_s = tab.editor.selection.currentSelected;
+			let c_s = tab.editor.path.getCurrentContext();
 
 			if(e.ctrlKey) {
 				e.preventDefault();
@@ -34,6 +35,21 @@ class TabManager extends ScreenElement {
 				t_m.selectElement(target);
 			}
 		};
+		this.editor_node.onkeydown = function(e) {
+			let editor = this.js_parent.getSelectedTab().editor;
+
+			if(e.key == "ArrowUp") {
+				this.js_parent.getSelectedTab().editor.tree_manager.selectPreviousOpenElement();
+				editor.path.getCurrentContext().focus();
+			} else if(e.key == "ArrowDown") {
+				this.js_parent.getSelectedTab().editor.tree_manager.selectNextOpenElement();
+				editor.path.getCurrentContext().focus();
+			} else if(e.key == "Delete" || e.key == "Backspace") {
+				let current = editor.path.getCurrentContext();
+				editor.tree_manager.removeElement(current);
+				editor.path.getCurrentContext().focus();
+			}
+		}
 	}
 
 	start() {
@@ -206,7 +222,7 @@ class Tab extends ScreenElement {
 				//Intialize auto_completions
 				this.editor.auto_completions.init();
 			} else {
-				this.editor.selection.currentSelected.focus();
+				this.editor.path.getCurrentContext().focus();
 			}
 			
 		}
@@ -242,13 +258,6 @@ class Editor extends ScreenElement {
 		
 		this.tree_manager = new TreeManager(this);
 		this.highlighter = new Highlighter({solved: "font-weight: bold; color: royalblue;"});
-
-		this.selection = {
-			path: "",
-			currentContext: "",
-			parentCurrentContext: "",
-			currentSelected: document.querySelector("#editor summary")
-		};
 		this.registerEvents();
 
 		this.path = new Path();
@@ -266,11 +275,13 @@ class Editor extends ScreenElement {
 		super.create();
 		this.auto_completions.add_child_input.create();
 		this.auto_completions.add_value_input.create();
+		return this;
 	}
 	destroy() {
 		super.destroy();
 		this.auto_completions.add_child_input.destroy();
 		this.auto_completions.add_value_input.destroy();
+		return this;
 	}
 
 	/**
@@ -291,8 +302,9 @@ class Editor extends ScreenElement {
 		//Destroy buttons
 		let btns = this.editor_content.querySelectorAll(".destroy-e");
 		for(var i = 0; i < btns.length; i++) {
+			btns[i].self = this.tree_manager;
 			btns[i].onclick = function(e) {
-				removeElement(e.target.parentElement);
+				this.self.removeElement(e.target.parentElement);
 			}
 		}
 
@@ -328,6 +340,6 @@ class Editor extends ScreenElement {
 		
 	}
 	removeEdit(pE) {
-		if(!this.path.getCurrentContext().isSameNode(pE)) pE.setAttribute("contenteditable", false);
+		if(this.path.getCurrentContext() && !this.path.getCurrentContext().isSameNode(pE)) pE.setAttribute("contenteditable", false);
 	}
 }
