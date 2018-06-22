@@ -36,14 +36,23 @@ class HTMLParser {
 			return this.getNextDescription(pElement.nextSibling, pFirst=false);
 		}
 	}
-	parseTable(pTable, pCell, pStart=0, pPrefix="") {
+	parseTable(pTable, pCell, pStart=0, pPrefix="", pText=false) {
 		var array = [];
 	
 		for(var i = pStart; i < pTable.rows.length; i++) {
-			array.push(pPrefix + pTable.rows[i].cells[pCell].innerHTML)
+			if(!pText) {
+				array.push(pPrefix + pTable.rows[i].cells[pCell].innerHTML);
+			} else {
+				array.push(this.stripHTML(pPrefix + pTable.rows[i].cells[pCell].innerHTML));
+			}
 		}
 	
 		return array;
+	}
+	stripHTML(pHTML) {
+		var tmp = document.createElement("DIV");
+		tmp.innerHTML = pHTML;
+		return tmp.textContent.replace(/ /g, "") || tmp.innerText.replace(/ /g, "") || "";
 	}
 }
 
@@ -58,13 +67,18 @@ class DocumentationParser extends HTMLParser {
 		this.createDocumentation();
 	}
 
-	getDocumentation() {
+	getDocumentation(pKey) {
+		if(pKey) {
+			return this.json[pKey];
+		}
 		return this.json;
 	}
 	createDocumentation() {
 		this.loadComponentNames();
 		this.loadComponents();
 		this.loadOther();
+
+		this.loadFilterNames();
 	}
 
 	//GENERAL LOADING
@@ -72,6 +86,15 @@ class DocumentationParser extends HTMLParser {
 		let name_table = this.getNextTable(this.html.getElementById("[04]Component IDs").parentNode);
 		this.json.component_names = this.parseTable(name_table, 0);
 		this.json.component_names.splice(0, 2);
+	}
+	loadFilterNames() {
+		let name_table = this.getNextTable(this.html.getElementById("Index").parentNode.nextElementSibling);
+		this.json.filter_names = this.parseTable(name_table, 0, 0, "", true);
+
+		let start = this.json.filter_names.indexOf("Filters");
+		this.json.filter_names.splice(0, start + 1);
+		let end = this.json.filter_names.indexOf("Triggers");
+		this.json.filter_names.splice(end, this.json.filter_names.length);
 	}
 	loadComponents() {
 		let component_names = this.json.component_names;

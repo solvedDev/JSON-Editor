@@ -261,7 +261,7 @@ class Editor extends ScreenElement {
 		this.registerEvents();
 
 		this.path = new Path();
-		this.auto_completions = new AutoCompletions(this);
+		this.auto_completions = new AutoCompletions(app, this);
 	}
 
 	/**

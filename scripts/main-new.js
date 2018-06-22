@@ -20,14 +20,15 @@ class Application {
 
 		this.parser = new Parser();
 		this.loading_system = new LoadingSystem(this);
+		this.dev_build = false;
 	}
 
 	start() {
 		var is_mobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-		/*if(is_mobile || window.innerWidth <= 800 && window.innerHeight <= 600){
+		if(is_mobile || window.innerWidth <= 800 && window.innerHeight <= 600){
 			console.log("found")
 			this.openScreen(this.mobile_screen);
-		} else {*/
+		} else {
 			this.openScreen(this.loading_screen);
 			console.log("No mobile device detected. Loading data...");
 
@@ -48,14 +49,20 @@ class Application {
 					}
 				});
 				pSelf.tab_manager.start();
+
+				//Documentation Parser
+				pSelf.documentation_parser = new DocumentationParser(pSelf.loading_system);
+
+				//Documentation
 				pSelf.documentation = new Documentation(pSelf);
+				if(!this.dev_build) document.getElementById("infobar").style.display = "none";
 			};
 			this.loading_system.onChange = function(pProgress, pSelf) {
 				document.body.querySelector("p").innerText = "Progress: " + pProgress;
 			};
 			//Load data
 			this.loading_system.loadAll();
-		//}
+		}
 	}
 
 	/**
@@ -492,6 +499,24 @@ class List extends ScreenElement {
 			}
 		}
 	}
+	addDefaultArray(pArr, pSearch="", pReset=true) {
+		if(pReset) {
+			this.n_list.innerHTML = "";
+			this.list_elements = [];
+		}
+		
+		for(let i = 0; i < pArr.length; i++) {
+			if(pArr[i].contains(pSearch)) {
+				let element = new ListElement(this.n_list, pArr[i])
+				element.create();
+
+				if(this.list_elements.length == 0) {
+					element.select(undefined, element.list_element, false, false, false);
+				}
+				this.list_elements.push(element);
+			}
+		}
+	}
 
 	getSelectedValue() {
 		for(let i = 0; i < this.list_elements.length; i++) {
@@ -579,8 +604,10 @@ class ListElement extends ScreenElement {
 
 //Dropdowns
 class DropDown extends ScreenElement {
-	constructor(pParent, pInputType="button", pText="undefined") {
+	constructor(pParent, pInputType="button", pType="auto", pText="undefined") {
 		super(pParent, "SPAN", "drop_wrapper");
+
+		this.type = pType;
 
 		//Self
 		this.drop_wrapper.classList.add("dropdown");
@@ -593,6 +620,8 @@ class DropDown extends ScreenElement {
 		this.list.hide();
 		this.list.n_list.classList.add("section", "dropdown-content");
 		this.list.create();
+
+		this.array = [];
 	}
 
 	initInput(pInputType, pText) {
@@ -618,6 +647,7 @@ class DropDown extends ScreenElement {
 				if(list.list_elements.length != 0) {
 					list.toggle();
 					list.n_list.focus();
+					console.log(list);
 				}
 			}
 		}
@@ -633,14 +663,18 @@ class DropDown extends ScreenElement {
 			if(e.key == "ArrowDown") {
 				e.preventDefault();
 				this.parentElement.js_element.list.selectNext();
+				this.scrollIntoView();
 			} else if(e.key == "ArrowUp") {
 				e.preventDefault();
 				this.parentElement.js_element.list.selectPrevious();
+				this.scrollIntoView();
 			} else if(e.key == "Enter") {
 				this.parentElement.js_element.onEnter();
 			} else if(e.key == "Tab") {
 				e.preventDefault();
 				this.parentElement.js_element.fillInput(this.parentElement.js_element.list.getSelectedValue());
+			} else if(this.parentElement.js_element.type != "auto" && this.tagName == "INPUT") {
+				this.parentElement.js_element.propose(this.value);
 			}
 		};
 
@@ -649,18 +683,29 @@ class DropDown extends ScreenElement {
 
 	onEnter() {
 		if(this.input.tagName == "INPUT") {
-			console.log(window.getSelection().toString(), this.input.value)
 			if(window.getSelection().toString() == this.input.value && this.input.value != "") {
-				this.drop_wrapper.parentElement.childNodes[3].click();
+				if(this.type == "auto") {
+					this.drop_wrapper.parentElement.childNodes[3].click();
+				} else {
+					this.drop_wrapper.parentElement.childNodes[27].click();
+				}
+				
 			} else {
 				this.fillInput(this.list.getSelectedValue());
 			}
 		}
+		return this;
 	}
 
 	fillInput(pValue) {
-		console.log();
 		this.input.value = pValue;
 		this.input.setSelectionRange(0, this.input.value.length);
+		return this;
+	}
+
+	propose(pSearch, pArr) {
+		if(this.array.length == 0) this.array = pArr;
+		this.list.addDefaultArray(this.array, pSearch);
+		return this;
 	}
 }

@@ -6,9 +6,9 @@
  */
 
 class AutoCompletions {
-	constructor(pEditor) {
+	constructor(pApp, pEditor) {
 		this.editor = pEditor;
-		this.documentation_parser = new DocumentationParser(this.editor);
+		this.documentation_parser = pApp.documentation_parser;
 
 		this.auto_data = this.editor.getCachedData("data/custom/auto_completions.json");
 		this.completion_data = {};
@@ -345,7 +345,7 @@ class FunctionStatement {
 
 	//PROPOSE FUNCTIONS
 	$parse_documentation(pPath, pType="object", pPrefix="", pPushKey=false) {
-		return this.parse_file(pPath, pType, pPrefix, this.editor.auto_completions.documentation_parser.getDocumentation(), pPushKey);
+		return this.parse_file(pPath, pType, pPrefix, app.documentation_parser.getDocumentation(), pPushKey);
 	}
 	$parse_file(pPath, pType="object", pPrefix="", pPushKey=true) {
 		return this.parse_file(pPath, pType, pPrefix, this.editor.tab.getObj(), pPushKey);

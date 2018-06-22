@@ -8,15 +8,17 @@
 class Documentation {
 	constructor(pApp) {
 		this.app = pApp;
-		this.documentation_parser = new DocumentationParser(this.app.loading_system);
+		this.documentation_parser = this.app.documentation_parser;
 		this.data = this.getData();
 		this.data.components["minecraft:interact"].particle_on_start.description = "Particle effect that will be triggered at the start of the interaction\n<table border=\"1\">\n<tbody><tr> <th>Name</th> <th>Type</th> <th>Default Value</th> <th>Description</th> </tr>\n<tr>\n<td>particle_offset_towards_interactor</td>\n<td>Boolean</td>\n<td></td>\n<td>Whether or not the particle will appear closer to who performed the interaction</td>\n</tr><tr>\n<td>particle_type</td>\n<td>String</td>\n<td></td>\n<td>The type of particle that will be spawned</td>\n</tr><tr>\n<td>particle_y_offset</td>\n<td>Decimal</td>\n<td></td>\n<td>Will offset the particle this amount in the y direction</td>\n</tr>\n</tbody></table>";
 
-		this.search_bar = document.getElementById("search-input-bar");
+		//Add search-bar
+		this.search_bar = new DropDown(document.getElementById("toolbar"), "INPUT", "search").create();
+		this.search_bar.propose("", this.documentation_parser.getDocumentation("component_names"));
 	}
 
 	getSearchList() {
-		return [];
+		return this.search_bar.list.n_list;
 	}
 	getData() {
 		return this.documentation_parser.getDocumentation();
@@ -27,7 +29,7 @@ class Documentation {
 	 * @param {String} pPage The page to open (e.g. component@minecraft:interact)
 	 */
 	openDocumentation(pPage) {
-		let doc_to_open = this.findPage(this.search_bar.value);
+		let doc_to_open = this.findPage(this.search_bar.input.value);
 		let documentation_text = "";
 
 		if(doc_to_open.split("@")[1] != "do_not_open") {
@@ -103,24 +105,24 @@ class Documentation {
 		if(pSection == "components") {
 			if(pSearch in this.data["components"]){
 				return pSearch;
-			} else if (pDoSecondTest && data_list.options.length > 0 && data_list.options[0].value in this.data["components"]) {
-				return data_list.options[0].value;
+			} else if (pDoSecondTest && data_list.length > 0 && data_list[0].innerText in this.data["components"]) {
+				return data_list[0];
 			} else {
 				return "do_not_open"
 			}
 		} else if(pSection == "events") {
 			if(pSearch in this.data["events"]){
 				return pSearch;
-			} else if (pDoSecondTest && data_list.options.length > 0 && data_list.options[0].value in this.data["events"]) {
-				return data_list.options[0].value;
+			} else if (pDoSecondTest && data_list.length > 0 && data_list[0].innerText in this.data["events"]) {
+				return data_list[0];
 			} else {
 				return "do_not_open"
 			}
 		} else {
 			if(this.data[pSection].indexOf(pSearch) > -1){
 				return pSearch;
-			} else if (data_list.options.length > 0 && this.data[pSection].indexOf(data_list.options[0].value) > -1) {
-				return data_list.options[0].value;
+			} else if (data_list.length > 0 && this.data[pSection].indexOf(data_list[0].innerText) > -1) {
+				return data_list[0];
 			} else {
 				return "do_not_open"
 			}
