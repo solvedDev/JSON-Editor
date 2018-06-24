@@ -149,7 +149,7 @@ class LoadingSystem extends RequestSystem {
 
 			//RP
 			for(let i = 0; i < pData.models.length; i++) {
-				//pSelf.request("data/RP/models/" + pData.models[i]);
+				pSelf.request("data/RP/models/" + pData.models[i]);
 			}
 			for(let i = 0; i < pData.ui.length; i++) {
 				pSelf.request("data/RP/ui/" + pData.ui[i]);
