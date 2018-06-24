@@ -9,6 +9,8 @@
 class Highlighter {
 	constructor(pConfig) {
 		this.config = pConfig;
+
+		this.initialLoad();
 	}
 
 	highlight(pElement) {
@@ -25,7 +27,7 @@ class Highlighter {
 						removeElement(e.target.parentElement);
 					};
 				} catch(e) {
-					console.warn("Unable to register onclick event");
+					console.warn("Unable to register onclick event: ");
 					console.log(node);
 				}
 				

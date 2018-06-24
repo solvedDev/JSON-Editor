@@ -1,163 +1,717 @@
 /**
- * SCRIPTS FOR CORE FUNCTIONALITY
+ * MAIN FUNCTIONALITY OF JSON EDITOR
  * 
  * Creator: @solvedDev
  * Project: JSON Editor
  */
 
-var editor = document.getElementById("editor");
-var display_currentContext = document.getElementById("show-context");
-var currentSelected;
-var edit_all = false;
-var auto_completions = true;
-var currentContext = "No context";
-var parentCurrentContext = "No context";
-var currentType = "";
 
-//Setting up highlighter
-var hl = new Highlighter({ solved: "font-weight: bold; color: royalblue; opacity: 0.6;" });
+//APPLICATION
+class Application {
+	constructor() {
+		this.loading_screen = new LoadingScreen();
+		this.mobile_screen = new MobileScreen();
 
-//Setting up KeyInput
-var key_input = new KeyInput();
-window.addEventListener("keydown", key_input.addEvent);
-window.addEventListener("keyup", key_input.removeEvent);
-
-//Main loop
-function mainLoop() {
-	key_input.processKeys();
-
-	if(auto_completions){
-		generateOptions(child_input.value);
-		generateValueOptions(value_input.value);
-	} else {
-		data_list.innerHTML = "";
+		this.parser = new Parser();
+		this.loading_system = new LoadingSystem(this);
+		this.dev_build = false;
 	}
 
-	updateSearchBar(search_bar.value);
+	start() {
+		var is_mobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+		if(is_mobile || window.innerWidth <= 800 && window.innerHeight <= 600){
+			console.log("found")
+			this.openScreen(this.mobile_screen);
+		} else {
+			this.openScreen(this.loading_screen);
+			console.log("No mobile device detected. Loading data...");
 
-	display_currentContext.innerHTML = "Co: " + currentContext + " | paCo: " + parentCurrentContext + " | coTy: " + currentType;
+			//Register events
+			this.loading_system.onReady = function(pSelf) {
+				pSelf.editor_screen = new EditorScreen(this, pSelf.loading_system.getCachedData("data/html/editor_template.html"));
+				pSelf.openScreen(pSelf.editor_screen);
+				pSelf.editor_screen.init();
 
-	window.requestAnimationFrame(mainLoop);
-}
+				//Initialize tabs
+				pSelf.tab_manager = new TabManager(document.getElementById("tab-bar")).create();
+				pSelf.tab_manager.addTab("blank.json", {
+					"minecraft:entity": {
+						"format_version": "1.6.0",
+						"component_groups": {},
+						"components": {},
+						"events": {}
+					}
+				});
+				pSelf.tab_manager.start();
 
+				//Documentation Parser
+				pSelf.documentation_parser = new DocumentationParser(pSelf.loading_system);
 
-function collapseAll() {
-	let loading_window = new LoadingWindow().create();
-
-	let details = document.querySelectorAll("details");
-	for(let i = 0; i < details.length; i++) {
-		details[i].removeAttribute("open");
+				//Documentation
+				pSelf.documentation = new Documentation(pSelf);
+				if(!this.dev_build) document.getElementById("infobar").style.display = "none";
+			};
+			this.loading_system.onChange = function(pProgress, pSelf) {
+				document.body.querySelector("p").innerText = "Progress: " + pProgress;
+			};
+			//Load data
+			this.loading_system.loadAll();
+		}
 	}
 
-	loading_window.destroy();
-}
-
-function expandAll() {
-	let loading_window = new LoadingWindow().create();
-	console.log('loading_window :', loading_window);
-	
-	let details = document.querySelectorAll("details");
-	for(let i = 0; i < details.length; i++) {
-		if(!details[i].getAttribute("open")) details[i].setAttribute("open", true);
-	}
-
-	loading_window.destroy();
-}
-
-function refresh() {
-	let loading_window = new LoadingWindow().create();
-	try {
-		editor.innerHTML = parseObj(getObj(editor.childNodes[0]));
-	} catch(e) {
-		console.warn("Unexpected child: " + editor.childNodes[0]);
-		editor.innerHTML = parseObj(getObj(editor.childNodes[1]));
-	}
-	
-	selectElement(document.querySelector("summary"));
-
-	loading_window.destroy();
-}
-
-function addChild(pKey) {
-	let node = document.createElement("details");
-	node.appendChild(document.createElement("summary"));
-	node.appendChild(document.createElement("div"));
-	node.childNodes[0].innerHTML = pKey + button;
-
-	node.childNodes[1].classList.add("tab");
-	node.childNodes[0].classList.add("highlight-object");
-	
-	//Blur event
-	node.childNodes[0].onblur = function(e) {
-		key_input.removeEdit(e.target);
-	};
-
-	//Update parent
 	/**
-	 * TO-DO: UPDATING THE COLOR OF THE PARENT. ONLY WAY TO KNOW WHETHER BLUE OR RED COLOR (OBJECT/ARRAY)
+	 * Opens the screen handed over as a parameter
+	 * @param {Screen} pScreen The screen to open
 	 */
-
-	currentSelected.parentElement.childNodes[1].appendChild(node);
-
-	//UPDATE PARENT COLOR
-	if(!Number.isNaN(Number(pKey))){
-		let parent = getParent(node.childNodes[0]);
-		parent.classList.remove("highlight-object");
-		parent.classList.add("highlight-array");
+	openScreen(pScreen) {
+		pScreen.initStyles();
+		document.body.innerHTML = pScreen.getHtml();
 	}
-	selectElement(node.childNodes[0], true);
-	updateEvents();
-}
 
-function addValue(pValue) {
-	let node = document.createElement("span");
-	node.classList.add("value");
-	node.innerHTML = pValue + button;
-	currentSelected.removeAttribute("class");
-	currentSelected.classList.add("highlight-" + getType(pValue));
-	currentSelected.classList.add("selected");
-	//Blur event
-	node.onblur = function(e) {
-		key_input.removeEdit(e.target);
-	};
-
-	currentSelected.parentElement.childNodes[1].classList.add("highlight-" + getType(pValue));
-	currentSelected.parentElement.childNodes[1].appendChild(node);
-	selectElement(getParent(currentSelected), true);
-	updateEvents();
-
-	//Test whether a context is fully filled
-	//If that's the case: Select parent of parent
-	if(auto_completions) {
-		generateOptions("");
-		if(data_list.options.length == 0) selectElement(getParent(currentSelected), true);
+	openPopUp(pText) {
+		let popup = new PopUpWindow("test", "90%", "90%", document.body, pText, true);
+		popup.create();
 	}
-}
 
-function loadFile(pFile, pIndex, pTotal) {
-	let reader = new FileReader();
-
-	//Opening loading window if first file
-	if(pIndex == 0) {
-		app.loading_window = new LoadingWindow().create();
-		app.tab_manager.loaded_tabs = 0;
+	loadFile(pFile, pIndex, pTotal) {
+		let reader = new FileReader();
+	
+		//Opening loading window if first file
+		if(pIndex == 0) {
+			app.loading_window = new LoadingWindow().create();
+			app.tab_manager.loaded_tabs = 0;
+		}
+		//Required vars
+		reader.file_name = pFile.name;
+		reader.total = pTotal;
+	
+		//Reading file
+		reader.readAsText(pFile);
+	
+		reader.onload = function() {
+			try {
+				app.tab_manager.addTab(this.file_name, JSON.parse(JSON.minify(reader.result)), this.total);
+			} catch(e) {
+				console.warn("An error occurred while trying to open the file \"" + this.file_name + "\": ");
+				console.log(e.message);
+				new PushMessage(document.body, "Invalid JSON!").create();
+			}
+		}
 	}
-	//Required vars
-	reader.file_name = pFile.name;
-	reader.total = pTotal;
 
-	//Reading file
-	reader.readAsText(pFile);
+	download(pFileName, pText) {
+		let l_s = new LoadingWindow(document.body).create();
+		let element = document.createElement('a');
+		element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(pText));
+		element.setAttribute('download', pFileName);
+	  
+		element.style.display = 'none';
+		document.body.appendChild(element);
+	  
+		element.click();
+		
+		document.body.removeChild(element);
+		l_s.destroy();
+	}
 
-	reader.onload = function() {
-		try {
-			app.tab_manager.addTab(this.file_name, JSON.parse(JSON.minify(reader.result)), this.total);
-		} catch(e) {
-			console.warn("An error occurred while trying to open a file: ");
-			console.log(e.message);
-			new PushMessage(document.body, "Invalid JSON!").create();
+	tick() {
+		app.tab_manager.tick();
+
+		if(app.dev_build) {
+			let path =  "Path: " + app.tab_manager.getSelectedTab().editor.path.getPath();
+			let type = " | Type: " + app.tab_manager.getSelectedTab().editor.auto_completions.file_type;
+			document.getElementById("dev-display").innerHTML = path + type;
 		}
 
-		//hl.initialLoad();
+		window.requestAnimationFrame(app.tick);
+	}
+}
+
+//SCREENS
+class Screen {
+	/**
+	 * Construct a new object of the type Screen
+	 * @param {String} pHtml 
+	 * @param {String} pStyle 
+	 */
+	constructor(pParent, pHtml, pStyle) {
+		this.parent = pParent;
+		this.html = pHtml;
+		this.style = pStyle;
+	}
+
+	/**
+	 * Initialize special styles for the screen
+	 */
+	initStyles() {
+		document.body.classList.add("blue-background");
+	}
+
+	/**
+	 * Get the HTML of this screen
+	 * @returns HTML
+	 */
+	getHtml() {
+		return this.html;
+	}
+	/**
+	 * Get the style of this screen
+	 * @returns CSS
+	 */
+	getStyle() {
+		return this.style;
+	}
+}
+
+class MobileScreen extends Screen {
+	constructor(pParent) {
+		super(pParent, "<div class='center blue-section'><h1 class='big'>:(</h1><br><br><h3>The JSON Editor cannot be used on mobile devices.</h3></div>");
+	}
+}
+
+class EditorScreen extends Screen {
+	constructor(pParent, pHTML) {
+		super(pParent, pHTML);
+	}
+	/**
+	 * Initialize special styles for the screen
+	 */
+	initStyles() {
+		document.body.classList.remove("blue-background");
+		document.body.style.height = window.innerHeight + "px";
+	}
+
+	init() {
+		this.ui_elements = {
+			import_json: document.getElementById("import-json"),
+			download_json: document.getElementById("download-json"),
+			add_child_btn: document.getElementById("add-child"),
+			add_value_btn: document.getElementById("add-value"),
+			edit_input_btn: document.getElementById("edit-input-btn"),
+			search_component_btn: document.getElementById("search-component"),
+			select_super_obj_btn: document.getElementById("select-super-obj")
+		};
+
+		this.ui_elements.import_json.onchange = function() {
+			for(let i = 0; i < this.files.length; i++) {
+				app.loadFile(this.files[i], i, this.files.length);
+			}
+		};
+		this.ui_elements.download_json.onclick = function() {
+			if(app.tab_manager.hasTabs()) {
+				let tab = app.tab_manager.getSelectedTab();
+				app.download(tab.getName(), JSON.stringify(tab.getObj(), null, "\t"));
+			}
+		};
+
+		this.ui_elements.add_child_btn.onclick = function() {
+			let key = document.getElementById("add-child-input").childNodes[5].childNodes[0].value;
+			let editor = app.tab_manager.getSelectedTab().editor;
+			editor.tree_manager.addObj(key, editor.path.getCurrentContext());
+		};
+		this.ui_elements.add_value_btn.onclick = function() {
+			let value = document.getElementById("add-value-input").childNodes[5].childNodes[0].value;
+			let editor = app.tab_manager.getSelectedTab().editor;
+			editor.tree_manager.addValue(value, editor.path.getCurrentContext());
+		};
+		this.ui_elements.edit_input_btn.onclick = function() {
+			let edit_txt = document.getElementById("edit-input-div").childNodes[5].childNodes[0].value;
+			let editor = app.tab_manager.getSelectedTab().editor;
+			let edit_node = editor.path.getCurrentContext();
+			
+			edit_node.innerHTML = edit_txt + app.parser.btn;
+			editor.tree_manager.updateEvents(edit_node);
+		};
+
+		this.ui_elements.search_component_btn.onclick = function() {
+			app.documentation.openDocumentation();
+		};
+		this.ui_elements.select_super_obj_btn.onclick = function() {
+			let editor = app.tab_manager.getSelectedTab().editor;
+			editor.tree_manager.unselectElement();
+			editor.auto_completions.forceUpdate();
+			editor.auto_completions.updateInputs();
+		};
+	}
+
+	expandAll() {
+		let loading_window = new LoadingWindow().create();
+		console.log('loading_window :', loading_window);
+		
+		let details = document.querySelectorAll("details");
+		for(let i = 0; i < details.length; i++) {
+			if(!details[i].getAttribute("open")) details[i].setAttribute("open", true);
+		}
+	
+		loading_window.destroy();
+	}
+
+	collapseAll() {
+		let loading_window = new LoadingWindow().create();
+	
+		let details = document.querySelectorAll("details");
+		for(let i = 0; i < details.length; i++) {
+			details[i].removeAttribute("open");
+		}
+	
+		loading_window.destroy();
+	}
+}
+
+class LoadingScreen extends Screen {
+	constructor(pParent) {
+		super(pParent, "<div class='center blue-section'><h1>Loading data</h1><div class='loading-outer center'><div class='loading-inner'></div></div><h5>We are preparing your<br> new JSON Experience!</h5><p></p></div>");
+	}
+}
+
+//Windows
+class ScreenElement {
+	/**
+	 * @param {Node} pParent The node parent of this element
+	 * @param {String} pNodeType The node type to create
+	 * @param {String} pNodeName The property name of the node (default: node)
+	 */
+	constructor(pParent, pNodeType, pNodeName="node") {
+		this.parent = pParent;
+		this.node_name = pNodeName;
+
+		this[this.node_name] = document.createElement(pNodeType);
+		this[this.node_name].js_element = this;
+		this.hidden = false;
+	}
+	/**
+	 * Adds the ScreenElement to the context where it is defined
+	 */
+	create() {
+		this.parent.appendChild(this[this.node_name]);
+		return this;
+	}
+	/**
+	 * Removes the ScreenElement from the context where it is defined
+	 */
+	destroy() {
+		this.parent.removeChild(this[this.node_name]);
+		return this;
+	}
+
+	/**
+	 * Shows ScreenElement
+	 */
+	show() {
+		this.hidden = false;
+		this[this.node_name].style.display = "block";
+		return this;
+	}
+	/**
+	 * Hides ScreenElement
+	 */
+	hide() {
+		this.hidden = true;
+		this[this.node_name].style.display = "none";
+		return this;
+	}
+	/**
+	 * Toggles the visability of a ScreenElement
+	 */
+	toggle() {
+		if(this.hidden) {
+			return this.show();
+		} else {
+			return this.hide();
+		}
+	}
+
+	/**
+	 * Returns HTML of node
+	 * @returns {String} HTML
+	 */
+	getHTML() {
+		return this[this.node_name].outerHTML;
+	}
+	/**
+	 * Returns node
+	 * @returns {Node} node
+	 */
+	getNode() {
+		return this[this.node_name];
+	}
+}
+
+class PriorityScreenElement extends ScreenElement {
+	constructor(pParent, pNodeType, pNodeName="node") {
+		super(pParent, pNodeType, pNodeName);
+	}
+	/**
+	 * Adds the popup window to the context where it is defined
+	 */
+	create() {
+		//PriorityScreenElements need to be first child
+		this.parent.insertBefore(this[this.node_name], this.parent.firstChild);
+		return this;
+	}
+}
+
+class PopUpWindow extends PriorityScreenElement {
+	/**
+	 * Create a new PopUpWindow
+	 * @param {String} pId The unique ID of a popup window
+	 * @param {Number} pW Width of window
+	 * @param {Number} pH Height of window
+	 * @param {Node} pParent The node parent of the popup window
+	 * @param {String} pContent HTML Content for the popup window
+	 * @param {Boolean} pHasCloseButton Whether the dialog shall have a close button
+	 * @param {Boolean} pShowInnerBtn Whether the close button is inside the window
+	 * @param {String} pOverflow Scrolling mode. Can be auto, scroll or hidden
+	 */
+	constructor(pId, pW, pH, pParent, pContent, pHasCloseButton=true, pShowInnerBtn=false, pOverflow="auto") {
+		super(pParent, "DIV");
+
+		//Outer DIV - blend background
+		this.node.id = "popup-" + pId;
+		this.node.classList.add("blend-full-screen");
+		//Inner DIV - actual frame
+		this.inner_div = document.createElement("DIV");
+		this.inner_div.classList.add("section", "popup-inner-frame");
+		this.inner_div.innerHTML = pContent;
+		this.inner_div.style.overflowY = pOverflow;
+		this.inner_div.style.width = pW;
+		this.inner_div.style.setProperty("--window-height", pH);
+
+		//Close Button
+		if(pHasCloseButton) {
+			this.btn = new CloseButton(this.node).getNode();
+
+			//Building window
+			if(pShowInnerBtn) {
+				this.btn.classList.add("inner");
+				this.inner_div.appendChild(this.btn);
+			} else {
+				this.node.insertBefore(this.btn, this.node.firstChild);
+			}
+		}
+
+		this.node.appendChild(this.inner_div);
+	}
+}
+
+class LoadingWindow extends PopUpWindow {
+	constructor() {
+		let loading_animation = "<div class='loading-outer center'><div class='loading-inner'></div></div>";
+		super("loading", "40%", "102px", document.body, loading_animation, false, false, "hidden");
+	}
+}
+
+class PushMessage extends PriorityScreenElement {
+	/**
+	 * @param {Node} pParent The parent node (context of the push message)
+	 * @param {String} pContent The text to show in the push message
+	 */
+	constructor(pParent, pContent) {
+		super(pParent, "DIV");
+
+		//Outer DIV - blend background
+		this.node.classList.add("push-message");
+		//Inner DIV - actual frame
+		this.inner_div = document.createElement("DIV");
+		this.inner_div.classList.add("push-message-frame");
+		this.inner_div.innerHTML = pContent;
+		//Close Button
+		this.btn = new CloseButton(this.node).getNode();
+		this.btn.classList.add("btn-xs");
+		//Building window
+		this.btn.classList.add("inner")
+		this.inner_div.appendChild(this.btn);
+		
+		this.node.appendChild(this.inner_div);
+	}
+}
+
+
+//Buttons
+class ActionButton extends ScreenElement {
+	/**
+	 * 
+	 * @param {Node} pParent The button's parent HTML element
+	 * @param {String} pText Text to show on the button (can be HTML)
+	 * @param {Function} pAction Function to call onclick
+	 */
+	constructor(pParent, pText="undefined") {
+		super(pParent, "BUTTON", "btn");
+		this.btn.parent = pParent;
+		this.parent = pParent;
+
+		this.btn.classList.add("btn", "btn-outline-primary", "inline-element");
+		this.btn.innerHTML = pText;
+		this.btn.onclick = this.onclick;
+	}
+
+	onclick() {
+		console.log("Button clicked!");
+	}
+	create() {
+		super.create();
+		this.btn.onclick = this.onclick;
+	}
+}
+
+class CloseButton extends ActionButton {
+	/**
+	 * @param {Node} pParent The button's parent HTML element
+	 * @param {String} pText Text to show on the button (can be HTML)
+	 */
+	constructor(pParent, pText="<i class='fa fa-remove'></i>") {
+		super(pParent, pText);
+
+		this.btn.classList.add("close-popup-window");
+	}
+
+	onclick() {
+		this.parent.js_element.destroy();
+	}
+}
+
+//Lists
+class List extends ScreenElement {
+	constructor(pParent) {
+		super(pParent, "UL", "n_list");
+		this.list_elements = [];
+	}
+
+	addElement(pContent) {
+		let element = new ListElement(this.n_list, pContent);
+		element.create();
+		if(this.list_elements.length == 0) {
+			element.select(undefined, element.list_element, false, false, false);
+		}
+		this.list_elements.push(element);
+	}
+
+	addArray(pArr, pSearch="", pReset=true, pArrArg=[]) {
+		if(pReset) {
+			this.n_list.innerHTML = "";
+			this.list_elements = [];
+		}
+		
+		for(let i = 0; i < pArr.length; i++) {
+			if((typeof pArr[i].key != "string" || pArr[i].key.contains(pSearch)) && !pArrArg.contains(pArr[i].key)) {
+				let element = new ListElement(this.n_list, pArr[i].key)
+				element.create();
+
+				if(this.list_elements.length == 0) {
+					element.select(undefined, element.list_element, false, false, false);
+				}
+				this.list_elements.push(element);
+			}
+		}
+	}
+	addDefaultArray(pArr, pSearch="", pReset=true) {
+		if(pReset) {
+			this.n_list.innerHTML = "";
+			this.list_elements = [];
+		}
+		
+		for(let i = 0; i < pArr.length; i++) {
+			if(pArr[i].contains(pSearch)) {
+				let element = new ListElement(this.n_list, pArr[i])
+				element.create();
+
+				if(this.list_elements.length == 0) {
+					element.select(undefined, element.list_element, false, false, false);
+				}
+				this.list_elements.push(element);
+			}
+		}
+	}
+
+	getSelectedValue() {
+		for(let i = 0; i < this.list_elements.length; i++) {
+			if(this.list_elements[i].selected) {
+				return this.list_elements[i].list_element.innerText;
+			}
+		}
+	}
+
+	/**
+	 * Removes "selected-li" class from all childs
+	 */
+	removeSelected() {
+		for(let i = 0; i < this.list_elements.length; i++) {
+			this.list_elements[i].unselect();
+		}
+	}
+
+	selectNext() {
+		for(let i = 0; i < this.list_elements.length; i++) {
+			if(this.list_elements[i].selected) {
+				this.list_elements[i].unselect();
+
+				if(i+1 == this.list_elements.length) i = -1;
+				this.list_elements[i+1].select(undefined, this.list_elements[i+1].list_element, false, false);
+				return undefined;
+			}
+		}
+	}
+	selectPrevious() {
+		for(let i = 0; i < this.list_elements.length; i++) {
+			if(this.list_elements[i].selected) {
+				this.list_elements[i].unselect();
+
+				if(i == 0) i = this.list_elements.length;
+				this.list_elements[i-1].select(undefined, this.list_elements[i-1].list_element, false, false);
+				return undefined;
+			}
+		}
+	}
+}
+class ListElement extends ScreenElement {
+	constructor(pParent, pContent) {
+		super(pParent, "LI", "list_element");
+		this.list_element.innerHTML = pContent;
+		this.list_element.tabIndex = -1;
+		this.selected = false;
+
+		this.list_element.onclick = this.select;
+	}
+	
+	/**
+	 * Selects this ListElement
+	 * @param {Event} pE Event handed over
+	 * @param {*} pSelf Context
+	 */
+	select(pE, pSelf=this, pRemoveSelected=true, pFillInput=true, pFocus=true) {
+		let dd = pSelf.js_element.parent.js_element.parent.js_element;
+
+		if(!pSelf.js_element.selected) {
+			if(pRemoveSelected) pSelf.js_element.parent.js_element.removeSelected();
+			pSelf.js_element.selected = true;
+			pSelf.classList.add("selected-li");
+			pSelf.scrollIntoView();
+
+			//Reselect button
+			if(pFocus) dd.input.focus();
+		} 
+
+		if(dd.input.tagName == "INPUT" && pFillInput) {
+			dd.fillInput(pSelf.innerText);
+		}
+	}
+
+	/**
+	 * Unselects this ListElement
+	 */
+	unselect(pSelf=this) {
+		if(pSelf.selected) {
+			pSelf.list_element.classList.remove("selected-li");
+			pSelf.selected = false;
+		}
+	}
+}
+
+//Dropdowns
+class DropDown extends ScreenElement {
+	constructor(pParent, pInputType="button", pType="auto", pText="undefined") {
+		super(pParent, "SPAN", "drop_wrapper");
+
+		this.type = pType;
+
+		//Self
+		this.drop_wrapper.classList.add("dropdown");
+
+		//TOGGLE BUTTON
+		this.initInput(pInputType, pText);
+
+		//LIST
+		this.list = new List(this.drop_wrapper);
+		this.list.hide();
+		this.list.n_list.classList.add("section", "dropdown-content");
+		this.list.create();
+
+		this.array = [];
+	}
+
+	initInput(pInputType, pText) {
+		this.input = document.createElement(pInputType);
+		this.input.classList.add("dropdown-button", "section", "inline-element", "inline-button");
+		if(pInputType == "button") {
+			this.input.classList.add("btn", "btn-outline-primary");
+			this.input.innerHTML = pText;
+
+			this.input.onclick = function() {
+				let list = this.parentElement.js_element.list;
+				if(list.list_elements.length != 0) {
+					list.toggle();
+					list.n_list.focus();
+				}
+			};
+		} else {
+			this.input.classList.add("auto-suggestions");
+			this.input.onclick = function() {
+				this.setSelectionRange(0, this.value.length);
+
+				let list = this.parentElement.js_element.list;
+				if(list.list_elements.length != 0) {
+					list.toggle();
+					list.n_list.focus();
+				}
+			}
+		}
+
+		this.input.onblur = function(e) {
+			if(e.relatedTarget && e.relatedTarget.tagName == "LI") {
+				e.preventDefault();
+			} else {
+				this.parentElement.js_element.list.hide();
+			}
+		};
+		this.input.onkeydown = function(e) {
+			if(e.key == "ArrowDown") {
+				e.preventDefault();
+				this.parentElement.js_element.list.selectNext();
+				this.scrollIntoView();
+			} else if(e.key == "ArrowUp") {
+				e.preventDefault();
+				this.parentElement.js_element.list.selectPrevious();
+				this.scrollIntoView();
+			} else if(e.key == "Enter") {
+				this.parentElement.js_element.onEnter();
+			} else if(e.key == "Tab") {
+				e.preventDefault();
+				this.parentElement.js_element.fillInput(this.parentElement.js_element.list.getSelectedValue());
+			} else if(this.parentElement.js_element.type != "auto" && this.tagName == "INPUT") {
+				this.parentElement.js_element.propose(this.value);
+			}
+		};
+
+		this.drop_wrapper.appendChild(this.input);
+	}
+
+	onEnter() {
+		if(this.input.tagName == "INPUT") {
+			if(window.getSelection().toString() == this.input.value && this.input.value != "") {
+				if(this.type == "auto") {
+					this.drop_wrapper.parentElement.childNodes[3].click();
+				} else {
+					this.drop_wrapper.parentElement.childNodes[27].click();
+				}
+				
+			} else if(this.list.getSelectedValue() != undefined) {
+				this.fillInput(this.list.getSelectedValue());
+			} else {
+				this.input.setSelectionRange(0, this.input.value.length);
+			}
+		}
+		return this;
+	}
+
+	fillInput(pValue) {
+		this.input.value = pValue;
+		this.input.setSelectionRange(0, this.input.value.length);
+		return this;
+	}
+
+	propose(pSearch, pArr) {
+		if(this.array.length == 0) this.array = pArr;
+		this.list.addDefaultArray(this.array, pSearch);
+		return this;
 	}
 }

@@ -148,18 +148,30 @@ body {
 #editor-wrapper {
 	position: relative;
 	top: -20px;
+	height: calc(100% - 205px);
 }
 #editor {
 	margin: 0 10px;
 	padding: 0 5px;
-	height: 480px;
+	height: calc(100% - 52px);
 	overflow-y: scroll;
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
 }
+.selected {
+	text-decoration: underline;
+	font-style: italic;
+}
 /*Editor destroy buttons*/
 #editor .btn {
 	margin-top: 2px;
+}
+/*EDIT STUFF*/
+#add-value-input {
+	margin-right: 10px;
+}
+#add-child-input {
+	margin-right: 10px;
 }
 
 /*   TABS   */
@@ -225,4 +237,38 @@ body {
 	border-radius: 0;
 	background-color: var(--brand-primary);
 	box-shadow: inset 0 0 2px var(--brand-primary-darkened);
+}
+
+/* DROPDOWNS */
+#add-value-input, #add-child-input {
+	float: left;
+}
+.dropdown {
+	--dropdown-height: 80px;
+	width: fit-content;
+	height: fit-content;
+}
+.dropdown-content {
+	margin: 4px 0;
+	margin-top: 10px;
+	position: sticky;
+	z-index: 10;
+	box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+
+	height: var(--dropdown-height);
+	overflow-y: scroll;
+	overflow-x: hidden;
+}
+.dropdown-content::-webkit-scrollbar {
+	width: 3.5px;
+}
+.dropdown-content li {
+	list-style: none;
+	border-radius: 2px;
+	margin: 2px;
+	cursor: pointer;
+}
+.dropdown-content li.selected-li {
+	color: var(--brand-secondary);
+	background-color: var(--brand-primary);
 }

@@ -8,27 +8,52 @@
 class TabManager extends ScreenElement {
 	constructor(pParent) {
 		super(pParent, "DIV");
+
 		this.tabs = [];
 		this.loaded_tabs = 0;
 
 		//Add click event listener to editor
 		this.editor_node = document.getElementById("editor");
+		this.editor_node.js_parent = this;
 		this.editor_node.onclick = function(e) {
 			let target = e.target;
 			if(target.tagName == "HIGHLIGHT") target = target.parentElement;
 
+			let tab = this.js_parent.getSelectedTab();
+			let t_m = tab.editor.tree_manager;
+			let c_s = tab.editor.path.getCurrentContext();
+
 			if(e.ctrlKey) {
 				e.preventDefault();
-				selectElement(target);
+				t_m.selectElement(target);
 				key_input.addEdit(target);
 			} else {
 				//NOT ALREADY SELECTED & OPEN & DOESN'T HAVE SPAN AS CHILD
-				if(!target.isSameNode(currentSelected) && target.parentElement.open && target.parentElement.childNodes[1].childNodes[0] != undefined && target.parentElement.childNodes[1].childNodes[0].tagName != "SPAN") {
+				if(!target.isSameNode(c_s) && target.parentElement.open && target.parentElement.childNodes[1].childNodes[0] != undefined && target.parentElement.childNodes[1].childNodes[0].tagName != "SPAN") {
 					e.preventDefault();
 				}
-				selectElement(target);
+				t_m.selectElement(target);
 			}
 		};
+		this.editor_node.onkeydown = function(e) {
+			let editor = this.js_parent.getSelectedTab().editor;
+
+			if(e.key == "ArrowUp") {
+				this.js_parent.getSelectedTab().editor.tree_manager.selectPreviousOpenElement();
+				editor.path.getCurrentContext().focus();
+			} else if(e.key == "ArrowDown") {
+				this.js_parent.getSelectedTab().editor.tree_manager.selectNextOpenElement();
+				editor.path.getCurrentContext().focus();
+			} else if(e.key == "Delete" || e.key == "Backspace") {
+				let current = editor.path.getCurrentContext();
+				editor.tree_manager.removeElement(current);
+				editor.path.getCurrentContext().focus();
+			}
+		}
+	}
+
+	start() {
+		app.tick();
 	}
 
 	/**
@@ -82,9 +107,7 @@ class TabManager extends ScreenElement {
 	 */
 	addTab(pName, pJSON, pTotal) {
 		this.tabs.push(new Tab(this, pName, pJSON));
-		this.tabs[this.tabs.length - 1].create();
-		selectElement(this.tabs[this.tabs.length - 1].editor.editor_content.querySelector("summary"));
-		this.tabs[this.tabs.length - 1].enable();
+		this.tabs[this.tabs.length - 1].create().enable(this.tabs[this.tabs.length - 1], true);
 
 		this.loaded_tabs++;
 		if(this.loaded_tabs == pTotal) app.loading_window.destroy();
@@ -97,6 +120,13 @@ class TabManager extends ScreenElement {
 		for (let i = 0; i < this.tabs.length; i++) {
 			this.tabs[i].disable();
 		}
+	}
+
+	/**
+	 * Ticks the current tab
+	 */
+	tick() {
+		this.getSelectedTab().tick();
 	}
 }
 
@@ -122,7 +152,7 @@ class Tab extends ScreenElement {
 		}
 
 		this.is_open = false;
-		this.editor = new Editor(editor, pJSON);
+		this.editor = new Editor(this, document.getElementById("editor"), pJSON);
 	}
 
 	/**
@@ -137,7 +167,7 @@ class Tab extends ScreenElement {
 			tabs[0].enable();
 			
 		} else {
-			new PopUpWindow("notify", "300px", "50px", document.body, "<h5>Cannot remove last tab!</h5>", true, true, "hidden").create();
+			new PopUpWindow("notify", "400px", "50px", document.body, "<h5>You cannot remove the last tab!</h5>", true, true, "hidden").create();
 			this.js_parent.marked = false;
 		}
 	}
@@ -158,7 +188,6 @@ class Tab extends ScreenElement {
 	 * @returns {Tab} this
 	 */
 	refresh() {
-		console.log("refreshes")
 		this.editor.refresh();
 	}
 
@@ -178,13 +207,24 @@ class Tab extends ScreenElement {
 	 * Changes to this tab
 	 * @returns {Tab} this
 	 */
-	enable(pContext=this) {
+	enable(pContext=this, pInitial=false) {
 		if(!pContext.is_open) {
 			pContext.js_parent.disableAll();
 			pContext.node.classList.add("selected-tab");
 			pContext.is_open = true;
 			pContext.editor.create();
 			pContext.node.scrollIntoView();
+
+			//Handling content
+			if(pInitial) {
+				this.editor.tree_manager.selectElement(this.editor.editor_content.querySelector("summary"));
+				this.editor.editor_content.querySelector("summary").focus();
+				//Intialize auto_completions
+				this.editor.auto_completions.init();
+			} else {
+				this.editor.path.getCurrentContext().focus();
+			}
+			
 		}
 		return this;
 	}
@@ -194,12 +234,20 @@ class Tab extends ScreenElement {
 	node_enable() {
 		this.js_parent.enable(this.js_parent);
 	}
+
+	/**
+	 * Ticks the editor
+	 */
+	tick() {
+		this.editor.tick();
+	}
 }
 
 class Editor extends ScreenElement {
-	constructor(pParent, pJSON) {
+	constructor(pTab, pParent, pJSON) {
 		super(pParent, "DIV", "editor_content");
-		
+		this.tab = pTab;
+
 		try {
 			this.editor_content.innerHTML = app.parser.parseObj(pJSON);
 		} catch(e) {
@@ -208,25 +256,44 @@ class Editor extends ScreenElement {
 			this.editor_content.innerHTML = parser.parseObj(pJSON);
 		}
 		
-		//this.tree_manager = new TreeManager();
-		this.highlighter = new Highlighter();
-
-		this.selection = {
-			path: "",
-			currentContext: "",
-			currentParentContext: "",
-			currentSelected: ""
-		};
-
+		this.tree_manager = new TreeManager(this);
+		this.highlighter = new Highlighter({solved: "font-weight: bold; color: royalblue;"});
 		this.registerEvents();
+
+		this.path = new Path();
+		this.auto_completions = new AutoCompletions(app, this);
 	}
+
+	/**
+	 * Tick the editor & its functionality
+	 */
+	tick() {
+		this.auto_completions.update();
+	}
+	
+	create() {
+		super.create();
+		this.auto_completions.add_child_input.create();
+		this.auto_completions.add_value_input.create();
+		this.auto_completions.edit_input.create();
+		return this;
+	}
+	destroy() {
+		super.destroy();
+		this.auto_completions.add_child_input.destroy();
+		this.auto_completions.add_value_input.destroy();
+		this.auto_completions.edit_input.destroy();
+		return this;
+	}
+
 	/**
 	 * Reload the editor
 	 * @returns {Editor} this
 	 */
 	refresh() {
 		this.editor_content.innerHTML = app.parser.parseObj(app.parser.getObj(this.editor_content));
-		selectElement(document.querySelector("#editor summary"));
+		
+		this.tree_manager.selectElement(document.querySelector("#editor summary"), true);
 		return this;
 	}
 
@@ -237,17 +304,36 @@ class Editor extends ScreenElement {
 		//Destroy buttons
 		let btns = this.editor_content.querySelectorAll(".destroy-e");
 		for(var i = 0; i < btns.length; i++) {
+			btns[i].self = this.tree_manager;
 			btns[i].onclick = function(e) {
-				removeElement(e.target.parentElement);
+				this.self.removeElement(e.target.parentElement);
 			}
 		}
+	}
 
-		//Blur after contenteditable
-		let edits = this.editor_content.querySelectorAll(".highlight-array, .highlight-object, .highlight-string, .highlight-boolean, .highlight-number, span.value");
-		for(var i = 0; i < edits.length; i++) {
-			edits[i].onblur = function(e) {
-				key_input.removeEdit(e.target);
-			}
+
+	getCachedData(pPath) {
+		return app.loading_system.getCachedData(pPath);
+	}
+
+	//CONTENT EDITABLE
+	addEdit(pE) {
+		if(pE.childNodes.length == 1) pE.insertBefore(document.createTextNode("Fix me!"), pE.firstChild);
+
+		if(pE.tagName == "SUMMARY" || pE.tagName == "SPAN"){
+			pE.setAttribute("contenteditable", true);
+			//Don't delete button
+			pE.childNodes[1].setAttribute("contenteditable", false);
+		} else if(pE.tagName == "HIGHLIGHT") {
+			pE.parentElement.setAttribute("contenteditable", true);
+			//Don't delete button
+			pE.parentElement.childNodes[1].setAttribute("contenteditable", false);
+		} else {
+			console.warn("Unable to edit " + pE.tagName);
 		}
+		
+	}
+	removeEdit(pE) {
+		if(this.path.getCurrentContext() && !this.path.getCurrentContext().isSameNode(pE)) pE.setAttribute("contenteditable", false);
 	}
 }
