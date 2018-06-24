@@ -265,12 +265,17 @@ class FunctionStatement {
 		}
 	}
 	$child_value(pChild) {
-		let path = this.editor.path.getPath();
-		let dict = app.loading_system.getCachedData(path, this.editor.tab.getObj());
-		if(path == "") dict = this.editor.tab.getObj();
-		for(let key in dict){
-			if(key == pChild) {
-				return dict[key];
+		let current = this.editor.path.getCurrentContext();
+		
+		if(this.editor.tree_manager.node_system.hasChildren(current)) {
+			let path = this.editor.path.getPath();
+			let dict = app.loading_system.getCachedData(path, this.editor.tab.getObj());
+
+			if(path == "") dict = this.editor.tab.getObj();
+			for(let key in dict){
+				if(key == pChild) {
+					return dict[key];
+				}
 			}
 		}
 	}

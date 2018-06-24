@@ -33,9 +33,11 @@ class TabManager extends ScreenElement {
 			let editor = this.js_parent.getSelectedTab().editor;
 
 			if(e.key == "ArrowUp") {
+				e.preventDefault();
 				editor.tree_manager.selectPreviousOpenElement();
 				editor.path.getCurrentContext().focus();
 			} else if(e.key == "ArrowDown") {
+				e.preventDefault();
 				editor.tree_manager.selectNextOpenElement();
 				editor.path.getCurrentContext().focus();
 			} else if(e.key == "Delete" || e.key == "Backspace") {
