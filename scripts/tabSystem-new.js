@@ -275,12 +275,14 @@ class Editor extends ScreenElement {
 		super.create();
 		this.auto_completions.add_child_input.create();
 		this.auto_completions.add_value_input.create();
+		this.auto_completions.edit_input.create();
 		return this;
 	}
 	destroy() {
 		super.destroy();
 		this.auto_completions.add_child_input.destroy();
 		this.auto_completions.add_value_input.destroy();
+		this.auto_completions.edit_input.destroy();
 		return this;
 	}
 
@@ -305,14 +307,6 @@ class Editor extends ScreenElement {
 			btns[i].self = this.tree_manager;
 			btns[i].onclick = function(e) {
 				this.self.removeElement(e.target.parentElement);
-			}
-		}
-
-		//Blur after contenteditable
-		let edits = this.editor_content.querySelectorAll(".highlight-array, .highlight-object, .highlight-string, .highlight-boolean, .highlight-number, span.value");
-		for(var i = 0; i < edits.length; i++) {
-			edits[i].onblur = function(e) {
-				app.tab_manager.getSelectedTab().editor.removeEdit(e.target);
 			}
 		}
 	}

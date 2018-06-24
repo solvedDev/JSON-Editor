@@ -24,6 +24,8 @@ class AutoCompletions {
 		this.add_child_input.create();
 		this.add_value_input = new DropDown(document.getElementById("add-value-input"), "input");
 		this.add_value_input.create();
+		this.edit_input = new DropDown(document.getElementById("edit-input-div"), "input");
+		this.edit_input.create();
 	}
 	/**
 	 * TODO: Description
@@ -52,10 +54,13 @@ class AutoCompletions {
 		this.updateLists("", "", this.getArgsInContext());
 	}
 	updateInputs() {
+		let path = this.editor.path;
 		let child = this.add_child_input.list.getSelectedValue();
 		let val = this.add_value_input.list.getSelectedValue();
+
 		this.add_child_input.input.value = child ? child : "";
 		this.add_value_input.input.value = val ? val : "";
+		this.edit_input.input.value = path.getCurrentContext(false);
 	}
 
 	/**

@@ -29,7 +29,7 @@ class TreeManager {
 	 * @returns {Boolean} Whether the selection was successful
 	 */
 	selectElement(pElement, pOpen=false) {
-		if(pElement.nodeName == "SUMMARY" || pElement.nodeName == "SPAN") {
+		if(pElement && (pElement.nodeName == "SUMMARY" || pElement.nodeName == "SPAN")) {
 			let path = this.editor.path;
 			let s_hl = this.editor.highlighter;
 			this.unselectElement();
@@ -220,7 +220,6 @@ class TreeManager {
 			let select_node = this.node_system.getParent(pParent);
 			while(this.editor.auto_completions.add_child_input.list.list_elements.length == 0 && select_node.tagName == "SUMMARY") {
 				select_node = this.node_system.getParent(select_node);
-				console.log(select_node)
 				this.selectElement(select_node, true);
 			}
 			if(select_node.tagName != "SUMMARY") {

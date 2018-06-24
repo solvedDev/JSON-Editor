@@ -5,12 +5,6 @@
  * Project: JSON Editor
  */
 
-//OPTIONS
-var options = {
-	edit_all: false,
-	auto_completions: true
-};
-
 
 //APPLICATION
 class Application {
@@ -123,10 +117,11 @@ class Application {
 	tick() {
 		app.tab_manager.tick();
 
-		let path =  "Path: " + app.tab_manager.getSelectedTab().editor.path.getPath();
-		let type = " | Type: " + app.tab_manager.getSelectedTab().editor.auto_completions.file_type;
-		document.getElementById("dev-display").innerHTML = path + type;
-
+		if(app.dev_build) {
+			let path =  "Path: " + app.tab_manager.getSelectedTab().editor.path.getPath();
+			let type = " | Type: " + app.tab_manager.getSelectedTab().editor.auto_completions.file_type;
+			document.getElementById("dev-display").innerHTML = path + type;
+		}
 
 		window.requestAnimationFrame(app.tick);
 	}
@@ -192,6 +187,7 @@ class EditorScreen extends Screen {
 			download_json: document.getElementById("download-json"),
 			add_child_btn: document.getElementById("add-child"),
 			add_value_btn: document.getElementById("add-value"),
+			edit_input_btn: document.getElementById("edit-input-btn"),
 			search_component_btn: document.getElementById("search-component"),
 			select_super_obj_btn: document.getElementById("select-super-obj")
 		};
@@ -207,8 +203,8 @@ class EditorScreen extends Screen {
 				app.download(tab.getName(), JSON.stringify(tab.getObj(), null, "\t"));
 			}
 		};
+
 		this.ui_elements.add_child_btn.onclick = function() {
-			//addChild(document.getElementById("child-input").value);
 			let key = document.getElementById("add-child-input").childNodes[5].childNodes[0].value;
 			let editor = app.tab_manager.getSelectedTab().editor;
 			editor.tree_manager.addObj(key, editor.path.getCurrentContext());
@@ -218,6 +214,15 @@ class EditorScreen extends Screen {
 			let editor = app.tab_manager.getSelectedTab().editor;
 			editor.tree_manager.addValue(value, editor.path.getCurrentContext());
 		};
+		this.ui_elements.edit_input_btn.onclick = function() {
+			let edit_txt = document.getElementById("edit-input-div").childNodes[5].childNodes[0].value;
+			let editor = app.tab_manager.getSelectedTab().editor;
+			let edit_node = editor.path.getCurrentContext();
+			
+			edit_node.innerHTML = edit_txt + app.parser.btn;
+			editor.tree_manager.updateEvents(edit_node);
+		};
+
 		this.ui_elements.search_component_btn.onclick = function() {
 			app.documentation.openDocumentation();
 		};
@@ -226,7 +231,7 @@ class EditorScreen extends Screen {
 			editor.tree_manager.unselectElement();
 			editor.auto_completions.forceUpdate();
 			editor.auto_completions.updateInputs();
-		}
+		};
 	}
 
 	expandAll() {
@@ -647,7 +652,6 @@ class DropDown extends ScreenElement {
 				if(list.list_elements.length != 0) {
 					list.toggle();
 					list.n_list.focus();
-					console.log(list);
 				}
 			}
 		}
@@ -690,8 +694,10 @@ class DropDown extends ScreenElement {
 					this.drop_wrapper.parentElement.childNodes[27].click();
 				}
 				
-			} else {
+			} else if(this.list.getSelectedValue() != undefined) {
 				this.fillInput(this.list.getSelectedValue());
+			} else {
+				this.input.setSelectionRange(0, this.input.value.length);
 			}
 		}
 		return this;

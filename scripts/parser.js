@@ -20,13 +20,13 @@ class Parser {
 		for(let key in pObj) {
 			if(typeof pObj[key] == "object") {
 				if(Array.isArray(pObj[key])) {
-					html += "<details><summary contenteditable='" + options.edit_all + "' class='highlight-array'>" + key + this.btn + "</summary>" + this.parseObj(pObj[key]) + "</details>";
+					html += "<details><summary class='highlight-array'>" + key + this.btn + "</summary>" + this.parseObj(pObj[key]) + "</details>";
 				} else {
-					html += "<details><summary contenteditable='" + options.edit_all + "' class='highlight-object'>" + key + this.btn + "</summary>" + this.parseObj(pObj[key]) + "</details>";
+					html += "<details><summary class='highlight-object'>" + key + this.btn + "</summary>" + this.parseObj(pObj[key]) + "</details>";
 				}
 				
 			} else if(typeof pObj[key] != "function") {
-				html += "<details><summary contenteditable='" + options.edit_all + "' class='highlight-" + typeof pObj[key]  + "'>" + key + this.btn + "</summary><div class='tab highlight-" + typeof pObj[key]  + "'><span class='value' contenteditable='" + options.edit_all + "'>" + pObj[key] + this.btn + "</span></div></details>";
+				html += "<details><summary class='highlight-" + typeof pObj[key]  + "'>" + key + this.btn + "</summary><div class='tab highlight-" + typeof pObj[key]  + "'><span class='value'>" + pObj[key] + this.btn + "</span></div></details>";
 			}
 		}
 

@@ -166,6 +166,13 @@ body {
 #editor .btn {
 	margin-top: 2px;
 }
+/*EDIT STUFF*/
+#add-value-input {
+	margin-right: 10px;
+}
+#add-child-input {
+	margin-right: 10px;
+}
 
 /*   TABS   */
 #tab-bar {
@@ -183,7 +190,7 @@ body {
 	top: 20.5px;
 
 	height: fit-content;
-	width: fill;
+	width: fit-content;
 }
 .nav-tab {
 	padding: 0 2px;
