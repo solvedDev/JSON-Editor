@@ -23,21 +23,14 @@ class TabManager extends ScreenElement {
 			let t_m = tab.editor.tree_manager;
 			let c_s = tab.editor.path.getCurrentContext();
 
-			if(e.ctrlKey) {
+			if(!target.isSameNode(c_s) && target.parentElement.open) {
 				e.preventDefault();
-				t_m.selectElement(target);
-				key_input.addEdit(target);
-			} else {
-				//NOT ALREADY SELECTED & OPEN & DOESN'T HAVE SPAN AS CHILD
-				if(!target.isSameNode(c_s) && target.parentElement.open && target.parentElement.childNodes[1].childNodes[0] != undefined && target.parentElement.childNodes[1].childNodes[0].tagName != "SPAN") {
-					e.preventDefault();
-				}
-				t_m.selectElement(target);
 			}
+			t_m.selectElement(target);
 		};
 		this.editor_node.onkeydown = function(e) {
 			let editor = this.js_parent.getSelectedTab().editor;
-
+			
 			if(e.key == "ArrowUp") {
 				this.js_parent.getSelectedTab().editor.tree_manager.selectPreviousOpenElement();
 				editor.path.getCurrentContext().focus();
