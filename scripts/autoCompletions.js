@@ -5,244 +5,389 @@
  * Project: JSON Editor
  */
 
-/*var data_list = document.getElementById("auto-completions");
-var value_list = document.getElementById("value-auto-completions");
-var search_data_list = document.getElementById("search-auto-components")
-var child_input = document.getElementById("child-input");
-var value_input = document.getElementById("value-input");
-var entity_options = [ "components", "component_groups", "events", "format_version", "do_not_upgrade" ];
-var last_generated_input = "";
-var last_search = "";
-var last_context = "";
-var last_value_search = "xx";
+class AutoCompletions {
+	constructor(pApp, pEditor) {
+		this.editor = pEditor;
+		this.documentation_parser = pApp.documentation_parser;
 
+		this.auto_data = this.editor.getCachedData("data/custom/auto_completions.json");
+		this.completion_data = {};
 
-//UPDATE SEARCH BAR
-function updateSearchBar(pSearch) {
-	if(last_search != pSearch) {
-		last_search = pSearch;
-		search_data_list.innerHTML = parseComponents(pSearch, 10, true, true)
-			+ parseEvents(pSearch, 5, "events", true)
-			+ parseFromArray(autoData["blocks"], pSearch, 5, "block", true)
-			+ parseFromArray(autoData["items"], pSearch, 5, "item", true)
-			+ parseFromArray(autoData["entities"], pSearch, 5, "entity", true);
-		
-		search_bar.setAttribute("list", "search-auto-components");
+		this.child_list = [];
+		this.value_list = [];
+		this.file_type = "";
+
+		this.last_path = "";
+		this.last_child_search = "";
+		this.last_value_search = "";
+		this.add_child_input = new DropDown(document.getElementById("add-child-input"), "input");
+		this.add_child_input.create();
+		this.add_value_input = new DropDown(document.getElementById("add-value-input"), "input");
+		this.add_value_input.create();
+		this.edit_input = new DropDown(document.getElementById("edit-input-div"), "input");
+		this.edit_input.create();
 	}
-}
+	/**
+	 * TODO: Description
+	 */
+	init() {
+		this.file_type = this.getFileType();
+		this.completion_data = this.auto_data[this.file_type];
+		console.log("Opened new file of type: " + this.file_type);
+	}
 
-//Generate auto-completions for values
-function generateValueOptions(pSearch, pForce=false) {
-	if(last_value_search != pSearch || pForce) {
-		last_value_search = pSearch;
+	/**
+	 * Update the auto_completion lists
+	 */
+	update(pSearchChild=this.add_child_input.input.value, pSearchVal=this.add_value_input.input.value, pContextArgs=this.getArgsInContext()) {
+		if(this.getPath() != this.last_path || this.last_child_search != pSearchChild || this.last_value_search != pSearchVal) {
+			this.last_path = this.getPath();
+			this.last_child_search = pSearchChild;
+			this.last_value_search = pSearchVal;
+			this.updateLists(pSearchChild, pSearchVal, pContextArgs);
+		}
+	}
+	forceUpdate() {
+		this.last_path = this.getPath();
+		this.last_child_search = "";
+		this.last_value_search = "";
+		this.updateLists("", "", this.getArgsInContext());
+	}
+	updateInputs() {
+		let path = this.editor.path;
+		let child = this.add_child_input.list.getSelectedValue();
+		let val = this.add_value_input.list.getSelectedValue();
 
-		if(currentType == "boolean") {
-			value_list.innerHTML = "<option value='true'/><option value='false'/>";
-		} else if (currentType == "number" ||  currentContext == "priority") {
-			let default_value = Number(getDefault(currentContext, parentCurrentContext));
-			console.log(default_value);
-			if(default_value == "") default_value = 0;
+		this.add_child_input.input.value = child ? child : "";
+		this.add_value_input.input.value = val ? val : "";
+		this.edit_input.input.value = path.getCurrentContext(false);
+	}
 
-			let options = "<option value='" + default_value + "'/>";
-			for(let i = 1; i < 10; i++) {
-				options += "<option value='" + (default_value + i) + "'/>";
+	/**
+	 * TODO: Description
+	 */
+	getPath() {
+		return this.editor.path.getPath();
+	}
+
+	/**
+	 * TODO: Description
+	 */
+	getFileType() {
+		for(let key in this.auto_data) {
+			if(new LogicStatement(this.auto_data[key].define, this.editor).execute()) {
+				return key;
 			}
-			value_list.innerHTML = options;
-		} else if(currentType== "event") {
-			let obj = getObj(editor)["minecraft:entity"];
-			if(obj != undefined) {
-				value_list.innerHTML = "";
-				for(let event in obj["events"]) {
-					value_list.innerHTML += "<option value='" + event + "'/>"
+		}
+		console.warn("Unknown file type: " + this.editor.tab.getName());
+	}
+
+	/**
+	 * DO NOT ACCESS DIRECTLY; USE update()
+	 * TODO: Description
+	 */
+	updateLists(pSearchChild=this.add_child_input.input.value, pSearchVal=this.add_value_input.input.value, pContextArgs=[]) {
+		if(this.completion_data != undefined) {
+			this.child_list = [];
+			this.value_list = [];
+
+			let extend = this.completion_data.extend;
+			if(extend) {
+				for(let i = 0; i < extend.length; i++) {
+					if(new LogicStatement(extend[i].recognize, this.editor).execute()) {
+						let res = this.parsePropose(extend[i].propose);
+
+						this.child_list = this.child_list.concat(res.c);
+						this.value_list = this.value_list.concat(res.v);
+					}
 				}
 			}
-		} else if(currentType == "component_group") {
-			let obj = getObj(editor)["minecraft:entity"];
-			if(obj != undefined) {
-				value_list.innerHTML = "";
-				for(let event in obj["component_groups"]) {
-					value_list.innerHTML += "<option value='" + event + "'/>"
+
+			this.add_child_input.list.addArray(this.child_list, pSearchChild, true, pContextArgs);
+			this.add_value_input.list.addArray(this.value_list, pSearchVal, true, pContextArgs);
+		}
+	}
+
+	/**
+	 * Parses the "propose": [] array and returns two usable arrays
+	 * @param {Array<Object>} pPropose Array containing the proposals
+	 * @returns {Object} Attributes c & v with arrays
+	 */
+	parsePropose(pPropose) {
+		let child_list = [];
+		let value_list = [];
+
+		for(let i = 0; i < pPropose.length; i++) {
+			if(pPropose[i].function != undefined) {
+				let res = new FunctionStatement(pPropose[i].function, this.editor).execute();
+				if(res) {
+					if(this.isChild(pPropose[i].type)) {
+						child_list = child_list.concat(res);
+					} else {
+						value_list = value_list.concat(res);
+					}
 				}
+			} else if(this.isChild(pPropose[i].type)) {
+				child_list.push(pPropose[i]);
+			} else {
+				value_list.push(pPropose[i]);
 			}
-		} else if(currentType == "subject") {
-			value_list.innerHTML = parseFromArray(["self", "other", "target", "player", "parent"], pSearch, 20, "subject", true);
-		} else if(currentType == "entity") {
-			value_list.innerHTML = parseFromArray(autoData["entities"], pSearch, 20, "entity", true, "minecraft:");
-		} else if(currentType == "item") {
-			value_list.innerHTML = parseFromArray(autoData["items"], pSearch, 10, "item", true, "minecraft:");
-			value_list.innerHTML += parseFromArray(autoData["blocks"], pSearch, 10, "block", true, "minecraft:");
-		} else if (currentType == "string") {
-			value_list.innerHTML = "<option value='" + getDefault(currentContext, parentCurrentContext) + "'/>";
+		}
+
+		//child_list = child_list.filter(e => child_list.containsObj("key", e.key));
+		//value_list = value_list.filter(e => value_list.containsObj("key", e.key));
+
+		return { c: child_list, v: value_list };
+	}
+
+	isValue(pKey) {
+		return !this.isChild(pKey);
+	}
+	isChild(pKey) {
+		return pKey == "object" || pKey == "list" || pKey == "array";
+	}
+
+	getArgsInContext(pForceAll=false) {
+		let currentSelected = this.editor.path.getCurrentContext();
+		if(this.editor.path.getCurrentContext(false) == "") currentSelected = this.editor.editor_content;
+		if(!pForceAll && currentSelected && currentSelected.parentElement) {
+			try {
+				if(currentSelected.tagName != "SPAN" && currentSelected.tagName != "DIV") {
+					return Object.keys(app.parser.getObj(currentSelected.parentElement, false));
+				} else if(currentSelected.tagName == "DIV") {
+					return Object.keys(app.parser.getObj(currentSelected, true));
+				}
+			} catch(e) {
+				return [];
+			}
 		} else {
-			console.warn("Unhandled type: " + currentType);
+			return [];
 		}
 	}
 }
 
-//Evaluate possible suggestions (depending on the config criteria)
-function generateOptions(pSearch) {
-	if(last_generated_input != pSearch || last_context != currentContext) {
-		last_generated_input = pSearch;
-		last_context = currentContext;
+class LogicStatement {
+	constructor(pStatement, pEditor) {
+		this.statement = pStatement;
+		this.editor = pEditor;
+	}
+	/**
+	 * Execute the LogicStatement
+	 * @returns {Boolean} Whether the statement is true
+	 */
+	execute() {
+		if(this.statement[0] == "(") this.statement = this.statement.slice(1, -1);
+		let arr = this.statement.split(" ");
+
+		let val = new FunctionStatement(arr[0], this.editor).execute();
+		for(let i = 1; i < arr.length; i += 2) {
+			if(arr[i] == "and") {
+				val = val && new FunctionStatement(arr[i+1], this.editor).execute();
+			} else if(arr[i] == "or") {
+				val = val || new FunctionStatement(arr[i+1], this.editor).execute();
+			} else {
+				console.warn("Unknown logic operator: " + arr[i]);
+			}
+		}
+
+		return val;
+	}
+}
+
+class FunctionStatement {
+	constructor(pStatement, pEditor) {
+		this.statement = pStatement;
+		this.editor = pEditor;
+	}
+	/**
+	 * Execute the FunctionStatement
+	 * @returns {Boolean} Whether the statement is true
+	 */
+	execute() {
+		if(!this.evaluated) this.evaluate();
+
+		try {
+			return eval(this.evaluated);
+		} catch(e) {
+			console.warn("Invalid function statement \"" + this.statement + "\":\n\n" + e);
+		}
+	}
+	/**
+	 * Evaluate the FunctionStatement
+	 */
+	evaluate() {
+		let parts = this.statement.split("_on_");
+
+		if(parts.length > 1){
+			parts[1] = this.getFunction(parts[1]);
+			parts[0] = this.getFunction(parts[0], parts[1]);
+		} else {
+			parts[0] = this.getFunction(parts[0]);
+		}
+
+		this.evaluated = parts[0];
+	}
+	/**
+	 * Returns an -through eval()- executable JS function
+	 * @param {String} pString 1 function statement
+	 * @param {} pFuncArg Additional argument
+	 */
+	getFunction(pString, pFuncArg="") {
+		let func = pString;
+		if(func.contains("(")) {
+			let func_core = pString.split("(")[0].replace(/(;)|(\n)|(\()|(\))/g, "");
+			let args = "\"" + pString.split("(")[1].split(")")[0].split(", ").join("\", \"") + "\"";
+
+			if(pFuncArg != "") args = args + "," + pFuncArg;
+			//console.log(func_core, args);
+
+			return "this." + func_core + "(" + args + ")";
+		} else {
+			return "this." + pString.replace(/(;)|(\n)|(\()|(\))/g, "") + "(" + pFuncArg + ")";
+		}
 		
-		let i = 0;
-		let found = false;
-		while(i < autoConfig.length && !found) {
-			if(autoConfig[i].type == "is_self") {
-				//Context: currentContext
-				if(currentContext == autoConfig[i].value || (Array.isArray(autoConfig[i].value) && autoConfig[i].value.indexOf(currentContext) > -1)) {
-					found = true;
-					createOptions(i, pSearch);
+	}
+
+	//LOGIC FUNCTIONS
+	/**
+	 * Returns the value of the specified sibling
+	 */
+	$sibling_value(pSibling) {
+		let path = this.editor.path.getPath().split("/");
+		path.pop();
+		path = path.join("/");
+		let dict = app.loading_system.getCachedData(path, this.editor.tab.getObj());
+
+		for(let key in dict){
+			if(key == pSibling) {
+				return dict[key];
+			}
+		}
+	}
+	$child_value(pChild) {
+		let path = this.editor.path.getPath();
+		let dict = app.loading_system.getCachedData(path, this.editor.tab.getObj());
+		if(path == "") dict = this.editor.tab.getObj();
+		for(let key in dict){
+			if(key == pChild) {
+				return dict[key];
+			}
+		}
+	}
+	$value() {
+		let path = this.editor.path.getPath();
+		let dict = app.loading_system.getCachedData(path, this.editor.tab.getObj());
+		if(typeof dict == "string") {
+			return dict;
+		} else {
+			return "";
+		}
+	}
+	$as_chars(pType="string", pArr) {
+		let arr = [];
+		for(let i = 0; i < pArr.length; i++) {
+			if(typeof pArr[i].key == "string") {
+				for(let j = 0; j < pArr[i].key.length; j++) {
+					if(!arr.containsObj("key", pArr[i].key[j])) {
+						arr.push({ key: pArr[i].key[j], type: pType});
+					}
 				}
-			} else if(autoConfig[i].type == "is_parent") {
-				//Context: parentCurrentContext
-				if(parentCurrentContext == autoConfig[i].value || (Array.isArray(autoConfig[i].value) && autoConfig[i].value.indexOf(parentCurrentContext) > -1)) {
-					found = true;
-					createOptions(i, pSearch);
-				}
-			} else if(autoConfig[i].type == "is_currentContext_component") {
-				//Context: Is a known component
-				if(currentContext in autoData["components"]) {
-					found = true;
-					createOptions(i, pSearch);
-				}
-			} else if(autoConfig[i].type == "self_contains_but_is_not") {
-				//Context: Contains but is not -self
-				if(currentContext.includes(autoConfig[i].value) && currentContext != autoConfig[i].value) {
-					found = true;
-					createOptions(i, pSearch);
-				}
-			} else if(autoConfig[i].type == "parent_contains_but_is_not") {
-				//Context: Contains but is not -parent
-				if(parentCurrentContext.includes(autoConfig[i].value) && parentCurrentContext != autoConfig[i].value) {
-					found = true;
-					createOptions(i, pSearch);
-				}
-			} else if(autoConfig[i].type == "is_self_type") {
-				//Context: Contains but is not -parent
-				if(currentType == autoConfig[i].value) {
-					found = true;
-					createOptions(i, pSearch);
+			} else {
+				arr.push(pArr[i]);
+			}
+		}
+		return arr;
+	}
+
+	$is(pArg, pArg2=this.editor.path.getCurrentContext(false)) {
+		return pArg2 == pArg;
+	}
+	$is_not(pArg, pArg2=this.editor.path.getCurrentContext(false)) {
+		return !this.$is(pArg, pArg2)
+	}
+	$contains(pArg, pArg2=this.editor.path.getCurrentContext(false)) {
+		return pArg2.contains(pArg);
+	}
+	$contains_not(pArg, pArg2=this.editor.path.getCurrentContext(false)) {
+		return !this.$contains(pArg, pArg2);
+	}
+	$is_root() {
+		return this.$is("");
+	}
+	$is_root_not() {
+		return !this.$is_root();
+	}
+	$has_child(pName) {
+		let path = this.editor.path.getPath();
+		let dict = app.loading_system.getCachedData(path, this.editor.tab.getObj());
+		if(path == "") dict = this.editor.tab.getObj();
+		for(let key in dict){
+			if(key == pName) {
+				return true;
+			}
+		}
+		return false;
+	}
+	$has_child_not(pName) {
+		return !this.$has_child(pName);
+	}
+
+	//TODO: pArg2 not supported
+	$is_path(pArg) {
+		return this.editor.path.isPath(pArg);
+	}
+	$is_path_not(pArg) {
+		return !this.$is_path(pArg);
+	}
+
+	//TODO: TYPE RECOGNIZING
+	$is_type(pArg) {
+		return false;
+	}
+	$is_type_not(pArg) {
+		return !this.$is_type(pArg);
+	}
+
+	//PROPOSE FUNCTIONS
+	$parse_documentation(pPath, pType="object", pPrefix="", pPushKey=false) {
+		return this.parse_file(pPath, pType, pPrefix, app.documentation_parser.getDocumentation(), pPushKey);
+	}
+	$parse_file(pPath, pType="object", pPrefix="", pPushKey=true) {
+		return this.parse_file(pPath, pType, pPrefix, this.editor.tab.getObj(), pPushKey);
+	}
+	parse_file(pPath, pType="object", pPrefix="", pDict=this.editor.tab.getObj(), pPushKey=true) {
+		let arr = [];
+		let dict = app.loading_system.getCachedData(pPath, pDict);
+
+		for(let key in dict){
+			if(typeof dict[key] != "function" && key != "__des__") {
+				if((typeof pPushKey == "boolean" && pPushKey) || pPushKey == "true") {
+					arr.push({ key: pPrefix + key, type: pType });
+				} else {
+					arr.push({ key: pPrefix + dict[key], type: pType });
 				}
 			}
-
-			i++;
 		}
-		if(!found) data_list.innerHTML = "";
-		
-		//Updating HTML
-		child_input.setAttribute("list", "auto-completions");
+
+		return arr;
 	}
-}
-//Evaluate the "propose" argument
-function createOptions(pIndex, pSearch) {
-	if(typeof autoConfig[pIndex].propose == "function") {
-		data_list.innerHTML = autoConfig[pIndex].propose({ search: pSearch, self: currentContext, parent: parentCurrentContext})
-	} else {
-		data_list.innerHTML = parseFromArray(autoConfig[pIndex].propose, pSearch);
+
+	$next_list_index(pCap) {
+		let path = this.editor.path.getPath();
+		let arr = app.loading_system.getCachedData(path, this.editor.tab.getObj());
+		if(arr.length == undefined) arr.length = 0;
+		if(!pCap || arr.length <= pCap) return { key: arr.length, type: "object" };
 	}
-}*/
 
-
-
-/**
- * Parse an array and return it as HTML options
- * @param {String} pArray The array to parse
- * @param {String} pSearch The search term
- * @param {Number} pLimit Maximum results
- * @param {String} pLabel The label to show (default: "")
- * @param {Boolean} pForceAll Whether you want to show all arguments -even ones already existing in the currentContext
- */
-function parseFromArray(pArray, pSearch, pLimit=20, pLabel="", pForceAll=false, pPrefix="") {
-	let options = "";
-	let already_existing = getArgsInContext(pForceAll);
-
-	for(var i = 0; i < pArray.length; i++) {
-		if(!already_existing.contains(pArray[i]) && pArray[i].includes(pSearch) && options.split(">").length < pLimit) {
-			options += "<option value='" + pPrefix + pArray[i] + "' label='" + pLabel + "'/>";
-		}
+	$get_component_args() {
+		let arr_path = this.editor.path.getPath().split("/");
+		let component = arr_path[arr_path.length - 1];
+		return this.$parse_documentation("components/" + component, "object", "", true);
 	}
-	return options;
-}
-
-/**
- * Parse all events and return them as HTML options
- * @param {String} pSearch The search term
- * @param {Number} pLimit Maximum results
- * @param {Boolean} pGenerateLabel Whether you want to show a label saying "event"
- * @param {Boolean} pForceAll Whether you want to show all arguments -even ones already existing in the currentContext
- */
-function parseEvents(pSearch, pLimit=20, pGenerateLabel=false, pForceAll=false) {
-	let options = "";
-	let already_existing = getArgsInContext(pForceAll);
-
-	for(var event in autoData["events"]) {
-		//event isn't on entity & event_name is part of search term & max number of suggestions not reached
-		if(!already_existing.contains(event) && event.includes(pSearch) && options.split(">").length < pLimit) {
-			if(!pGenerateLabel) options += "<option value='" + event + "'/>";
-			if(pGenerateLabel) options += "<option value='" + event + "' label='event'/>";
-		}
-	}
-	return options;
-}
-
-/**
- * Parse all component names and return them as HTML options
- * @param {String} pSearch The search term
- * @param {Number} pLimit Maximum results
- * @param {Boolean} pGenerateLabel Whether you want to show a label saying "component"
- * @param {Boolean} pForceAll Whether you want to show all arguments -even ones already existing in the currentContext
- */
-function parseComponents(pSearch, pLimit=20, pGenerateLabel=false, pForceAll=false) {
-	let options = "";
-	let already_existing = getArgsInContext(pForceAll);
-
-	for(var component_name in autoData["components"]) {
-		//component isn't on entity & component_name is part of search term & max number of suggestions not reached
-		if(!already_existing.contains(component_name) && component_name.includes(pSearch) && options.split(">").length < pLimit) {
-			if(!pGenerateLabel) options += "<option value='" + component_name + "'/>";
-			if(pGenerateLabel) options += "<option value='" + component_name + "' label='component'/>";
-		}
-	}
-	return options;
-}
-
-/**
- * Parse all arguments of a specific component and return them as HTML options
- * @param {String} pComponent The component to be evaluated
- * @param {String} pSearch The search term
- * @param {Number} pLimit Maximum results
- * @param {Boolean} pForceAll Whether you want to show all arguments -even ones already existing in the currentContext
- */
-function parseComponent(pComponent, pSearch, pForceAll=false) {
-	let options = "";
-	console.log(pForceAll);
-	let already_existing = getArgsInContext(pForceAll);
-
-	if(pComponent.includes("behavior") && "priority".includes(pSearch) && (pForceAll || !already_existing.contains("priority"))) {
-		options += "<option value='priority'/>";
-	}
-	for(var argument in autoData["components"][pComponent]) {
-		//argument isn't already on component & argument is part of search term & max number of suggestions not reached
-		if(!already_existing.contains(argument) && argument != "__des__" && argument.includes(pSearch) && options.split(">").length < 20) {
-			options += "<option value='" + argument + "'/>";
-		}
-	}
-	return options;
-}
-
-function parseArray() {
-	let childs = currentSelected.parentElement.childNodes[1].childNodes;
-	return "<option value='" + childs.length + "'>";
-}
-
-/**
- * Returns all arguments which already exist in the current context
- */
-function getArgsInContext(pForceAll=false) {
-	if(!pForceAll && currentSelected && currentSelected.parentElement) {
-		return Object.keys(getObj(currentSelected.parentElement, false));
-	} else {
-		return [];
+	$get_component_values() {
+		let arr_path = this.editor.path.getPath().split("/");
+		let component = arr_path[arr_path.length - 2];
+		let arg = arr_path[arr_path.length - 1];
+		return this.$parse_documentation("components/" + component + "/" + arg + "/default_value", "value", "", false);
 	}
 }

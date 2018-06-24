@@ -105,8 +105,11 @@ class DocumentationParser extends HTMLParser {
 			components[component_names[i]]["__des__"] = this.getNextDescription(this.html.getElementById(component_names[i]).parentNode);
 		}
 
-		Object.assign(components, this.cache_location.getCachedData("data/custom/additional_components.json"));
+		//Add additional components
+		let additional = this.cache_location.getCachedData("data/custom/additional_components.json");
+		Object.assign(components, additional);
 		this.json.components = components;
+		this.json.component_names = this.json.component_names.concat(Object.keys(additional));
 	}
 	loadOther() {
 		//Built-in events

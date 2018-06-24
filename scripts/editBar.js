@@ -1,6 +1,7 @@
 /**
  * FUNCTIONALITY OF EDIT_BAR
  * 
+ * Status: Not in use
  * Creator: @solvedDev
  * Project: JSON Editor
  */
