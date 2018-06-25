@@ -11,6 +11,7 @@ class TabManager extends ScreenElement {
 
 		this.tabs = [];
 		this.loaded_tabs = 0;
+		this.clipboard = {};
 
 		//Add click event listener to editor
 		this.editor_node = document.getElementById("editor");
@@ -30,19 +31,60 @@ class TabManager extends ScreenElement {
 		};
 		this.editor_node.onkeydown = function(e) {
 			let editor = this.js_parent.getSelectedTab().editor;
-			
+
 			if(e.key == "ArrowUp") {
-				this.js_parent.getSelectedTab().editor.tree_manager.selectPreviousOpenElement();
+				e.preventDefault();
+				editor.tree_manager.selectPreviousOpenElement();
 				editor.path.getCurrentContext().focus();
 			} else if(e.key == "ArrowDown") {
-				this.js_parent.getSelectedTab().editor.tree_manager.selectNextOpenElement();
+				e.preventDefault();
+				editor.tree_manager.selectNextOpenElement();
 				editor.path.getCurrentContext().focus();
 			} else if(e.key == "Delete" || e.key == "Backspace") {
 				let current = editor.path.getCurrentContext();
 				editor.tree_manager.removeElement(current);
 				editor.path.getCurrentContext().focus();
+			} else if(e.ctrlKey && e.key == "c") {
+				this.js_parent.copy(editor, false);
+			} else if(e.ctrlKey && e.key == "x") {
+				this.js_parent.copy(editor, true);
+			} else if(e.ctrlKey && e.key == "v") {
+				this.js_parent.paste(editor);
 			}
+		};
+		app.editor_screen.ui_elements.select_super_obj_btn.onkeydown = function(e) {
+			if(e.ctrlKey && e.key == "v") {
+				app.tab_manager.paste(app.tab_manager.getSelectedTab().editor);
+			}
+		};
+	}
+
+	/**
+	 * Paste clipboard into current context
+	 * @param {Editor} pEditor The editor to use
+	 */
+	paste(pEditor) {
+		let current = pEditor.path.getCurrentContext();
+		if(current) {
+			current.parentElement.childNodes[1].innerHTML += app.parser.parseObj(this.clipboard, false);
+		} else {
+			document.getElementById("editor").childNodes[1].childNodes[0].innerHTML += app.parser.parseObj(this.clipboard, false);
 		}
+	}
+	/**
+	 * Copy current context into clipboard
+	 * @param {Editor} pEditor The editor to use
+	 * @param {Boolean} pCut Whether to remove the current node from its context
+	 */
+	copy(pEditor, pCut) {
+		let current = pEditor.path.getCurrentContext();
+		if(current) {
+			let current_name = pEditor.path.getCurrentContext(false);
+			this.clipboard = {};
+			this.clipboard[current_name] = app.parser.getObj(current.parentElement, false);
+		}
+
+		if(pCut) pEditor.tree_manager.removeElement(current);
 	}
 
 	start() {
@@ -288,6 +330,13 @@ class Editor extends ScreenElement {
 		
 		this.tree_manager.selectElement(document.querySelector("#editor summary"), true);
 		return this;
+	}
+
+	/**
+	 * @returns {Object} Content of the tab
+	 */
+	getObj() {
+		return super.getObj();
 	}
 
 	/**

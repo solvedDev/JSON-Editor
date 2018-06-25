@@ -28,7 +28,7 @@ class TreeManager {
 	 * @param {Node} pElement The element to select
 	 * @returns {Boolean} Whether the selection was successful
 	 */
-	selectElement(pElement, pOpen=false) {
+	selectElement(pElement, pOpen=false, pScroll=false) {
 		if(pElement && (pElement.nodeName == "SUMMARY" || pElement.nodeName == "SPAN")) {
 			let path = this.editor.path;
 			let s_hl = this.editor.highlighter;
@@ -40,7 +40,7 @@ class TreeManager {
 			//Handle new selected
 			pElement.classList.add("selected");
 			pElement.focus();
-			pElement.scrollIntoView();
+			if(pScroll) pElement.scrollIntoView();
 
 			//UPDATE INPUTS & AUTO COMPLETIONS
 			this.editor.auto_completions.forceUpdate();
@@ -67,28 +67,28 @@ class TreeManager {
 			if(first_child.nodeName == "#text") {
 				first_child = this.node_system.getChildren(node)[0].parentElement;
 			}
-			if(this.selectElement(first_child)) {
+			if(this.selectElement(first_child, false, true)) {
 				return true;
 			} else {
 				let next_sibling = this.node_system.getNextSibling(node);
-				if(next_sibling != undefined && this.selectElement(next_sibling)) {
+				if(next_sibling != undefined && this.selectElement(next_sibling, false, true)) {
 					return true;
 				} else {
 					let next_parent_sibling = this.node_system.getNextSibling(this.node_system.getParent(node));
-					if(next_parent_sibling != undefined && this.selectElement(next_parent_sibling)) {
+					if(next_parent_sibling != undefined && this.selectElement(next_parent_sibling, false, true)) {
 						return true;
 					}
 				}
 			}
 		} else {
 			let next_sibling = this.node_system.getNextSibling(node);
-			if(next_sibling != undefined && this.selectElement(next_sibling)) {
+			if(next_sibling != undefined && this.selectElement(next_sibling, false, true)) {
 				return true;
 			} else {
 				let parent = this.node_system.getParent(node);
 				if(parent != null) {
 					let next_parent_sibling = this.node_system.getNextSibling(parent);
-					if(next_parent_sibling != undefined && this.selectElement(next_parent_sibling)) {
+					if(next_parent_sibling != undefined && this.selectElement(next_parent_sibling, false, true)) {
 						return true;
 					}
 				}
@@ -112,24 +112,24 @@ class TreeManager {
 			if(last_child.nodeName == "#text") {
 				last_child = children[children.length-1].parentElement;
 			}
-			if(this.selectElement(last_child)) {
+			if(this.selectElement(last_child, false, true)) {
 				return true;
 			} else {
-				if(previous_sibling != undefined && this.selectElement(previous_sibling)) {
+				if(previous_sibling != undefined && this.selectElement(previous_sibling, false, true)) {
 					return true;
 				} else {
 					let previous_parent_sibling = this.node_system.getPreviousSibling(this.node_system.getParent(node));
-					if(previous_parent_sibling != undefined && this.selectElement(previous_parent_sibling)) {
+					if(previous_parent_sibling != undefined && this.selectElement(previous_parent_sibling, false, true)) {
 						return true;
 					}
 				}
 			}
 		} else {
-			if(previous_sibling != undefined && this.selectElement(previous_sibling)) {
+			if(previous_sibling != undefined && this.selectElement(previous_sibling, false, true)) {
 				return true;
 			} else {
 				let parent = this.node_system.getParent(node);
-				if(parent != undefined && this.selectElement(parent)) {
+				if(parent != undefined && this.selectElement(parent, false, true)) {
 					return true;
 				}
 			}
@@ -183,7 +183,7 @@ class TreeManager {
 			//Open parent
 			if(!pParent.parentElement.open) pParent.parentElement.open = true;
 			//Select new child & update detsroy buttons
-			this.selectElement(node.childNodes[0], true);
+			this.selectElement(node.childNodes[0], true, true);
 			this.updateEvents(node);
 		} else if(path.getCurrentContext(false) == "") {
 			this.addObj(pKey, this.editor.editor_content.childNodes[0], true);
@@ -220,7 +220,7 @@ class TreeManager {
 			let select_node = this.node_system.getParent(pParent);
 			while(this.editor.auto_completions.add_child_input.list.list_elements.length == 0 && select_node.tagName == "SUMMARY") {
 				select_node = this.node_system.getParent(select_node);
-				this.selectElement(select_node, true);
+				this.selectElement(select_node, true, true);
 			}
 			if(select_node.tagName != "SUMMARY") {
 				this.unselectElement();

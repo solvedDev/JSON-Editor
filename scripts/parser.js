@@ -15,8 +15,12 @@ class Parser {
 	 * @param {Object} pObj The object to turn into a HTML tree
 	 * @returns {String} HTML string
 	 */
-	parseObj(pObj) {
-		let html = "<div class='tab'>";
+	parseObj(pObj, pOuterDiv=true) {
+		let html = "";
+		if(pOuterDiv) {
+			html = "<div class='tab'>";
+		} 
+		
 		for(let key in pObj) {
 			if(typeof pObj[key] == "object") {
 				if(Array.isArray(pObj[key])) {
@@ -30,7 +34,10 @@ class Parser {
 			}
 		}
 
-		return html + "</div>";
+		if(pOuterDiv) {
+			return html + "</div>";
+		}
+		return html;
 	}
 	/**
 	 * Get HTML tree representation of JSON as JS object
