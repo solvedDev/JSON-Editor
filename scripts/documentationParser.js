@@ -67,6 +67,14 @@ class DocumentationParser extends HTMLParser {
 		this.createDocumentation();
 	}
 
+	/**
+	 * Made for extensions
+	 */
+	addComponents(pObj) {
+		Object.assign(this.json.components, pObj);
+		this.json.component_names = this.json.component_names.concat(Object.keys(pObj));
+	}
+
 	getDocumentation(pKey) {
 		if(pKey) {
 			return this.json[pKey];

@@ -17,6 +17,11 @@ class Documentation {
 		this.search_bar.propose("", this.documentation_parser.getDocumentation("component_names"));
 	}
 
+	addComponents(pComponents) {
+		this.documentation_parser.addComponents(pComponents);
+		this.search_bar.propose("", this.documentation_parser.getDocumentation("component_names"), true);
+	}
+
 	getSearchList() {
 		return this.search_bar.list.n_list;
 	}

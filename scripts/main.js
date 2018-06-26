@@ -49,6 +49,11 @@ class Application {
 
 				//Documentation
 				pSelf.documentation = new Documentation(pSelf);
+
+				//Module system
+				pSelf.module_system = new ModuleSystem(pSelf);
+				pSelf.extension_system = new ExtensionSystem(pSelf, pSelf.loading_system.getCachedData("extensions"));
+
 				if(!this.dev_build) document.getElementById("infobar").style.display = "none";
 			};
 			this.loading_system.onChange = function(pProgress, pSelf) {
@@ -100,7 +105,6 @@ class Application {
 	}
 
 	download(pFileName, pText) {
-		let l_s = new LoadingWindow(document.body).create();
 		let element = document.createElement('a');
 		element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(pText));
 		element.setAttribute('download', pFileName);
@@ -111,9 +115,18 @@ class Application {
 		element.click();
 		
 		document.body.removeChild(element);
-		l_s.destroy();
 	}
 
+	generateUUID() {
+		var d = new Date().getTime();
+		var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(pC) {
+			var r = (d + Math.random()*16)%16 | 0;
+			d = Math.floor(d/16);
+			return (pC == 'x' ? r : (r&0x3|0x8)).toString(16);
+		});
+		return uuid;
+	}
+	
 	tick() {
 		app.tab_manager.tick();
 
@@ -198,28 +211,33 @@ class EditorScreen extends Screen {
 			}
 		};
 		this.ui_elements.download_json.onclick = function() {
+			let l_s = new LoadingWindow(document.body).create();
+
 			if(app.tab_manager.hasTabs()) {
 				let tab = app.tab_manager.getSelectedTab();
-				app.download(tab.getName(), JSON.stringify(tab.getObj(), null, "\t"));
+				let obj = app.module_system.modify(tab.editor.file_type, tab.getObj());
+				app.download(tab.getName(), JSON.stringify(obj, null, "\t"));
 			}
+
+			l_s.destroy();
 		};
 
 		this.ui_elements.add_child_btn.onclick = function() {
 			let key = document.getElementById("add-child-input").childNodes[5].childNodes[0].value;
 			let editor = app.tab_manager.getSelectedTab().editor;
-			editor.tree_manager.addObj(key, editor.path.getCurrentContext());
+			editor.tree_manager.addObj(encodeHTML(key), editor.path.getCurrentContext());
 		};
 		this.ui_elements.add_value_btn.onclick = function() {
 			let value = document.getElementById("add-value-input").childNodes[5].childNodes[0].value;
 			let editor = app.tab_manager.getSelectedTab().editor;
-			editor.tree_manager.addValue(value, editor.path.getCurrentContext());
+			editor.tree_manager.addValue(encodeHTML(value), editor.path.getCurrentContext());
 		};
 		this.ui_elements.edit_input_btn.onclick = function() {
 			let edit_txt = document.getElementById("edit-input-div").childNodes[5].childNodes[0].value;
 			let editor = app.tab_manager.getSelectedTab().editor;
 			let edit_node = editor.path.getCurrentContext();
 			
-			edit_node.innerHTML = edit_txt + app.parser.btn;
+			edit_node.innerHTML = encodeHTML(edit_txt) + app.parser.btn;
 			editor.tree_manager.updateEvents(edit_node);
 		};
 
@@ -236,7 +254,6 @@ class EditorScreen extends Screen {
 
 	expandAll() {
 		let loading_window = new LoadingWindow().create();
-		console.log('loading_window :', loading_window);
 		
 		let details = document.querySelectorAll("details");
 		for(let i = 0; i < details.length; i++) {
@@ -709,8 +726,8 @@ class DropDown extends ScreenElement {
 		return this;
 	}
 
-	propose(pSearch, pArr) {
-		if(this.array.length == 0) this.array = pArr;
+	propose(pSearch, pArr, pReset=false) {
+		if(this.array.length == 0 || pReset) this.array = pArr;
 		this.list.addDefaultArray(this.array, pSearch);
 		return this;
 	}

@@ -32,6 +32,7 @@ class AutoCompletions {
 	 */
 	init() {
 		this.file_type = this.getFileType();
+		this.editor.file_type = this.file_type;
 		this.completion_data = this.auto_data[this.file_type];
 		console.log("Opened new file of type: " + this.file_type);
 	}
@@ -195,9 +196,11 @@ class LogicStatement {
 }
 
 class FunctionStatement {
-	constructor(pStatement, pEditor) {
+	constructor(pStatement, pEditor, pPath) {
 		this.statement = pStatement;
 		this.editor = pEditor;
+		this.path = pPath;
+		if(!pPath) this.path = this.editor.path;
 	}
 	/**
 	 * Execute the FunctionStatement
@@ -303,7 +306,11 @@ class FunctionStatement {
 		}
 		return arr;
 	}
-
+	//Helper for modules
+	$(pArg) {
+		return pArg;
+	}
+	//General logic stuff
 	$is(pArg, pArg2=this.editor.path.getCurrentContext(false)) {
 		return pArg2 == pArg;
 	}
@@ -336,12 +343,12 @@ class FunctionStatement {
 	$has_child_not(pName) {
 		return !this.$has_child(pName);
 	}
-
-	//TODO: pArg2 not supported
-	$is_path(pArg) {
-		return this.editor.path.isPath(pArg);
+	$is_path(pArg, pArg2) {
+		if(pArg2) return this.path.isPath(pArg, pArg2);
+		return this.path.isPath(pArg);
 	}
-	$is_path_not(pArg) {
+	$is_path_not(pArg, pArg2) {
+		if(pArg2) return !this.$is_path(pArg, pArg2);
 		return !this.$is_path(pArg);
 	}
 
@@ -364,17 +371,20 @@ class FunctionStatement {
 		let arr = [];
 		let dict = app.loading_system.getCachedData(pPath, pDict);
 
-		for(let key in dict){
-			if(typeof dict[key] != "function" && key != "__des__") {
-				if((typeof pPushKey == "boolean" && pPushKey) || pPushKey == "true") {
-					arr.push({ key: pPrefix + key, type: pType });
-				} else {
-					arr.push({ key: pPrefix + dict[key], type: pType });
+		if(typeof dict == "object") {
+			for(let key in dict){
+				if(typeof dict[key] != "function" && key != "__des__") {
+					if((typeof pPushKey == "boolean" && pPushKey) || pPushKey == "true") {
+						arr.push({ key: pPrefix + key, type: pType });
+					} else {
+						arr.push({ key: pPrefix + dict[key], type: pType });
+					}
 				}
 			}
+	
+			return arr;
 		}
-
-		return arr;
+		return [{ key: pPrefix + dict, type: pType }];
 	}
 
 	$next_list_index(pCap) {

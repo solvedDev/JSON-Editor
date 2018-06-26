@@ -282,6 +282,7 @@ class Editor extends ScreenElement {
 	constructor(pTab, pParent, pJSON) {
 		super(pParent, "DIV", "editor_content");
 		this.tab = pTab;
+		this.file_type;
 
 		try {
 			this.editor_content.innerHTML = app.parser.parseObj(pJSON);
@@ -326,7 +327,7 @@ class Editor extends ScreenElement {
 	 * @returns {Editor} this
 	 */
 	refresh() {
-		this.editor_content.innerHTML = app.parser.parseObj(app.parser.getObj(this.editor_content));
+		this.editor_content.innerHTML = app.parser.parseObj(app.parser.getObj(this.getObj()));
 		
 		this.tree_manager.selectElement(document.querySelector("#editor summary"), true);
 		return this;
@@ -336,7 +337,7 @@ class Editor extends ScreenElement {
 	 * @returns {Object} Content of the tab
 	 */
 	getObj() {
-		return super.getObj();
+		return this.editor_content;
 	}
 
 	/**
@@ -356,26 +357,5 @@ class Editor extends ScreenElement {
 
 	getCachedData(pPath) {
 		return app.loading_system.getCachedData(pPath);
-	}
-
-	//CONTENT EDITABLE
-	addEdit(pE) {
-		if(pE.childNodes.length == 1) pE.insertBefore(document.createTextNode("Fix me!"), pE.firstChild);
-
-		if(pE.tagName == "SUMMARY" || pE.tagName == "SPAN"){
-			pE.setAttribute("contenteditable", true);
-			//Don't delete button
-			pE.childNodes[1].setAttribute("contenteditable", false);
-		} else if(pE.tagName == "HIGHLIGHT") {
-			pE.parentElement.setAttribute("contenteditable", true);
-			//Don't delete button
-			pE.parentElement.childNodes[1].setAttribute("contenteditable", false);
-		} else {
-			console.warn("Unable to edit " + pE.tagName);
-		}
-		
-	}
-	removeEdit(pE) {
-		if(this.path.getCurrentContext() && !this.path.getCurrentContext().isSameNode(pE)) pE.setAttribute("contenteditable", false);
 	}
 }

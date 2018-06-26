@@ -154,6 +154,9 @@ class LoadingSystem extends RequestSystem {
 			for(let i = 0; i < pData.ui.length; i++) {
 				pSelf.request("data/RP/ui/" + pData.ui[i]);
 			}
+
+			//Extension
+			pSelf.request("extensions/solved_pack.json");
 		});
 	}
 }
