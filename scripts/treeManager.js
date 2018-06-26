@@ -17,7 +17,7 @@ class TreeManager {
 		//Handle old currentSelected
 		if(path.getCurrentContext() != undefined && path.getCurrentContext() != "") {
 			path.getCurrentContext().classList.remove("selected");
-			s_hl.highlight(path.getCurrentContext());
+			//s_hl.highlight(path.getCurrentContext());
 		}
 
 		//Reset path
@@ -171,10 +171,6 @@ class TreeManager {
 			node.childNodes[1].classList.add("tab");
 			div_parent.appendChild(node);
 
-			//Blur event
-			node.childNodes[0].onblur = function(e) {
-				app.tab_manager.getSelectedTab().editor.removeEdit(e.target);
-			};
 			//UPDATE PARENT COLOR
 			if(!pForce && !Number.isNaN(Number(pKey)) && this.node_system.getChildren(pParent).length == 1){
 				pParent.classList.remove("highlight-object");
@@ -205,10 +201,6 @@ class TreeManager {
 			pParent.removeAttribute("class");
 			pParent.classList.add("highlight-" + this.getType(pValue));
 			pParent.classList.add("selected");
-			//Blur event
-			span_parent.onblur = function(e) {
-				key_input.removeEdit(e.target);
-			};
 
 			pParent.parentElement.childNodes[1].classList.add("highlight-" + this.getType(pValue));
 			pParent.parentElement.childNodes[1].appendChild(span_parent);
@@ -524,9 +516,9 @@ class Path {
 	 * 		'/..' (The end of the path doesn't matter)
 	 * @param {String} pPath The path to compare this path with
 	 */
-	isPath(pPath) {
+	isPath(pPath, pOwn=this.path) {
 		let arr_path = pPath.split("/");
-		let own_arr_path = this.findRepetitivePath(this.path).split("/");
+		let own_arr_path = this.findRepetitivePath(pOwn).split("/");
 
 		let j = 0;
 		if(arr_path[0] == "..") {

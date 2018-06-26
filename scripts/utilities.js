@@ -5,7 +5,7 @@
  * Project: JSON Editor
  */
 
-String.prototype.insert = function (pString, pIndex) {
+String.prototype.insert = function(pString, pIndex) {
 	if (pIndex > 0)
 	  return this.substring(0, pIndex) + pString + this.substring(pIndex, this.length);
 	else
@@ -13,9 +13,14 @@ String.prototype.insert = function (pString, pIndex) {
 };
 String.prototype.contains = String.prototype.includes;
 
-String.prototype.removeCharAtIndex = function (pIndex) {
+String.prototype.removeCharAtIndex = function(pIndex) {
 	return this.substring(0, pIndex - 1) + this.substring(pIndex, this.length);
 };
+String.prototype.pathUp = function(pArg=1) {
+	let arr = this.split("/");
+	arr.splice(arr.length - pArg, pArg);
+	return arr.join("/");
+}
 
 Array.prototype.contains = function(pValue) {
 	return this.indexOf(pValue) > -1;
@@ -46,10 +51,14 @@ Array.prototype.removeStrings = function(pStrings) {
 	}
 }
 
-if( typeof Array.isArray !== 'function' ) {
+if(typeof Array.isArray !== 'function') {
 	Array.isArray = function( arr ) {
 		return Object.prototype.toString.call( arr ) === '[object Array]';
 	};
+}
+
+function encodeHTML(pStr) {
+    return String(pStr).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 function toggleEdits() {
@@ -120,34 +129,6 @@ function getDefault(pContext, pParentContext) {
 	}
 }
 
-
-//Remove an element: Returns whether new element was selected
-function removeElement(pElement) {
-	if(pElement.tagName == "BUTTON") pElement = pElement.parentElement;
-	if(true || window.confirm("Are you sure you want to delete the element " + pElement.innerHTML.split("<")[0] + "?")) {
-		//Remove element  |  summary/span -   details
-		let remove_element = pElement.parentElement;
-		//Context  |  summary/span -   details    -  div
-		let context = pElement.parentElement.parentElement;
-		console.log(context, remove_element);
-		context.removeChild(remove_element);
-
-		//Readd div if it got removed & select new element
-		console.log(remove_element.childNodes[0].tagName);
-		if(context.childNodes.length == 1 && remove_element.childNodes[0].tagName == "SPAN") {
-			let div = document.createElement("DIV");
-			div.classList.add("tab");
-			context.appendChild(div);
-			if(currentSelected.isSameNode(pElement)) return selectElement(context.childNodes[0], true);
-		} else if(context.childNodes.length > 0 && currentSelected.isSameNode(pElement)) {
-			return selectElement(context.childNodes[0].childNodes[0], true);
-		} else if(currentSelected.isSameNode(pElement)) {
-			return selectElement(context.parentElement.childNodes[0], true);
-		}
-	}
-	return false;
-}
-
 function findSelf(pElements, pSelf) {
 	let counter = 0;
 	while(counter < pElements.length && !pElements[counter].isSameNode(pSelf)) {
@@ -155,13 +136,4 @@ function findSelf(pElements, pSelf) {
 	}
 	if(counter < pElements.length) return counter;
 	return undefined;
-}
-
-function autoFillChildInput() {
-	/*generateOptions("");
-	if(data_list.options.length > 0){
-		child_input.value = data_list.options[0].value;
-	} else {
-		child_input.value = "";
-	}*/
 }

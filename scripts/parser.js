@@ -24,13 +24,13 @@ class Parser {
 		for(let key in pObj) {
 			if(typeof pObj[key] == "object") {
 				if(Array.isArray(pObj[key])) {
-					html += "<details><summary class='highlight-array'>" + key + this.btn + "</summary>" + this.parseObj(pObj[key]) + "</details>";
+					html += "<details><summary class='highlight-array'>" + encodeHTML(key) + this.btn + "</summary>" + this.parseObj(pObj[key]) + "</details>";
 				} else {
-					html += "<details><summary class='highlight-object'>" + key + this.btn + "</summary>" + this.parseObj(pObj[key]) + "</details>";
+					html += "<details><summary class='highlight-object'>" + encodeHTML(key) + this.btn + "</summary>" + this.parseObj(pObj[key]) + "</details>";
 				}
 				
 			} else if(typeof pObj[key] != "function") {
-				html += "<details><summary class='highlight-" + typeof pObj[key]  + "'>" + key + this.btn + "</summary><div class='tab highlight-" + typeof pObj[key]  + "'><span class='value'>" + pObj[key] + this.btn + "</span></div></details>";
+				html += "<details><summary class='highlight-" + typeof pObj[key]  + "'>" + encodeHTML(key) + this.btn + "</summary><div class='tab highlight-" + typeof pObj[key]  + "'><span class='value'>" + encodeHTML(pObj[key]) + this.btn + "</span></div></details>";
 			}
 		}
 
@@ -49,15 +49,14 @@ class Parser {
 		let obj = {};
 		let div;
 		let key;
-	
 		//Select right element to start
 		if(pFirst) {
 			div = pHTML.childNodes[0].childNodes;
-		} else if(pHTML.classList && pHTML.className == "value") {
-			return this.getAsCorrectType(pHTML.innerText);
+		} else if(pHTML && pHTML.tagName == "SPAN") {
+			return this.getAsCorrectType(pHTML.childNodes[0].data);
 		} else {
 			try {
-				key = pHTML.childNodes[0].innerText;
+				key = pHTML.childNodes[0].childNodes[0].data;
 				div = pHTML.childNodes[1].childNodes;
 			} catch(e) {
 				console.warn(e.name + ': ' + e.message);
@@ -65,7 +64,6 @@ class Parser {
 			}
 			
 		}
-	
 		//If array, change dict into array
 		if(div[0] && !isNaN(Number(this.getKey(div[0])))) {
 			obj = [];
@@ -95,6 +93,8 @@ class Parser {
 			return "boolean";
 		} else if(isNaN(Number(pString))) {
 			return "string";
+		} else if(pString == "undefined") {
+			return "undefined";
 		} else {
 			return "number";
 		}
@@ -106,7 +106,11 @@ class Parser {
 	 */
 	getKey(pNode) {
 		try {
-			return pNode.childNodes[0].innerText;
+			if(pNode.childNodes[0] && pNode.childNodes[0].childNodes[0]) {
+				return pNode.childNodes[0].childNodes[0].data;
+			} else {
+				return "";
+			}
 		} catch(e) {
 			console.error(e);
 			return "";
@@ -122,6 +126,8 @@ class Parser {
 			return pString == "true";
 		} else if(isNaN(Number(pString))) {
 			return pString;
+		} else if(pString == "undefined") {
+			return undefined;
 		} else {
 			return Number(pString);
 		}
